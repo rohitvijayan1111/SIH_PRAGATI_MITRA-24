@@ -1,0 +1,32 @@
+.event-container {
+    margin-bottom: 20px; 
+  }
+  .search-bar-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.search-bar {
+    padding: 12px 20px;
+    width: 54%;
+    border-radius: 25px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    border-color: #0056b3;
+    box-shadow: 0 6px 10px rgba(0, 91, 187, 0.15);
+}
+
+.search-bar::placeholder {
+    color: #bbb;
+    font-size: 14px;
+}
+
+.search-bar:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}

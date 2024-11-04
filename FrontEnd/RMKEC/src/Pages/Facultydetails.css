@@ -1,0 +1,101 @@
+.icon-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .edit-icon,
+  .delete-icons {
+    margin-right: 8px; 
+    cursor: pointer; 
+  }
+  
+  .delete-icons:last-child {
+    margin-right: 0; 
+  }
+  
+  .fixed-column{
+    width: 80px;
+  }
+  .react-icons {
+    font-size: 20px; 
+  }
+
+.custom-select {
+    background-color: white;
+    width: 250px;
+    padding: 6px; 
+    font-size: 16px;
+    border: 1px solid #ced4da; 
+    border-radius: 8px; 
+  }
+  
+
+.search-button {
+    background-color: #007bff;
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px;
+    width: auto;
+  }
+  
+  .search-button:hover {
+    background-color: #046cc7; 
+  }
+  
+  .bttreset{
+    background-color: #696969; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 13px; 
+    width: 70px;
+  }
+
+  .bttreset:hover {
+    background-color: #505050; 
+  }
+
+  .bttlock{
+    background-color: #FFA000; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px; 
+    width: auto;
+  }
+
+  .bttlock:hover {
+    background-color: #FF9500; 
+  }
+
+  .bttexport{
+    background-color: #28a745; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px; 
+    width: auto;
+  }
+
+  .bttexport:hover {
+    background-color: #218838; 
+  }
+
