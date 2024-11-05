@@ -1,215 +1,219 @@
 import React, { useState, useEffect, useRef } from 'react';
-import './SideBar.css';
 import { Link, useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 import faculty from '../assets/faculty.png';
 import dashboard from '../assets/dashboard.png';
 import mail from '../assets/mail.png';
-import att from '../assets/Attendance.png';
-import statistics from '../assets/statistics.png';
-import today from '../assets/today.png';
-import past from '../assets/past.png';
-import analysis from '../assets/analysis.png';
-import reserve from '../assets/reserve.png';
-import upcoming from '../assets/upcoming.png';
-import Status from '../assets/Status.png';
-import Available from '../assets/Available.png';
 import others from '../assets/others.png';
-import outingIcon from '../assets/outing.png'; 
-import RequestList from '../assets/request-list.png'; 
 import { getTokenData } from "../Pages/authUtils";
 
-function SideBar() {
-  const location = useLocation();
+// Styled Components
+
+const Container = styled.div`
+  position: relative;
+`;
+
+const MenuIcon = styled.div`
+  display: none;
+  font-size: 24px;
+  color: white;
+  cursor: pointer;
+  padding: 10px;
+  z-index: 100;
+
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    top: 15px;
+    left: 5px;
+  }
+`;
+
+const SidebarContainer = styled.div`
+  background-color: white;
+  min-height: 100vh; 
+  width: 85px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 60px;
+  left: 0;
+  z-index: 10;
+  transition: transform 0.3s ease-in-out;
+  padding-top: 20px;
+  overflow-y: auto;
+  position: fixed;
+  will-change: transform;
+  
+  @media (max-width: 768px) {
+    transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 70px;
+    z-index: 15;
+  }
+`;
+
+const SidebarList = styled.ul`
+  list-style: none;
+  padding: 0px;
+`;
+
+const SidebarItem = styled.li`
+  margin-bottom: 10px;
+`;
+
+const SidebarLink = styled(Link)`
+  font-size: 10px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 10px 5px;
+  border-radius: 5px;
+  text-decoration: none;
+  color: black;
+  font-weight: 200;
+  transition: background-color 0.3s ease-in-out;
+
+  &:hover {
+    text-decoration: none; 
+  }
+
+  &:hover {
+    background-color: #D0E8F0;
+  }
+
+  &.active {
+    background-color: #D0E8F0;
+    font-weight: bold;
+  }
+`;
+
+const SidebarImage = styled.img`
+  margin-bottom: 5px;
+`;
+
+const Overlay = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+  }
+`;
+
+const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const sidebarRef = useRef(null);
+  const location = useLocation();
   const tokenData = getTokenData();
   let user = tokenData.role;
-  
-  const [showAttendanceLinks, setShowAttendanceLinks] = useState(false);
-  const [showHallBookingLinks, setShowHallBookingLinks] = useState(false);
-  const [showOutingLinks, setShowOutingLinks] = useState(false); // New state for Outing Form
 
   const isActive = (path, exact = false) => {
-    if (exact) {
-      return location.pathname === path ? 'active' : '';
+    return exact
+      ? location.pathname === path
+        ? 'active'
+        : ''
+      : location.pathname.startsWith(path)
+      ? 'active'
+      : '';
+  };
+
+  const toggleSidebar = () => {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
+  };
+
+  const closeSidebar = (event) => {
+    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+      setIsOpen(false);
     }
-    return location.pathname.startsWith(path) ? 'active' : '';
+  };
+
+  const handleOverlayClick = () => {
+    setIsOpen(false);
+  };
+
+  const handleLinkClick = () => {
+    setIsOpen(false);
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
-        setShowAttendanceLinks(false);
-        setShowHallBookingLinks(false);
-        setShowOutingLinks(false); // Close outing form links when clicked outside
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
+    if (isOpen) {
+      document.addEventListener('mousedown', closeSidebar);
+    } else {
+      document.removeEventListener('mousedown', closeSidebar);
+    }
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('mousedown', closeSidebar);
     };
-  }, []);
-
-  useEffect(() => {
-    setShowAttendanceLinks(false);
-    setShowHallBookingLinks(false);
-    setShowOutingLinks(false); // Reset outing links when location changes
-  }, [location]);
-
-  const handleMouseEnterAttendanceLinks = () => {
-    setShowAttendanceLinks(true);
-  };
-
-  const handleMouseLeaveAttendanceLinks = () => {
-    setShowAttendanceLinks(false);
-  };
-
-  const handleMouseEnterHallBookingLinks = () => {
-    setShowHallBookingLinks(true);
-  };
-
-  const handleMouseLeaveHallBookingLinks = () => {
-    setShowHallBookingLinks(false);
-  };
-
-  const handleMouseEnterOutingLinks = () => {
-    setShowOutingLinks(true);
-  };
-
-  const handleMouseLeaveOutingLinks = () => {
-    setShowOutingLinks(false);
-  };
+  }, [isOpen]);
 
   return (
-    <div className="sidebar" ref={sidebarRef}>
-      <ul>
-        <li className={isActive('/dashboard', true)}>
-          <Link to="/dashboard">
-            <img src={dashboard} width="40px" height="40px" alt="Dashboard" />
-            Dashboard
-          </Link>
-        </li>
-        {user !== "IQAC" && (
-          <>
-            <li className='drop-down'>
-              <p onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
-                <img src={att} width="40px" height="40px" alt="Attendance" />
-                Attendance
-              </p>
-              {showAttendanceLinks && (
-                <div className="extra-links-container-att" onMouseEnter={handleMouseEnterAttendanceLinks} onMouseLeave={handleMouseLeaveAttendanceLinks}>
-                  <li className={isActive('/dashboard/Attendance_DB_Dept')}>
-                    <Link to="/dashboard/Attendance_DB_Dept">
-                      <img src={statistics} width="30px" height="30px" alt="Statistics" />
-                      Statistics
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Todays-List')}>
-                    <Link to="/dashboard/Todays-List">
-                      <img src={today} width="30px" height="30px" alt="Absentees" />
-                      Absentees
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Attendance-Log')}>
-                    <Link to="/dashboard/Attendance-Log">
-                      <img src={past} width="30px" height="30px" alt="Lecture" />
-                      Attendance<br/> Log
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Attendance-Analysis')}>
-                    <Link to="/dashboard/Attendance-Analysis">
-                      <img src={analysis} width="30px" height="30px" alt="Analysis" />
-                      Analysis
-                    </Link>
-                  </li>
-                </div>
-              )}
-            </li>
-            <li className='drop-down' onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
-              <p>
-                <img src={reserve} width="40px" height="40px" alt="Hall Booking" />
-                Hall Booking
-              </p>
-              {showHallBookingLinks && (
-                <div className="extra-links-container" onMouseEnter={handleMouseEnterHallBookingLinks} onMouseLeave={handleMouseLeaveHallBookingLinks}>
-                  <li className={isActive('/dashboard/DashBoard-Hall')}>
-                    <Link to="/dashboard/DashBoard-Hall">
-                      <img src={upcoming} width="30px" height="30px" alt="Upcoming" />
-                      Upcoming
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Request-Status')}>
-                    <Link to="/dashboard/Request-Status">
-                      <img src={Status} width="30px" height="30px" alt="Request Status" />
-                      Req Status
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Past-Events')}>
-                    <Link to="/dashboard/Past-Events">
-                      <img src={past} width="30px" height="30px" alt="Past Events" />
-                      Past Events
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Available-Halls')}>
-                    <Link to="/dashboard/Available-Halls">
-                      <img src={Available} width="30px" height="30px" alt="Available Halls" />
-                      Halls
-                    </Link>
-                  </li>
-                </div>
-              )}
-            </li>
-            <li className='drop-down' onMouseEnter={handleMouseEnterOutingLinks} onMouseLeave={handleMouseLeaveOutingLinks}>
-              <p>
-                <img src={outingIcon} width="40px" height="40px" alt="Outing Form" />
-                Outing Form
-              </p>
-              {showOutingLinks && (
-                <div className="extra-links-container-outing" onMouseEnter={handleMouseEnterOutingLinks} onMouseLeave={handleMouseLeaveOutingLinks}>
-                  <li className={isActive('/dashboard/Request-Outing')}>
-                    <Link to="/dashboard/outing-request">
-                      <img src={reserve} width="30px" height="30px" alt="Request Outing" />
-                      Request Outing
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Outing-Status')}>
-                    <Link to="/dashboard/Outing-approval">
-                      <img src={Status} width="30px" height="30px" alt="Outing Status" />
-                      Outing Status
-                    </Link>
-                  </li>
-                  <li className={isActive('/dashboard/Outing-Status')}>
-                    <Link to="/dashboard/request-list">
-                      <img src={RequestList} width="30px" height="30px" alt="Outing Status" />
-                      Request List
-                    </Link>
-                  </li>
-                </div>
-              )}
-            </li>
-          </>
-        )}
-        <li className={isActive('/dashboard/faculty-details')}>
-          <Link to="/dashboard/faculty-details">
-            <img src={faculty} width="40px" height="40px" alt="Faculty Details" />
-            Faculty Details
-          </Link>
-        </li>
-        <li className={isActive('/dashboard/mail')}>
-          <Link to="/dashboard/mail">
-            <img src={mail} width="40px" height="40px" alt="Mail" />
-            Mail
-          </Link>
-        </li>
-        <li className={isActive('/dashboard/forms')}>
-          <Link to="/dashboard/forms">
-            <img src={others} width="40px" height="40px" alt="Other Forms" />
-            Forms
-          </Link>
-        </li>
-      </ul>
-    </div>
-  );
-}
+    <Container>
+      {/* Menu Icon for mobile view */}
+      <MenuIcon onClick={toggleSidebar}>
+        <i className="fas fa-bars"></i>
+      </MenuIcon>
 
-export default SideBar;
+      {/* Overlay for capturing clicks outside the sidebar */}
+      <Overlay isOpen={isOpen} onClick={handleOverlayClick} />
+
+      {/* Sidebar with toggle for mobile view */}
+      <SidebarContainer isOpen={isOpen} ref={sidebarRef}>
+        <SidebarList>
+          <SidebarItem className={isActive('/dashboard', true)}>
+            <SidebarLink 
+              to="/dashboard" 
+              className={isActive('/dashboard', true) ? 'active' : ''} 
+              onClick={handleLinkClick}
+            >
+              <SidebarImage src={dashboard} width="40px" height="40px" alt="Dashboard" />
+              Dashboard
+            </SidebarLink>
+          </SidebarItem>
+          <SidebarItem className={isActive('/dashboard/faculty-details')}>
+            <SidebarLink 
+              to="/dashboard/faculty-details" 
+              className={isActive('/dashboard/faculty-details') ? 'active' : ''} 
+              onClick={handleLinkClick}
+            >
+              <SidebarImage src={faculty} width="40px" height="40px" alt="Faculty Details" />
+              Faculty Details
+            </SidebarLink>
+          </SidebarItem>
+          <SidebarItem className={isActive('/dashboard/mail')}>
+            <SidebarLink 
+              to="/dashboard/mail" 
+              className={isActive('/dashboard/mail') ? 'active' : ''} 
+              onClick={handleLinkClick}
+            >
+              <SidebarImage src={mail} width="40px" height="40px" alt="Mail" />
+              Mail
+            </SidebarLink>
+          </SidebarItem>
+          <SidebarItem className={isActive('/dashboard/forms')}>
+            <SidebarLink 
+              to="/dashboard/forms" 
+              className={isActive('/dashboard/forms') ? 'active' : ''} 
+              onClick={handleLinkClick}
+            >
+              <SidebarImage src={others} width="40px" height="40px" alt="Other Forms" />
+              Forms
+            </SidebarLink>
+          </SidebarItem>
+        </SidebarList>
+      </SidebarContainer>
+    </Container>
+  );
+};
+
+export default Sidebar;

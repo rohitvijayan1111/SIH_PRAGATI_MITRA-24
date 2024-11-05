@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
@@ -8,8 +9,171 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-import './OtherFormsRecords.css';
 import { getTokenData } from '../Pages/authUtils';
+
+const Container = styled.div`
+  padding: 10px;
+
+`;
+
+const TableResponsive=styled.div`
+  overflow-x: auto;
+  width:94%;
+
+  @media (max-width: 768px) {
+    width:100%;
+  }
+`;
+
+const Title = styled.h1`
+  text-align: center;
+  margin: 20px 0;
+  font-size: 1.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.25rem;
+  }
+`;
+
+const Row = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const Col = styled.div`
+  flex: 1;
+  min-width: 170px;
+  padding: 5px;
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+`;
+
+const Button = styled.button`
+  padding: 6px 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  transition: background-color 0.3s ease;
+
+  ${({ variant }) => variant === 'export' && `
+    background-color: #28a745;
+    &:hover {
+      background-color: #218838;
+    }
+  `}
+  ${({ variant }) => variant === 'search' && `
+    background-color: #007bff;
+    &:hover {
+      background-color: #046cc7;
+    }
+  `}
+  ${({ variant }) => variant === 'reset' && `
+    background-color: #696969;
+    &:hover {
+      background-color: #505050;
+    }
+  `}
+  ${({ variant }) => variant === 'lock' && `
+    background-color: #FFA000;
+    &:hover {
+      background-color: #FF9500;
+    }
+  `}
+
+  @media (max-width: 768px) {
+    width: 100%;
+    font-size: 14px;
+    padding: 8px;
+  }
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor:pointer;
+`;
+
+const CustomSelect = styled.select`
+  background-color: white;
+  width: 100%;
+  padding: 6px;
+  font-size: 16px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
+const Table = styled.table`
+  min-width: 90%;
+  width: 90%;
+  max-width: 90%;
+  border-collapse: collapse;
+  margin-top: 20px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
+
+const Th = styled.th`
+  background-color: #343a40;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
+`;
+
+const Td = styled.td`
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+
+  @media (max-width: 768px) {
+    padding: 8px;
+  }
+`;
+
+const FixedColumn = styled(Th)`
+  width: 80px;
+
+  @media (max-width: 768px) {
+    width: 60px;
+  }
+`;
+const ButtonContent=styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const Input = styled.input`
+  width: 100%;
+  padding: 6px;
+  font-size: 16px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+  }
+`;
 
 function OtherFormsRecords() {
   const navigate = useNavigate();
@@ -18,7 +182,7 @@ function OtherFormsRecords() {
   const [table] = useState(form.form_table_name);
   const tokendata = getTokenData();
   const role = tokendata.role;
-  const [dept, setDept] = useState(role === "hod" || role==="Form editor" ? tokendata.department : "All");
+  const [dept, setDept] = useState(role === "hod" || role === "Form editor" ? tokendata.department : "All");
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
@@ -178,177 +342,119 @@ function OtherFormsRecords() {
   };
 
   const formatColumnName = (name) => {
-    return name.replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    return name.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const formatDate = (date) => {
-    return dayjs(date).format('DD/MM/YYYY');
+  const handleExport = () => {
+    const worksheet = utils.json_to_sheet(data);
+    const workbook = { Sheets: { data: worksheet }, SheetNames: ['data'] };
+    writeFile(workbook, `${table}.xlsx`);
   };
 
   const handleSearch = () => {
-    if (!searchColumn || !searchValue) {
-      notifyFailure('Please select a column and enter a search value.');
-      return;
-    }
-
-    const filteredData = originalData.filter(item => {
-      const value = item[searchColumn] ? item[searchColumn].toString().toLowerCase() : '';
-
-      if (attributeTypes[searchColumn] === 'date') {
-        const formattedDate = dayjs(item[searchColumn]).format('DD/MM/YYYY');
-        return formattedDate.includes(searchValue.toLowerCase());
-      }
-
-      return value.includes(searchValue.toLowerCase());
+    if (!searchColumn || !searchValue) return;
+    const filteredData = originalData.filter((item) => {
+      const cellValue = item[searchColumn];
+      if (typeof cellValue === 'string' && cellValue.toLowerCase().includes(searchValue.toLowerCase())) return true;
+      if (typeof cellValue === 'number' && cellValue.toString().includes(searchValue)) return true;
+      return false;
     });
-
     setData(filteredData);
   };
 
-  const resetSearch = () => {
-    setData(originalData);
+  const handleReset = () => {
     setSearchColumn('');
     setSearchValue('');
-  };
-
-  const exportToExcel = () => {
-    const filteredData = data.map(item => {
-      const { id, ...filteredItem } = item;
-      return filteredItem;
-    });
-
-    const ws = utils.json_to_sheet(filteredData);
-    const wb = utils.book_new();
-    const sheetName = `${table}Data`;
-    const fileName = `${sheetName}.xlsx`;
-
-    utils.book_append_sheet(wb, ws, sheetName);
-
-    writeFile(wb, fileName);
+    setData(originalData);
   };
 
   return (
-    <div className="container">
-      <h1>{form.form_title}</h1>
-      <div className="row mb-3">
-        <div className="col">
-          <button type="button" onClick={exportToExcel} className="bttexport">Export to Excel</button>
-        </div>
-
-        <div className="col">
-          <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
-            <option value="">Select Column to Search</option>
-            {attributenames.map((name, index) => (
-              <option key={index} value={name}>{formatColumnName(name)}</option>
+    <Container>
+      <Title>{form.form_name} Form Records</Title>
+      <Row>
+        <ButtonContent>
+            <Col>
+              <Button onClick={handleAdd} variant="export">Add New Record</Button>
+            </Col>
+            <Col>
+              <Button onClick={handleExport} variant="export">Export</Button>
+            </Col>
+          </ButtonContent>
+        <Col>
+          <CustomSelect value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
+            <option value=''>Select Column</option>
+            {attributenames.map((name) => (
+              <option key={name} value={name}>{formatColumnName(name)}</option>
             ))}
-          </select>
-        </div>
+          </CustomSelect>
+        </Col>
+        <Col>
+          <Input value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder="Enter search value" />
+        </Col>
 
-        <div className="col">
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Enter search value"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </div>
-
-        <div className="col">
-          <button type="button" onClick={handleSearch} className="search-button">Search</button>
-          <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
-        </div>
-
-        {role === "IQAC" && <div className="col">
-          <button type="button" onClick={handleLock} className="bttlock">{!lockedstatus ? "Lock Form" : "Unlock Form"}</button>
-        </div>}
-
-        {(role === 'hod' || role==="Form editor") && <div className="col">
-          <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
-        </div>}
-      </div>
-
-      {data && (
-        <div className="table-responsive">
-          <table className="table table-bordered table-hover">
-            <thead className="thead-dark">
+        <ButtonContent>
+            <Col>
+              <Button onClick={handleSearch} variant="search">Search</Button>
+            </Col>
+            <Col>
+              <Button onClick={handleReset} variant="reset">Reset</Button>
+            </Col>
+        </ButtonContent>
+        {(role === "IQAC" || role === "hod") && (
+          <Col>
+            <Button onClick={handleLock} variant="lock">{lockedstatus ? 'Unlock Form' : 'Lock Form'}</Button>
+          </Col>
+        )}
+      </Row>
+        <TableResponsive>
+        <Table>
+          <thead>
             <tr>
-            {(role === "hod" || role==="Form editor") && <th rowSpan="2" className="fixed-column">Action</th>}
-            {attributenames && attributenames.map((name, index) => (
-              name === "id" ? <th rowSpan="2" key={index}>S.No</th> :
-              name === "createdAt" ? <th rowSpan="2" key={index}>Updated At</th> :
-              name === "company_details" ? (
-                <>
-                  <th  colSpan="3" key={index}>Company Details</th>
-                </>
-              ) : (
-                <th rowSpan="2" key={index}>{formatColumnName(name)}</th>
-              )
-            ))}
-          </tr>
-          <tr>
-            {attributenames && attributenames.map((name, index) => (
-              name === "company_details" ? (
-                <>
-                  <th key={`${index}-sub1`}>Company Name</th>
-                  <th key={`${index}-sub2`}>Salary Offered</th>
-                  <th key={`${index}-sub3`}>No.Of Students Placed</th>
-                </>
-              ) : (
-                <></>// Empty cell for non-"company_details" columns in the second row
-              )
-            ))}
-          </tr>
-
-            </thead>
-            <tbody>
-              {data.map((item, index) => (
-                <tr key={index}>
-                  {(role === "hod" || role==="Form editor") &&
-                    <td>
-                      <IconContext.Provider value={{ className: 'react-icons' }}>
-                        <div className="icon-container">
-                          <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
-                          <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icons" />
-                        </div>
-                      </IconContext.Provider>
-                    </td>
-                  }
-                  {attributenames.map((name, attrIndex) => (
-                    name === "id" ? <td key={attrIndex}>{index + 1}</td> :
-                    name === "company_details" ? (
-                      item.company_details ? (
-                        // Parse the JSON string into an array
-                        JSON.parse(item.company_details).map((company, companyIndex) => (
-                          <React.Fragment key={companyIndex}>
-                            <td>{company.companyName}</td>
-                            <td>{company.salaryOffered}</td>
-                            <td>{company.noOfStuPlaced}</td>
-                          </React.Fragment>
-                        ))
-                      ) : <td key={attrIndex}>No Company Data</td>
-                    )  :
-                    <td key={attrIndex}>
-                      {attributeTypes[name] === "date" ? formatDate(item[name]) :
-                       attributeTypes[name] === "timestamp" ? dayjs(item[name]).format('HH:mm DD/MM/YYYY') :
-                       (name === "website_link" || name === "website link" || name === "Website_Link" || name === "related_link") && item[name] ?
-                         <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
-                         : attributeTypes[name] === "file" ? (
-                           <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">
-                             View
-                           </a>
-                         ) : item[name]
-                      }
-                    </td>
-                  ))}
-                </tr>
+              <FixedColumn>No.</FixedColumn>
+              {attributenames.map((name) => (
+                <Th key={name}>{formatColumnName(name)}</Th>
               ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              <FixedColumn>Actions</FixedColumn>
+            </tr>
+          </thead>
+          <tbody>
+            {data.length > 0 ? (
+              data.map((item, index) => (
+                <tr key={item.id}>
+                  <Td>{index + 1}</Td>
+                  {attributenames.map((name) => (
+                    <Td key={name}>
+                      {attributeTypes[name] === 'file' && item[name] ? (
+                        <a href={`http://localhost:3000/${item[name]}`} target="_blank" rel="noopener noreferrer">Download</a>
+                      ) : attributeTypes[name] === 'link' ? (
+                        <a href={item[name]} target="_blank" rel="noopener noreferrer">{item[name]}</a>
+                      ) : name === 'submission_date' ? (
+                        dayjs(item[name]).format('DD-MM-YYYY')
+                      ) : (
+                        item[name]
+                      )}
+                    </Td>
+                  ))}
+                  <Td>
+                    <IconContext.Provider value={{ className: "action-icon" }}>
+                      <IconContainer>
+                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} />
+                        <BsFillTrashFill onClick={() => handleDelete(item.id)} />
+                      </IconContainer>
+                    </IconContext.Provider>
+                  </Td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <Td colSpan={attributenames.length + 2}>No data available</Td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </TableResponsive>
       <ToastContainer />
-    </div>
+    </Container>
   );
 }
 

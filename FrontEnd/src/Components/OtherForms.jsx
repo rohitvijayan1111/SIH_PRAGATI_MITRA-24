@@ -1,19 +1,111 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Container, Table, Button, Row } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import { getTokenData } from '../Pages/authUtils';
-import './OtherForms.css'
 import dayjs from 'dayjs';
+import styled from 'styled-components';
+
+const Container = styled.div`
+  padding: 1rem;
+  max-width: 1200px;
+  margin: auto;
+`;
+
+const Title = styled.h1`
+  text-align: center;
+  margin-bottom: 20px;
+`;
+
+const AddButton = styled.button`
+  background-color: #008CBA;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  max-width: 200px;
+  margin: 10px auto;
+
+  &:hover {
+    background-color: #0074A2;
+  }
+`;
+
+const StyledTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+
+  th, td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+  }
+
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+
+  @media (max-width: 768px) {
+    td, th {
+      padding: 8px;
+    }
+  }
+`;
+
+const ButtonGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+`;
+
+const ViewButton = styled.button`
+  background-color: #008CBA; /* Blue */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0074A2;
+  }
+`;
+
+const ActionButton = styled.button`
+  background-color: #FFD700; /* Yellow */
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #FFC107;
+  }
+`;
+
 const OtherForms = () => {
     const navigate = useNavigate();
     const [forms, setForms] = useState([]);
     const [lockedStatus, setLockedStatus] = useState({});
-    const tokendata=getTokenData();
+    const tokendata = getTokenData();
     const role = tokendata.role;
-    console.log(forms);
+
     const notifyfailure = (error) => {
         toast.error(error, {
             position: "top-center",
@@ -38,7 +130,6 @@ const OtherForms = () => {
                 const response = await axios.post('http://localhost:3000/forms/getformlist', {});
                 const formsData = response.data;
                 setForms(formsData);
-                console.log(response.data);
                 const initialLockStatus = formsData.reduce((acc, form) => {
                     acc[form.id] = form.is_locked;
                     return acc;
@@ -51,6 +142,7 @@ const OtherForms = () => {
 
         fetchForms();
     }, []);
+
     const handleLock = async (formId) => {
         Swal.fire({
             title: 'Do you want to change the lock status of this form?',
@@ -59,7 +151,7 @@ const OtherForms = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await axios.post('http://localhost:3000/tables/locktable', { id: formId, lock: !lockedStatus[formId] });
+                    await axios.post('http://localhost:3000/tables/locktable', { id: formId, lock: !lockedStatus[formId] });
                     setLockedStatus(prevState => ({ ...prevState, [formId]: !lockedStatus[formId] }));
                     Swal.fire(`${lockedStatus[formId] ? 'Unlocked' : 'Locked'}!`, '', 'success');
                 } catch (error) {
@@ -69,6 +161,7 @@ const OtherForms = () => {
             }
         });
     };
+
     const handleDeadline = (formId) => {
         const form = forms.find(f => f.id === formId);
         if (form) {
@@ -83,6 +176,7 @@ const OtherForms = () => {
             notifyfailure("Form not found");
         }
     };
+
     const handleTask = (formId) => {
         const form = forms.find(f => f.id === formId);
         if (form) {
@@ -91,64 +185,62 @@ const OtherForms = () => {
                     formId: formId,
                     title: form.form_title,
                     usersgroup: form.usergroup,
-                    form:form
+                    form: form
                 }
             });
         } else {
-            notifyfailure("Could not Navigate to that page");
+            notifyfailure("Could not navigate to that page");
         }
     };
-    function handleDeleteForm(formId, formName,tableName) {
+
+    const handleDeleteForm = (formId, formName, tableName) => {
         Swal.fire({
-          title: `Do you want to delete the ${formName} form?`,
-          text: `Please type "delete ${formName}" to confirm.`,
-          input: 'text',
-          inputPlaceholder: `delete ${formName}`,
-          showCancelButton: true,
-          confirmButtonText: 'Delete',
-          cancelButtonText: 'Cancel',
-          preConfirm: (inputValue) => {
-            if (inputValue !== `delete ${formName}`) {
-              Swal.showValidationMessage(`You need to type "delete ${formName}" to confirm.`);
+            title: `Do you want to delete the ${formName} form?`,
+            text: `Please type "delete ${formName}" to confirm.`,
+            input: 'text',
+            inputPlaceholder: `delete ${formName}`,
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            preConfirm: (inputValue) => {
+                if (inputValue !== `delete ${formName}`) {
+                    Swal.showValidationMessage(`You need to type "delete ${formName}" to confirm.`);
+                }
+                return inputValue === `delete ${formName}`;
             }
-            return inputValue === `delete ${formName}`;
-          }
         }).then((result) => {
-          if (result.isConfirmed) {
-            console.log("From is going to be deleted");
-            axios.post('http://localhost:3000/tables/delete', {formId,tableName})
-              .then((response) => {
-                Swal.fire('Deleted!', `The form "${formName}" has been deleted.`, 'success');
-                setForms((prevForms) => prevForms.filter((form) => form.id !== formId));
-              })
-              .catch((error) => {
-                Swal.fire('Error!', 'There was an issue deleting the form. Please try again.', 'error');
-              });
-          }
+            if (result.isConfirmed) {
+                axios.post('http://localhost:3000/tables/delete', { formId, tableName })
+                    .then(() => {
+                        Swal.fire('Deleted!', `The form "${formName}" has been deleted.`, 'success');
+                        setForms((prevForms) => prevForms.filter((form) => form.id !== formId));
+                    })
+                    .catch(() => {
+                        Swal.fire('Error!', 'There was an issue deleting the form. Please try again.', 'error');
+                    });
+            }
         });
-        
-      }
-   function handleView(form){
-    navigate("form-records", { state: { form: form} });
-   }
-   function handleUsers(form){
-    navigate("Manage-Assigned-Users", { state: { form: form,department:tokendata.department} });
-   }
+    };
+
+    const handleView = (form) => {
+        navigate("form-records", { state: { form: form } });
+    };
+
+    const handleUsers = (form) => {
+        navigate("Manage-Assigned-Users", { state: { form: form, department: tokendata.department } });
+    };
 
     return (
-        <>
-        <h1>Form List</h1>
         <Container>
-                {role === 'IQAC' && (  
-                    <div className="below" onClick={handleAdd} >Add Form</div>
-                )}
-            <Table striped bordered hover>
+            <Title>Form List</Title>
+            {role === 'IQAC' && <AddButton onClick={handleAdd}>Add Form</AddButton>}
+            <StyledTable>
                 <thead>
                     <tr>
-                        <th style={{ width: '10%' }}>S.No</th>
-                        <th style={{ width: '30%' }}>Form Title</th>
-                        <th style={{ width: '20%' }}>Deadline</th>
-                        <th style={{ width: '40%' }}>Action</th>
+                        <th>S.No</th>
+                        <th>Form Title</th>
+                        <th>Deadline</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -158,33 +250,31 @@ const OtherForms = () => {
                             <td>{form.form_title}</td>
                             <td>{form.deadline ? dayjs(form.deadline).format("HH:mm DD-MM-YYYY") : "No deadline"}</td>
                             <td>
-                                <Button variant="primary" onClick={() => handleView(form)}>View</Button>
-                                {' '}
-                                {role==="hod" && (
-                                    <>
-                                    <Button variant="warning" onClick={()=>handleTask(form.id)}>Assign Task</Button>
-                                    <Button variant="warning" onClick={()=>handleUsers(form)}>Manage Users</Button>
-                                    </>
-                                )}
-                                {role === 'IQAC'&& (
-                                    <>
-                                    <Button variant="danger" onClick={() => handleLock(form.id)}>
-                                        {lockedStatus[form.id] ? 'Unlock Form' : 'Lock Form'}
-                                    </Button>
-                                    <Button variant="warning" onClick={()=>handleDeadline(form.id)}>Set Deadline</Button>
-                                    <Button variant="danger" onClick={() => handleDeleteForm(form.id,form.form_title,form.form_table_name)}>
-                                        Delete Form
-                                    </Button>
-                                    </>
-                                )}
+                                <ButtonGroup>
+                                    <ViewButton onClick={() => handleView(form)}>View</ViewButton>
+                                    {role === "hod" && (
+                                        <>
+                                            <ActionButton onClick={() => handleTask(form.id)}>Assign Task</ActionButton>
+                                            <ActionButton onClick={() => handleUsers(form)}>Manage Users</ActionButton>
+                                        </>
+                                    )}
+                                    {role === 'IQAC' && (
+                                        <>
+                                            <ActionButton onClick={() => handleLock(form.id)}>
+                                                {lockedStatus[form.id] ? 'Unlock Form' : 'Lock Form'}
+                                            </ActionButton>
+                                            <ActionButton onClick={() => handleDeadline(form.id)}>Set Deadline</ActionButton>
+                                            <ActionButton onClick={() => handleDeleteForm(form.id, form.form_title, form.form_table_name)}>Delete Form</ActionButton>
+                                        </>
+                                    )}
+                                </ButtonGroup>
                             </td>
                         </tr>
                     ))}
                 </tbody>
-            </Table>
+            </StyledTable>
             <ToastContainer />
         </Container>
-        </>
     );
 };
 

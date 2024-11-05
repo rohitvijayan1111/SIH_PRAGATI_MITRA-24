@@ -11,3 +11,11 @@
 .er{
     display: flex;
 }
+
+.pr{
+    margin-left: 85px;
+    width: 100%;
+    @media (max-width: 480px) {
+        margin-left:0px;
+      }
+}

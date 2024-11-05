@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import {jwtDecode} from 'jwt-decode'; 
-import './LoginPage.css';
+import styled from 'styled-components';
 import axios from 'axios';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
-import logo from '../assets/Logo.png';
+import logo from '../assets/pragati.png';
 import refresh from '../assets/refresh.png';
+import 'react-toastify/dist/ReactToastify.css';
+import backgroundImg from '../assets/pragati-bg.jpg';
 
 function LoginPage() {
   const [username, setUsername] = useState('');
@@ -68,7 +70,7 @@ function LoginPage() {
       const { token } = response.data;
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('loggedIn', 'true');
-      const decodedToken = jwtDecode(token);
+      const decodedToken = jwtDecode(token);  
       const role = decodedToken.role;
       notifysuccess();
       setTimeout(() => {
@@ -114,14 +116,15 @@ function LoginPage() {
   };
   
   return (
-    <GoogleOAuthProvider clientId="6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com">
-      <div className='loginpage'>
-        <div className="login-form">
-          <div className="flower-logo">
+    <GoogleOAuthProvider clientId="YOUR_CLIENT_ID">
+      <LoginPageContainer>
+        <LoginForm>
+          <LogoContainer>
             <img src={logo} alt="Logo" />
-          </div>
+            <CompanyName>PRAGATI<br></br> MITRA</CompanyName>
+          </LogoContainer>
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+            <FormGroup>
               <input
                 type="text"
                 id="username"
@@ -129,8 +132,8 @@ function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />
-            </div>
-            <div className="form-group">
+            </FormGroup>
+            <FormGroup>
               <input
                 type="password"
                 id="password"
@@ -138,9 +141,9 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
-            <div className="form-group">
-              <div className='captcha'>
+            </FormGroup>
+            <FormGroup>
+              <CaptchaContainer>
                 {captcha}
                 <img
                   src={refresh}
@@ -148,31 +151,220 @@ function LoginPage() {
                   width="20px"
                   height="20px"
                   alt="refresh captcha"
-                  style={{ cursor: 'pointer' }}
                 />
-              </div>
+              </CaptchaContainer>
               <input
                 type="text"
-                id="s"
+                id="captcha"
                 placeholder="Enter Captcha"
                 value={random}
                 onChange={(e) => setRandom(e.target.value)}
               />
-            </div>
-            <button type="submit">Sign in</button>
+            </FormGroup>
+            <SubmitButton type="submit">Sign in</SubmitButton>
           </form>
-
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={() => notifyfailure('Google Sign-In Failed')}
-            useOneTap
-          />
-
-        </div>
+          <GoogleLoginButtonWrapper>
+            <GoogleLogin
+              onSuccess={handleGoogleLogin}
+              onError={() => notifyfailure('Google Sign-In Failed')}
+              useOneTap
+            />
+          </GoogleLoginButtonWrapper>
+        </LoginForm>
         <ToastContainer />
-      </div>
+      </LoginPageContainer>
     </GoogleOAuthProvider>
   );
 }
 
 export default LoginPage;
+
+// Updated Styled Components with Responsive Design
+const LoginPageContainer = styled.div`
+  background-image: url(${backgroundImg});
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 10%; /* Left-aligned on larger screens */
+
+  @media (max-width: 768px) {
+    justify-content: center; /* Center on tablet */
+    padding-left: 0;
+  }
+`;
+
+const LoginForm = styled.div`
+  background-color: rgba(244, 244, 244, 0.9);
+  padding: 40px 20px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media (max-width: 768px) {
+    padding: 30px 15px;
+    width: 280px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 40px 20px;
+    width: 70%;
+  }
+`;
+
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+
+  img {
+    width: 120px;
+    height: auto;
+    border-radius: 20px;
+  }
+
+  @media (max-width: 768px) {
+    img {
+      width: 90px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    img {
+      width: 80px;
+    }
+  }
+`;
+
+const CompanyName = styled.div`
+  font-size: 34px;
+  font-weight: bold;
+  text-align:center;
+  color: #164863;
+  margin-left: 15px;
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 22px;
+  }
+`;
+
+const FormGroup = styled.div`
+  width: 100%;
+  margin-bottom: 15px;
+
+  input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+
+  @media (max-width: 768px) {
+    input {
+      padding: 8px;
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    input {
+      padding: 6px;
+      font-size: 13px;
+    }
+  }
+`;
+
+const CaptchaContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: white;
+  margin-bottom: 15px;
+  user-select: none;
+  font-size: 24px;
+  border-radius: 5px;
+  padding: 8px;
+
+  img {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 20px;
+    padding: 6px;
+
+    img {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    font-size: 18px;
+    padding: 5px;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+`;
+
+const SubmitButton = styled.button`
+  
+  &:hover {
+    background-color: #144508;
+  }
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    padding: 10px 15px;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 13px;
+    margin-left:-10px;
+    padding: 8px 10px;
+  }
+`;
+
+const GoogleLoginButtonWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+
+  > div {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  @media (max-width: 768px) {
+    > div {
+      width: 90%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    > div {
+      width: 85%;
+    }
+  }
+`;
