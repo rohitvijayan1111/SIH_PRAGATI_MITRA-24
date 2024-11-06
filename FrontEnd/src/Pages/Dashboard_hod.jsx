@@ -1,18 +1,100 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import './Dashboard_hod.css';
+import styled from 'styled-components';
 import PieChartComponent from '../Components/Department-Component/FacultyCountPieChart';
 import StudentCountPieChart from '../Components/Department-Component/StudentsCountPieChart';
 import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
-import {Link} from 'react-router-dom'; 
+import { Link, Navigate } from 'react-router-dom'; 
 import { getTokenData } from './authUtils';
+
+const DashboardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+`;
+
+const DropDown = styled.select`
+  margin: 10px;
+  background-color: #4D4D4D;
+  border-radius: 8px;
+  color: white;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    background-color: #3c3c3c;
+  }
+  &:focus {
+    outline: none;
+  }
+`;
+
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1400px;
+  padding: 20px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+const GridItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: white;
+  border-radius: 40px;
+  height: 450px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const Title = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: powderblue;
+  margin-bottom: 10px;
+`;
+
+const CuteButton = styled.button`
+  margin-top: 10px;
+  background-color: #164863;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  &:hover {
+    background-color: #133b5c;
+    transform: translateY(-2px);
+  }
+  &:active {
+    background-color: #164863;
+    transform: translateY(0);
+  }
+`;
 
 function DashBoard_hod() {
   const tokenData = getTokenData();
-    if (!tokenData) {
-      return <Navigate to="/" />;
-    }
-    const {department} = tokenData;
+  if (!tokenData) {
+    return <Navigate to="/" />;
+  }
+  const { department } = tokenData;
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
   const [studentDetails, setStudentDetails] = useState([]);
@@ -34,7 +116,6 @@ function DashBoard_hod() {
         console.error('Error fetching academic years:', error);
       }
     }
-
     fetchData();
   }, []);
 
@@ -54,31 +135,26 @@ function DashBoard_hod() {
     }
   };
 
-  const transformData = (data) => {
-    return [
-      { status: 'Placed', students: data.placed_students },
-      { status: 'Yet Placed', students: data.yet_placed_students },
-      { status: 'HS', students: data.higher_studies_students },
-    ];
-  };
+  const transformData = (data) => [
+    { status: 'Placed', students: data.placed_students },
+    { status: 'Yet Placed', students: data.yet_placed_students },
+    { status: 'HS', students: data.higher_studies_students },
+  ];
 
   const fetchStaffData = async () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/staffgraph", { dept: department });
-      const transformedData = transformStaffData(response.data);
-      setFacultyDetails(transformedData);
+      setFacultyDetails(transformStaffData(response.data));
     } catch (error) {
       console.error('Error fetching staff data:', error);
     }
   };
-  //TO FIX HERE
-  const transformStaffData = (data) => {
-    return [
-      { name: "Professor", value: data.Assistant_Professor},
-      { name: "Associate Professor", value: data.Associate_Professor},
-      { name: "Assistant Professor", value: data.Assistant_Professor},
-    ];
-  };
+
+  const transformStaffData = (data) => [
+    { name: "Professor", value: data.Professor },
+    { name: "Associate Professor", value: data.Associate_Professor },
+    { name: "Assistant Professor", value: data.Assistant_Professor },
+  ];
 
   const fetchStudentyrsData = async (year) => {
     try {
@@ -89,49 +165,36 @@ function DashBoard_hod() {
     }
   };
 
-  const transformYrsData = (data) => {
-    return [
-      { name: "1st Year", value: data.firstyear },
-      { name: "2nd Year", value: data.secondyear },
-      { name: "3rd Year", value: data.thirdyear },
-      { name: "4th Year", value: data.fourthyear }
-    ];
-  };
+  const transformYrsData = (data) => [
+    { name: "1st Year", value: data.firstyear },
+    { name: "2nd Year", value: data.secondyear },
+    { name: "3rd Year", value: data.thirdyear },
+    { name: "4th Year", value: data.fourthyear },
+  ];
 
   return (
-    <div>
-      <select className='dropbutton' value={selectedYear} onChange={handleYearChange}> 
+    <DashboardContainer>
+      <DropDown value={selectedYear} onChange={handleYearChange}>
         {academicYears.map((year, index) => (
           <option key={index} value={year}>{year}</option>
-        ))} 
-      </select>
+        ))}
+      </DropDown>
 
-      <div className="grid-container">
-        <div className='home-grid-db'>
-          <GridItem title="Faculty">
-            <PieChartComponent data={facultyDetails} />
-          </GridItem>
-          <GridItem title="Placement">
-            <PlacementBarGraph Details={studentDetails} />
-            <Link to="Placements">
-                <button className="cute-button">View</button>
-            </Link>
-          </GridItem>
-          <GridItem title="Student">
-            <StudentCountPieChart data={studentYrsDetails} />
-          </GridItem>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function GridItem({ title, children }) {
-  return (
-    <div className="grid-item-db">
-      <h3 className="grid-item-db-title">{title}</h3>
-      {children}
-    </div>
+      <GridContainer>
+        <GridItem>
+          <Title>Faculty</Title>
+          <PieChartComponent data={facultyDetails} />
+        </GridItem>
+        <GridItem>
+          <Title>Placement</Title>
+          <PlacementBarGraph Details={studentDetails} />
+        </GridItem>
+        <GridItem>
+          <Title>Student</Title>
+          <StudentCountPieChart data={studentYrsDetails} />
+        </GridItem>
+      </GridContainer>
+    </DashboardContainer>
   );
 }
 

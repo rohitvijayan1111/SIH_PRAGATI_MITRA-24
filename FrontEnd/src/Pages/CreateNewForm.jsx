@@ -1,30 +1,167 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import { Form, Button, Container, Row, Col, Table } from 'react-bootstrap';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { getTokenData } from './authUtils';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel'; 
-import { styled } from '@mui/material/styles';
+import { styled as muiStyled } from '@mui/material/styles';
+import styled from 'styled-components';
+
+const StyledContainer = styled.div`
+    max-width: 700px;
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    @media (max-width: 576px) {
+        padding: 20px;
+        max-width: 90%;
+    }
+`;
+
+const Title = styled.h1`
+    color: #343a40;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2rem;
+    @media (max-width: 576px) {
+        font-size: 1.5rem;
+    }
+`;
+
+const StyledFormLabel = styled.label`
+    font-size: 1rem;
+    color: #343a40;
+    margin-bottom: 5px;
+    display: block;
+`;
+
+const StyledFormControl = styled.input`
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    &:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+    }
+    @media (max-width: 576px) {
+        font-size: 0.9rem;
+    }
+`;
+
+const StyledSelect = styled.select`
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    font-size: 1rem;
+    &:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+    }
+    @media (max-width: 576px) {
+        font-size: 0.9rem;
+    }
+`;
+
+const StyledButton = styled.button`
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    &:hover {
+        background-color: #0056b3;
+    }
+    @media (max-width: 576px) {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+`;
+
+const StyledTable = styled.table`
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    border-collapse: separate;
+    width: 100%;
+    margin-top: 20px;
+    th, td {
+        border: none;
+        padding: 15px;
+        text-align: center;
+    }
+    thead th {
+        background-color: #007bff;
+        color: #ffffff;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    tbody tr:nth-child(odd) {
+        background-color: #f2f2f2;
+    }
+    tbody tr:hover {
+        background-color: #e9ecef;
+    }
+    @media (max-width: 576px) {
+        th, td {
+            padding: 10px;
+        }
+    }
+`;
+
+const ErrorAlert = styled.div`
+    margin-top: 10px;
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 5px;
+`;
+
+const CustomCheckbox = muiStyled(Checkbox)(({ theme }) => ({
+    color: theme.palette.primary.main, 
+    '&.Mui-checked': {
+        color: theme.palette.primary.dark, 
+    },
+    '&:hover': {
+        backgroundColor: 'transparent', 
+    },
+    '& .MuiSvgIcon-root': {
+        width: 15, 
+        height: 15,
+    },
+}));
 
 const CreateNewForm = () => {
     const [formName, setFormName] = useState('');
-    const [attributes, setAttributes] = useState([{ name: 'department', type: 'text' }]); // Default attribute
+    const [attributes, setAttributes] = useState([{ name: 'department', type: 'text' }]);
     const [attributeName, setAttributeName] = useState('');
     const [attributeType, setAttributeType] = useState('text');
     const [error, setError] = useState('');
     const tokendata = getTokenData();
     const role = tokendata.role;
 
-    // Usergroup related states
-    const [to, setTo] = useState(''); // For additional email input
+    const [to, setTo] = useState('');
     const [selectAll, setSelectAll] = useState(false);
     const [senderlist, setSenderList] = useState([
         { id: 1, text: 'rohitvijayan1111@gmail.com', checked: false, dept: 'ADS' },
         { id: 2, text: 'broh22012.it@rmkec.ac.in', checked: false, dept: 'CIVIL' },
         { id: 3, text: 'like22050.it@rmkec.ac.in', checked: false, dept: 'CSBS' },
-        // Add more emails as needed
     ]);
 
     const notifySuccess = (msg) => {
@@ -35,7 +172,6 @@ const CreateNewForm = () => {
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
-            progress: undefined,
             theme: "colored",
             transition: Zoom,
         });
@@ -49,7 +185,6 @@ const CreateNewForm = () => {
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
-            progress: undefined,
             theme: "colored",
             transition: Zoom,
         });
@@ -125,85 +260,52 @@ const CreateNewForm = () => {
             const response = await axios.post('http://localhost:3000/tables/create-table', newForm);
             notifySuccess(response.data);
         } catch (error) {
-            if (error.response) {
-                console.log(error.response.data);
-                notifyFailure(error.response.data);
-            } else if (error.request) {
-                notifyFailure('No response from server');
-            } else {
-                console.log(error.response.message);
-                notifyFailure(error.message);
-            }
+            notifyFailure(error.response ? error.response.data : 'No response from server');
         }
     };
 
-    const CustomCheckbox = styled(Checkbox)(({ theme }) => ({
-        color: theme.palette.primary.main, 
-        '&.Mui-checked': {
-            color: theme.palette.primary.dark, 
-        },
-        '&:hover': {
-            backgroundColor: 'transparent', 
-        },
-        '& .MuiSvgIcon-root': {
-            width: 15, 
-            height: 15,
-        },
-    }));
-
     return (
-        <Container>
+        <StyledContainer>
             {role === 'IQAC' ? (
-                <Row>
-                    <Col>
-                        <h1>Create Form</h1>
-                        <Form>
-                            <Form.Group>
-                                <Form.Label>Form Name</Form.Label>
-                                <Form.Control 
-                                    type="text" 
-                                    value={formName} 
-                                    onChange={(e) => setFormName(e.target.value)} 
+                <>
+                    <Title>Create Form</Title>
+                    <form>
+                        <div>
+                            <StyledFormLabel>Form Name</StyledFormLabel>
+                            <StyledFormControl
+                                type="text"
+                                value={formName}
+                                onChange={(e) => setFormName(e.target.value)}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <div style={{ flex: 1, marginRight: '10px' }}>
+                                <StyledFormLabel>Attribute Name</StyledFormLabel>
+                                <StyledFormControl
+                                    type="text"
+                                    value={attributeName}
+                                    onChange={(e) => setAttributeName(e.target.value)}
                                 />
-                            </Form.Group>
-                            <Row>
-                                <Col>
-                                    <Form.Group>
-                                        <Form.Label>Attribute Name</Form.Label>
-                                        <Form.Control 
-                                            type="text" 
-                                            value={attributeName} 
-                                            onChange={(e) => setAttributeName(e.target.value)} 
-                                        />
-                                    </Form.Group>
-                                </Col>
-                                <Col>
-                                    <Form.Group>
-                                        <Form.Label>Attribute Type</Form.Label>
-                                        <Form.Control 
-                                            as="select" 
-                                            value={attributeType} 
-                                            onChange={(e) => setAttributeType(e.target.value)}
-                                        >
-                                            <option value="text">Text</option>
-                                            <option value="number">Number</option>
-                                            <option value="date">Date</option>
-                                            <option value="boolean">Boolean</option>
-                                            <option value="file">File</option>
-                                            <option value="link">Link</option>
-                                        </Form.Control>
-                                    </Form.Group>
-                                </Col>
-                                <Col className="align-self-end">
-                                    <Button variant="primary" onClick={addAttribute}>
-                                        Add Attribute
-                                    </Button>
-                                </Col>
-                            </Row>
-                        </Form>
-                        {error && <div className="alert alert-danger" role="alert">{error}</div>}
+                            </div>
+                            <div style={{ flex: 1, marginLeft: '10px' }}>
+                                <StyledFormLabel>Attribute Type</StyledFormLabel>
+                                <StyledSelect 
+                                    value={attributeType} 
+                                    onChange={(e) => setAttributeType(e.target.value)}
+                                >
+                                    <option value="text">Text</option>
+                                    <option value="number">Number</option>
+                                    <option value="date">Date</option>
+                                    <option value="boolean">Boolean</option>
+                                    <option value="file">File</option>
+                                    <option value="link">Link</option>
+                                </StyledSelect>
+                            </div>
+                        </div>
+                        <StyledButton onClick={addAttribute}>Add Attribute</StyledButton>
+                        {error && <ErrorAlert>{error}</ErrorAlert>}
 
-                        <Table striped bordered hover style={{ marginTop: '20px' }}>
+                        <StyledTable>
                             <thead>
                                 <tr>
                                     <th>Attribute Name</th>
@@ -217,22 +319,21 @@ const CreateNewForm = () => {
                                         <td>{attribute.name}</td>
                                         <td>{attribute.type}</td>
                                         <td>
-                                            <Button 
-                                                variant="danger" 
+                                            <StyledButton
                                                 onClick={() => removeAttribute(index)}
-                                                disabled={attribute.name === 'department'} // Disable button for "department"
+                                                disabled={attribute.name === 'department'}
                                             >
                                                 Remove
-                                            </Button>
+                                            </StyledButton>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
-                        </Table>
+                        </StyledTable>
 
-                        {/* Usergroup selection and additional emails */}
-                        <Form.Group>
-                            <Form.Label>Select User Groups</Form.Label>
+                        {/* Usergroup selection */}
+                        <div>
+                            <StyledFormLabel>Select User Groups</StyledFormLabel>
                             <ul>
                                 <li>
                                     <FormControlLabel
@@ -249,28 +350,25 @@ const CreateNewForm = () => {
                                     </li>
                                 ))}
                             </ul>
-                        </Form.Group>
+                        </div>
 
-                        <Form.Group>
-                            <Form.Label>Other Recipient Emails (comma-separated)</Form.Label>
-                            <Form.Control 
-                                type="email" 
-                                placeholder="Other Recipient Emails" 
-                                value={to} 
-                                onChange={(e) => setTo(e.target.value)} 
+                        <div>
+                            <StyledFormLabel>Other Recipient Emails (comma-separated)</StyledFormLabel>
+                            <StyledFormControl
+                                type="email"
+                                value={to}
+                                onChange={(e) => setTo(e.target.value)}
                             />
-                        </Form.Group>
+                        </div>
 
-                        <Button variant="success" onClick={handleSubmit} style={{ marginTop: '10px' }}>
-                            Submit
-                        </Button>
-                        <ToastContainer />
-                    </Col>
-                </Row>
+                        <StyledButton onClick={handleSubmit}>Create Form</StyledButton>
+                    </form>
+                    <ToastContainer />
+                </>
             ) : (
-                <h1>Wrong User, GO back</h1>
+                <div>Access Denied</div>
             )}
-        </Container>
+        </StyledContainer>
     );
 };
 

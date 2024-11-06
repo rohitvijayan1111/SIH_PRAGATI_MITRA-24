@@ -5,7 +5,9 @@ import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
 import './Dashboard_admin.css';
 import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
 import DepartmentList from '../Components/Admin-Component/DepartmentList';
-import {Link} from 'react-router-dom'; 
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+
 const Dashboard_admin = () => {
   const [adminacademicYears, setadminAcademicYears] = useState([]);
   const [adminselectedYear, setadminSelectedYear] = useState('');
@@ -61,6 +63,7 @@ const Dashboard_admin = () => {
       console.error('Error fetching student data:', error);
     }
   };
+
   const departmentMapping = {
     'Artificial Intelligence and Data Science': 'AD',
     'Computer Science and Business Systems': 'CB',
@@ -73,6 +76,7 @@ const Dashboard_admin = () => {
     'Information Technology': 'IT',
     'Mechanical Engineering': 'ME',
   };
+
   const transformData = (data) => {
     return data.map((item) => ({
       name: departmentMapping[item.department] || item.department, 
@@ -80,8 +84,8 @@ const Dashboard_admin = () => {
       NotPlaced: item.yet_placed_students,
       HS: item.higher_studies_students,
     }));
-    
   };
+
   const fetchadminStaffData = async () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstaffgraph", {});
@@ -97,12 +101,13 @@ const Dashboard_admin = () => {
   const transformadminstaffData = (data) => {
     return data.map((item) => ({
       name: departmentMapping[item.department] || item.department, 
-    value: item.Professor + item.Associate_Professor + item.Assistant_Professor,
-    Professor: item.Professor,
-    Associate_Professor: item.Associate_Professor,
-    Assistant_Professor: item.Assistant_Professor
+      value: item.Professor + item.Associate_Professor + item.Assistant_Professor,
+      Professor: item.Professor,
+      Associate_Professor: item.Associate_Professor,
+      Assistant_Professor: item.Assistant_Professor
     }));
   };
+
   const fetchadminStudentyrsData = async () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstudentsyrsgraph", {});
@@ -111,54 +116,176 @@ const Dashboard_admin = () => {
       console.error('Error fetching student data:', error);
     }
   };
-  
+
   const transformadminyrsData = (data) => {
     return data.map((item) => ({
       name: departmentMapping[item.department] || item.department,
-      value:item.firstyearcount+item.secondyearcount+item.thirdyearcount+item.fourthyearcount,
-      First_year:item.firstyearcount,
-      Second_year:item.secondyearcount,
-      Third_year:item.thirdyearcount,
+      value: item.firstyearcount + item.secondyearcount + item.thirdyearcount + item.fourthyearcount,
+      First_year: item.firstyearcount,
+      Second_year: item.secondyearcount,
+      Third_year: item.thirdyearcount,
       Fourth_year: item.fourthyearcount,
     }));
-
   };
 
   return (
     <div>
-      <select className='dropbutton' value={adminselectedYear} onChange={handleYearChange}>
+      <DropDownButton value={adminselectedYear} onChange={handleYearChange}>
         {adminacademicYears.map((year, index) => (
           <option key={index} value={year}>{year}</option>
         ))}
-      </select>
-      <div className="grid-containers">
-        <div className="home-grid-club">
+      </DropDownButton>
+      <GridContainer>
+        <GridWrapper>
           <GridItem title="Faculty">
-            <PrincipalFPC data={adminfacultyDetails}/>
+          <Title>Faculty</Title>
+            <PrincipalFPC data={adminfacultyDetails} />
           </GridItem>
-          <GridItem title="Placement" >
-            <PrincipalBC data={adminstudentDetails}/>
-            <Link to="placements">
-                <button className="cute-button">View</button>
-            </Link>
+          <GridItem title="Placement">
+          <Title>Placement</Title>
+            <PrincipalBC data={adminstudentDetails} />
           </GridItem>
           <GridItem title="Student">
-          <PrincipalSPC data={adminstudentYrsDetails}/>
+          <Title>Student</Title>
+            <PrincipalSPC data={adminstudentYrsDetails} />
           </GridItem>
-        </div>
-      </div>
-      <DepartmentList/>
+        </GridWrapper>
+      </GridContainer>
+      <DepartmentList />
     </div>
   );
 };
 
-function GridItem({ title, children }) {
-  return (
-    <div className="grid-item-ca">
-      <h3 className="grid-item-ca-title">{title}</h3>
-      {children}
-    </div>
-  );
-}
+const GridContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+
+  @media (max-width: 768px) {
+    padding: 10px;
+    width: 90%;
+  }
+`;
+
+const GridWrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;  /* Default to a single column for small screens */
+  gap: 20px;
+  width: 100%;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);  /* Two columns for medium screens */
+    gap: 30px;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);  /* Three columns for large screens */
+    gap: 40px;
+  }
+`;
+
+const GridItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: white;
+  border-radius: 12px;
+  height: auto;
+  min-height: 350px;
+  max-width: 100%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+
+  @media (max-width: 768px) {
+    min-width: 100%;  /* Ensure the grid item fills the available space on smaller screens */
+    padding: 12px;
+    min-height: 300px;  /* Reduce height on mobile to avoid overflow */
+  }
+
+  @media (min-width: 1024px) {
+    min-width: 320px;
+  }
+
+
+  h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1d6ca3;
+    margin-bottom: 15px;
+  }
+
+  /* Add Title Style */
+  ${({ title }) => title && `
+    h3 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+  `}
+`;
+
+const Title = styled.h3`
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  margin-bottom: 10px;
+`;
+
+const DropDownButton = styled.select`
+  margin: 10px;
+  background-color: #4d4d4d;
+  border-radius: 8px;
+  color: white;
+  padding: 8px 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #3b3b3b;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  option:hover {
+    background-color: #f0a0a0;
+  }
+`;
+
+const CuteButton = styled.button`
+  margin-top: 10px;
+  background-color: #164863;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #1f6f98;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    background-color: #164863;
+    transform: translateY(0);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+`;
 
 export default Dashboard_admin;

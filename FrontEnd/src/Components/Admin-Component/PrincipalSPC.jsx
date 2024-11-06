@@ -7,21 +7,20 @@ import {
   ResponsiveContainer,
   Legend
 } from "recharts";
-import "./PrincipalSPC.css";
+import styled from 'styled-components';
 
 const COLORS = [
   "#FF6666",
-  "#FFB366", 
-  "#FF9933", 
+  "#FFB366",
+  "#FF9933",
   "#80E6B3",
-  "#66CCCC", 
-  "#9999FF", 
-  "#FF66FF", 
-  "#66FF66", 
-  "#FFB300", 
-  "#FF80AA"  
+  "#66CCCC",
+  "#9999FF",
+  "#FF66FF",
+  "#66FF66",
+  "#FFB300",
+  "#FF80AA"
 ];
-
 
 const renderCustomizedLabel = ({
   cx,
@@ -61,39 +60,29 @@ const CustomTooltip = ({ active, payload }) => {
     ];
 
     return (
-      <div className="custom-tooltip-spc">
-        <div className="tooltip-value-spc">
+      <TooltipContainer>
+        <TooltipContent>
           <p style={{ color: fill }}>{name}</p>
           {data.map((entry, index) => (
-            <p key={`item-${index}`} style={{ color: fill,fontSize:"12px" }}>
+            <p key={`item-${index}`} style={{ color: fill, fontSize: "12px" }}>
               {entry.label}: {entry.value}
             </p>
           ))}
-        </div>
-      </div>
+        </TooltipContent>
+      </TooltipContainer>
     );
   }
   return null;
 };
 
 const PrincipalSPC = ({ data }) => (
-  <ResponsiveContainer >
-    {console.log(data)};
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}>
-      <PieChart width={400} height={400} margin={{
-          top: -10,
-          right: 0,
-          left: 10,
-          bottom: 0,
-        }}>
+  <ResponsiveContainer width="100%" height={400}>
+    <PieChartWrapper>
+      <PieChart width={400} height={400} margin={{ top: -10, right: 0, left: 10, bottom: 0 }}>
         <Pie
           data={data}
-          cx={200}
-          cy={200}
+          cx="50%"
+          cy="50%"
           labelLine={false}
           label={renderCustomizedLabel}
           outerRadius={140}
@@ -105,18 +94,78 @@ const PrincipalSPC = ({ data }) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip 
-          content={<CustomTooltip />} 
+        <Tooltip
+          content={<CustomTooltip />}
           formatter={(value, name, props) => {
             const fill = COLORS[props.payload.index % COLORS.length];
             props.payload.payload.fill = fill;
             return value;
-          }} 
+          }}
         />
-        <Legend wrapperStyle={{ fontSize: "16px" }}/>
+          <Legend wrapperStyle={{ fontSize: "14px",maxWidth: "350px" }} />
+
       </PieChart>
-    </div>
+    </PieChartWrapper>
   </ResponsiveContainer>
 );
 
 export default PrincipalSPC;
+
+// Styled Components
+
+const PieChartWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+`;
+
+const TooltipContainer = styled.div`
+  color: white;
+  display: flex;
+  text-align: center;
+  background-color: #1e293b;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 150px;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 120px;
+    height: 150px;
+  }
+
+  @media (max-width: 480px) {
+    width: 100px;
+    height: 130px;
+  }
+`;
+
+const TooltipContent = styled.div`
+  font-size: 0.875rem;
+  padding: 0;
+  color: white;
+  display: flex;
+  flex-direction: column;
+`;
+
+const LegendWrapper = styled.div`
+  font-size: 16px;
+  overflow-wrap: break-word;  // Ensure the text wraps instead of overflowing
+  
+  @media (max-width: 768px) {
+    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;  // Allow legend items to wrap on smaller screens
+    justify-content: center;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 12px;
+    display: block;  // Block display on very small screens to ensure the legend doesn't overlap
+    text-align: center;
+  }
+`;

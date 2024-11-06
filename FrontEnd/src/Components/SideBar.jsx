@@ -180,16 +180,6 @@ const Sidebar = () => {
               Dashboard
             </SidebarLink>
           </SidebarItem>
-          <SidebarItem className={isActive('/dashboard/faculty-details')}>
-            <SidebarLink 
-              to="/dashboard/faculty-details" 
-              className={isActive('/dashboard/faculty-details') ? 'active' : ''} 
-              onClick={handleLinkClick}
-            >
-              <SidebarImage src={faculty} width="40px" height="40px" alt="Faculty Details" />
-              Faculty Details
-            </SidebarLink>
-          </SidebarItem>
           <SidebarItem className={isActive('/dashboard/mail')}>
             <SidebarLink 
               to="/dashboard/mail" 
