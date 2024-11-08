@@ -8,8 +8,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
-import { utils, writeFile } from 'xlsx';
 import { getTokenData } from '../Pages/authUtils';
+import { utils, read, writeFile } from 'xlsx';
+
 
 const Container = styled.div`
   padding: 10px;
@@ -19,7 +20,7 @@ const Container = styled.div`
 const TableResponsive=styled.div`
   overflow-x: auto;
   width:94%;
-
+  margin: 0 auto;
   @media (max-width: 768px) {
     width:100%;
   }
@@ -50,8 +51,10 @@ const Col = styled.div`
   flex: 1;
   min-width: 170px;
   padding: 5px;
+  box-sizing: border-box; /* Ensure padding doesn't cause overflow */
+  
   @media (max-width: 768px) {
-    width: 100%;
+    width: 100%; /* Make each item take full width on mobile */
   }
 `;
 
@@ -117,9 +120,9 @@ const CustomSelect = styled.select`
 `;
 
 const Table = styled.table`
-  min-width: 90%;
-  width: 90%;
-  max-width: 90%;
+  min-width: 100%;
+  width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
 
@@ -157,21 +160,87 @@ const FixedColumn = styled(Th)`
     width: 60px;
   }
 `;
-const ButtonContent=styled.div`
+
+  const ButtonContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
+  gap: 10px; /* Add gap to prevent elements from touching each other */
+  flex-wrap: wrap; /* This ensures that in smaller screens, items can wrap */
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch; /* Align elements vertically */
+    gap: 20px; /* Provide space between vertically stacked elements */
+  }
+  `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 6px;
+  padding: 8px; /* Adjust padding to be consistent */
   font-size: 16px;
   border: 1px solid #ced4da;
   border-radius: 8px;
-
+  box-sizing: border-box; /* Ensures padding does not affect width calculation */
+  max-width: 400px; /* Max width to prevent the input from getting too wide */
+  
   @media (max-width: 768px) {
     font-size: 14px;
+    max-width: 100%; /* Make sure it takes full width on mobile */
+  }
+`;
+
+
+const MappingSection = styled.div`
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin: 20px 0;
+
+  h3 {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    color: #333;
+  }
+
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
+`;
+
+const MappingRow = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 10px 0;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+`;
+
+const MappingLabel = styled.label`
+  flex: 1;
+  font-weight: bold;
+  color: #555;
+  margin-right: 10px;
+
+  @media (max-width: 768px) {
+    margin: 5px 0;
+  }
+`;
+
+const MappingSelect = styled.select`
+  flex: 2;
+  padding: 8px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  background-color: white;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 8px;
   }
 `;
 
@@ -191,6 +260,56 @@ function OtherFormsRecords() {
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [attributeTypes, setAttributeTypes] = useState({ 'document': 'file', 'website_link': 'link', 'related_link': 'link' });
+  const [excelData, setExcelData] = useState([]);
+  const [excelColumns, setExcelColumns] = useState([]);
+  const [columnMapping, setColumnMapping] = useState({});
+  
+
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = read(data, { type: 'array' });
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = utils.sheet_to_json(firstSheet, { header: 1 });
+        
+        // Set Excel column headers from first row
+        setExcelColumns(jsonData[0]);
+        setExcelData(jsonData.slice(1)); // All data except headers
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
+  
+  // Function to handle mapping submission
+  const handleMappingSubmit = async () => {
+    const mappedData = excelData.map(row => {
+      const mappedRow = {};
+      attributenames.forEach(tableCol => {
+        const excelColIndex = excelColumns.indexOf(columnMapping[tableCol]);
+        mappedRow[tableCol] = row[excelColIndex] || null;
+      });
+      return mappedRow;
+    });
+  
+    try {
+      await axios.post('http://localhost:3000/excel/upload', {
+        table,
+        data: mappedData
+      });
+      toast.success('Excel data imported successfully!', {
+        position: "top-center",
+        autoClose: 5000,
+        theme: "colored",
+      });
+      fetchData(); // Refresh data after import
+    } catch (error) {
+      notifyFailure(error.response.data.error || 'Error importing Excel data');
+    }
+  };
+
   const notifyFailure = (error) => {
     toast.error(error, {
       position: "top-center",
@@ -224,7 +343,10 @@ function OtherFormsRecords() {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
-        setAttributenames(Object.keys(response.data.columnDataTypes));
+        const filteredAttributeNames = Object.keys(response.data.columnDataTypes).filter(
+          (col) => col !== 'id' && col !== 'createdAt'
+        );
+        setAttributenames(filteredAttributeNames);
         setAttributeTypes({
           ...response.data.columnDataTypes,
           ...{ 'document': 'file', 'website_link': 'link' }
@@ -370,7 +492,7 @@ function OtherFormsRecords() {
 
   return (
     <Container>
-      <Title>{form.form_name} Form Records</Title>
+      <Title>{form.form_table_name} Form Records</Title>
       <Row>
         <ButtonContent>
             <Col>
@@ -379,6 +501,11 @@ function OtherFormsRecords() {
             <Col>
               <Button onClick={handleExport} variant="export">Export</Button>
             </Col>
+
+            <Col>
+              <Input type="file" accept=".xlsx, .xls" onChange={handleExcelUpload} />
+            </Col>
+
           </ButtonContent>
         <Col>
           <CustomSelect value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
@@ -406,6 +533,32 @@ function OtherFormsRecords() {
           </Col>
         )}
       </Row>
+
+      {excelColumns.length > 0 && (
+  <MappingSection>
+    <h3>Map Columns</h3>
+    {attributenames.map((tableCol) => (
+      <MappingRow key={tableCol}>
+        <MappingLabel>{formatColumnName(tableCol)}</MappingLabel>
+        <MappingSelect
+          value={columnMapping[tableCol] || ''}
+          onChange={(e) =>
+            setColumnMapping((prevMapping) => ({
+              ...prevMapping,
+              [tableCol]: e.target.value,
+            }))
+          }
+        >
+          <option value="">Select Excel Column</option>
+          {excelColumns.map((excelCol) => (
+            <option key={excelCol} value={excelCol}>{excelCol}</option>
+          ))}
+        </MappingSelect>
+      </MappingRow>
+    ))}
+    <Button variant="export" onClick={handleMappingSubmit}>Submit Mapped Data</Button>
+  </MappingSection>
+)}
         <TableResponsive>
         <Table>
           <thead>

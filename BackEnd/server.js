@@ -8,6 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const nodemailer = require('nodemailer');
 const moment = require('moment');
+const axios = require('axios');
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -25,7 +26,7 @@ const tablesRoutes = require('./routes/tables');
 const graphRoutes = require('./routes/graph');
 const formRoutes = require('./routes/forms');
 const attendanceRoutes = require('./routes/attendance');
-
+const excelUploadRoutes = require('./routes/excel');
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -33,6 +34,7 @@ app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
+app.use('/excel', excelUploadRoutes);
 
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');
