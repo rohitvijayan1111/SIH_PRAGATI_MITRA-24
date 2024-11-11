@@ -48,6 +48,10 @@ var formRoutes = require('./routes/forms');
 
 var attendanceRoutes = require('./routes/attendance');
 
+var dashboardRoutes = require('./routes/dashboard');
+
+var reportRoutes = require('./routes/datareport');
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -55,6 +59,8 @@ app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/report', reportRoutes);
 cron.schedule('0 0 * * *', function () {
   console.log('Cron job triggered every minute.');
   var resetQuery = "\n    UPDATE membercount\n    SET \n      todayabsentcount_year_I = 0,\n      todayabsentcount_year_II = 0,\n      todayabsentcount_year_III = 0,\n      todayabsentcount_year_IV = 0,\n      todayabsentcount_staff = 0,\n      hostellercount_year_I=0,\n      hostellercount_year_II=0,\n      hostellercount_year_III=0,\n      hostellercount_year_IV=0;\n  ";

@@ -46,6 +46,11 @@ import ManageAssignedUsers from "./Components/ManageAssignedUsers";
 import LeaveForm from "./Outing_Form/LeaveForm";
 import ApprovalProcess from "./Outing_Form/ApprovalProcess";
 import RequestList from "./Outing_Form/RequestList";
+import OtherFormsRecordForIcon from "./Components/OtherFormsRecordsForIcon";
+import customDashboard from "./Pages/CustomDashboard";
+import DashboardSettings from "./Pages/DashboardSettings";
+import DashBoard_hod from "./Pages/Dashboard_hod";
+import Documents from "./Pages/Reportgenaration";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -68,6 +73,7 @@ function App() {
             <Route path="/signup" element={<SignPage />} />
             <Route path="/dashboard/*" element={<Layout />}>
             <Route index element={<ProtectedRoute element={DashBoard} />} />
+            <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />
               <Route path="club-activity" element={<ProtectedRoute element={Clubactivities} />} />
               <Route path="mail" element={<ProtectedRoute element={EmailNotification} />} />
               <Route path="guest-lecture" element={<ProtectedRoute element={Guestlecture} />}/>
@@ -98,6 +104,10 @@ function App() {
               <Route path="forms/deadline" element={<SetDeadlinePage/>} />
               <Route path="forms/assign-task" element={<AssignTask/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
+              <Route path="forms/form-records/:table" element={<OtherFormsRecordForIcon />}/>
+              <Route path="forms/form-records/:table/add-form" element={<AddForm />} />
+              <Route path="forms/form-records/:table/edit-form" element={<EditForm />} />
+              
               <Route path="forms/Manage-Assigned-Users" element={<ManageAssignedUsers/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
@@ -107,7 +117,7 @@ function App() {
               <Route path="outing-request" element={<LeaveForm/>} />
               <Route path="outing-approval" element={<ApprovalProcess/>} />
               <Route path="request-list" element={<RequestList/>} />
-        
+              <Route path="report-generation" element={<Documents/>}/>
               <Route path="*" element={<Invalidpage />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />

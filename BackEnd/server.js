@@ -25,6 +25,8 @@ const tablesRoutes = require('./routes/tables');
 const graphRoutes = require('./routes/graph');
 const formRoutes = require('./routes/forms');
 const attendanceRoutes = require('./routes/attendance');
+const dashboardRoutes = require('./routes/dashboard');
+const reportRoutes = require('./routes/datareport');
 
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
@@ -33,7 +35,8 @@ app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
-
+app.use('/dashboard', dashboardRoutes);
+app.use('/report', reportRoutes);
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');
 

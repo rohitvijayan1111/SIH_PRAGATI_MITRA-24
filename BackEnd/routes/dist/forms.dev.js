@@ -6,8 +6,7 @@ var router = express.Router();
 
 var db = require('../config/db');
 
-var cors = require('cors'); // Allow requests from all origins
-
+var cors = require('cors');
 
 router.use(cors());
 
