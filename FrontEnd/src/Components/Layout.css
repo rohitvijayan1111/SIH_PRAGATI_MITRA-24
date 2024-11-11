@@ -1,0 +1,21 @@
+.main-frame{
+    margin-top: 0%;
+    width: 100%;
+    height: 100%;
+    padding: 1rem;
+    min-height: 100vh;
+    min-width: 93.3vw;
+    background-color: #f4f4f4; 
+    
+}
+.er{
+    display: flex;
+}
+
+.pr{
+    margin-left: 85px;
+    width: 100%;
+    @media (max-width: 480px) {
+        margin-left:0px;
+      }
+}

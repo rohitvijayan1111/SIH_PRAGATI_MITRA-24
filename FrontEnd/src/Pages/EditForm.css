@@ -1,0 +1,410 @@
+/* EditForm.css */
+.cnt {
+  max-width: 600px; 
+  margin: auto;
+  padding: 20px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+}
+
+.cnt h2 {
+  text-align: center;
+  background-color: #164863;
+  color: #F3F3F3;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.react-datepicker {
+  font-size: 16px;
+  text-align: left;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__input-container {
+  position: relative;
+  width: 100%;
+  display: block;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  height: 40px;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #F3F3F3;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+.react-datepicker__day-names {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.react-datepicker__day {
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  margin: 5px;
+  border-radius: 50%;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f0f0f0;
+}
+
+.react-datepicker__day--selected {
+  background-color: #337ab7;
+  color: #fff;
+}
+
+.react-datepicker__day--in-range {
+  background-color: #f0f0f0;
+}
+
+.react-datepicker__day--in-selecting-range {
+  background-color: #f0f0f0;
+}
+
+.react-datepicker__time {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.react-datepicker__time-container {
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.react-datepicker__time-caption {
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.edt {
+  width: 100%;
+  padding: 20px;
+  background-color: white;
+  border: 1px solid #ccc; 
+  border-radius: 5px;
+}
+
+.frm {
+  margin-bottom: 20px; 
+  display: flex;
+  flex-direction: column;
+}
+
+.lbl {
+  font-weight: bold; 
+  color: #164863;
+  margin-bottom: 5px;
+}
+
+.btt {
+  background-color: #164863; 
+  border: 1px solid white; 
+  color: white; 
+  padding: 10px 20px;
+  font-size: 16px; 
+  font-weight: bold; 
+  text-transform: uppercase; 
+  border-radius: 30px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease, transform 0.3s ease; 
+  text-align: center;
+}
+
+.btt:hover {
+  background-color: green; 
+  transform: scale(1.05);
+}
+
+.btt:active {
+  background-color: #004085; 
+  transform: scale(1); 
+}
+
+.btt:focus {
+  outline: none; 
+  box-shadow: 0 0 10px white; 
+}
+
+.cntr,.cmp {
+  width: 100%; 
+  padding: 10px;
+  font-size: 16px;
+  background-color: #F3F3F3;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  box-sizing: border-box; 
+}
+
+.cntr:focus {
+  background-color: white;
+  border-color: #164863;
+  outline: none; 
+  box-shadow: 0 0 10px rgba(7, 200, 155, 0.25); 
+}
+
+
+
+.container {
+  width: 100%;
+  padding: 20px;
+}
+
+.row {
+  margin-bottom: 15px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  background-color: transparent;
+}
+
+.table-bordered {
+  border: 1px solid #dee2e6;
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid #dee2e6;
+}
+
+.column-header {
+  white-space: nowrap; 
+}
+
+.fixed-column {
+  width: 120px;
+}
+
+.react-icons {
+  display: flex;
+}
+
+.btn {
+  margin-right: 5px; 
+}
+/* Base styles for the button */
+.change-button {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background-color: #007bff; /* Blue color */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button hover effect */
+.change-button:hover {
+  background-color: #0056b3; /* Darker blue */
+}
+
+/* Button active effect */
+.change-button:active {
+  background-color: #003d80; /* Even darker blue */
+  transform: translateY(1px); /* Slight pressing effect */
+}
+
+/* Button focus effect */
+.change-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* Focus ring */
+}
+
+
+.company{
+  display: flex;
+  gap: 5px;
+}
+.company label
+{
+  color: #164863;
+  font-size: 15px;
+}
+
+.company-div{
+  display: flex;
+  margin-top: 5px;
+}
+
+.company-lbl{
+  width: 50%;
+  color: #164863;
+}
+
+.company-buttons{
+  display: flex;
+  justify-content: space-around;
+}
+
+.cmp-btt{
+  background-color: #164863; 
+  border: 1px solid white; 
+  color: white; 
+  width: 100px;
+  font-size: 12px; 
+  padding: 10px 20px;
+  font-weight: bold; 
+  text-transform: uppercase; 
+  border-radius: 30px; 
+  cursor: pointer; 
+  transition: background-color 0.3s ease, transform 0.3s ease; 
+  text-align: center;
+  margin-top: 10px;
+}
+
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  margin-bottom: 20px;
+}
+
+.cntr[type="file"] {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.cntr[type="file"]:hover {
+  border-color: #164863;
+}
+
+.file-upload-container button {
+  padding: 8px 16px;
+  background-color: #164863;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+}
+.cntr[type="file"] {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 0;
+}
+.custom-file-upload {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  background-color: #164863;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out;
+  text-align: center;
+}
+.bttns{
+  display: flex;
+  justify-content: space-around;
+}
+
+.btn-submit {
+  background-color: #164863; 
+  margin-left: 40%;
+  color: white;
+  font-size: 16px; 
+  font-weight: bold; 
+  padding: 10px 20px; 
+  border: none; 
+  border-radius: 30px;
+  cursor: pointer; 
+  text-transform: uppercase; 
+  transition: background-color 0.3s ease, transform 0.2s ease; 
+}
+
+.btn-submit:hover {
+  background-color: green; 
+  transform: scale(1.05); 
+}
+
+.btn-submit:active {
+  background-color: #004085;
+  transform: scale(1); 
+}
+
+.btn-submit:focus {
+  outline: none; 
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); 
+}
+.text-box {
+  width: 100%; 
+  padding: 10px 15px; 
+  font-size: 16px; 
+  user-select: none;
+  resize: none;
+  color: #333; 
+  background-color: white; 
+  border: 1px solid #ccc; 
+  box-sizing: border-box; 
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; 
+}
+
+.text-box:focus {
+  background-color: white; 
+  border-color: #164863; 
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.2); 
+  outline: none; 
+}
+
+.text-box:hover {
+  border-color: #164863;
+}
+
+.text-box::placeholder {
+  color: #aaa; 
+}

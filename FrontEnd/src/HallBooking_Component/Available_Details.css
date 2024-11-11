@@ -1,0 +1,78 @@
+.hall-details {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 180px;
+    max-width: 1000px;
+
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .hall-details:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .hall-image {
+    width: 150px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-right: 20px;
+    transition: transform 0.3s ease;
+  }
+  
+  .hall-details:hover .hall-image {
+    transform: scale(1.05);
+  }
+  
+  .hall-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .hall-info h4 {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    color: #164863;
+    margin: 0 0 10px;
+    font-weight: 600;
+  }
+  
+  .hall-info h4 svg {
+    margin-right: 10px;
+  }
+  
+  .hall-info p {
+    display: flex;
+    align-items: center;
+    font-size: 1em;
+    color: #333;
+    margin: 5px 0;
+  }
+  .hall-info h4 {
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    color: #333;
+    margin: 5px 0;
+  }
+  
+  .hall-info p svg {
+    margin-right: 10px;
+    color: #164863;
+  }
+  
+  .hall-info p:nth-child(2) {
+    font-weight: 500;
+  }
+  
+  .hall-info p:nth-child(3),
+  .hall-info p:nth-child(4) {
+    font-weight: 400;
+  }

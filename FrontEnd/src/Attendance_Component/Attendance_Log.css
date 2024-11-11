@@ -1,0 +1,37 @@
+.conte{
+    display: flex;
+    margin-left: 30%;
+    align-items: center;
+    gap: 20px;
+}
+.btm{
+    background-color: #4CAF50; 
+  border: none; 
+  color: white; 
+  padding: 10px 32px; 
+  text-align: center; 
+  text-decoration: none;
+  display: inline-block; 
+  font-size: 16px; 
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: background-color 0.3s;
+}
+
+.btm:hover{
+    background-color: #45a049;
+}
+.image
+{
+    padding-top: 30px;
+}
+
+.ddbtt
+{
+    display: flex;
+}
+.ta
+{
+    padding-top: 10px;;
+}

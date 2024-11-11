@@ -1,0 +1,20 @@
+.custom-tooltip-fcp {
+    color: white;
+    display: flex;
+    text-align: center;
+    background-color: #1e293b;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100px; 
+    height: 50px; 
+    border-radius: 8px;
+    overflow: hidden;
+    pointer-events: none;
+}
+    
+.tooltip-value-fcp {
+    margin-left: 8px; 
+    margin: 0;
+    font-size: 0.875rem; 
+}
