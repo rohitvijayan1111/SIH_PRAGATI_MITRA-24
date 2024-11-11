@@ -4,72 +4,81 @@ import { ToastContainer, toast, Zoom, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled, { css } from 'styled-components';
 
-const EmailNotificationContainer = styled.div`
-  max-width: 600px;
+const EmailContainer = styled.div`
+  max-width: 700px;
   margin: 20px auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   font-family: Arial, sans-serif;
-
-  @media (max-width: 768px) {
-    width: 90%;
-    padding: 15px;
-  }
 `;
 
-const Header = styled.h3`
-  margin-bottom: 10px;
+const EmailHeader = styled.div`
+  background-color: #164863;
+  color: white;
+  padding: 15px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   font-size: 1.2rem;
-  color: #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 1rem;
-  }
+const HeaderTitle = styled.div`
+  font-weight: bold;
+`;
+
+const RecipientArea = styled.div`
+  padding: 15px;
+  border-bottom: 1px solid #ddd;
+`;
+
+const FieldLabel = styled.label`
+  display: block;
+  margin-bottom: 6px;
+  color: #555;
+  font-weight: 600;
+  font-size: 0.9rem;
 `;
 
 const Input = styled.input`
   width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 5px;
   background-color: #f4f4f4;
-
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
+  font-size: 1rem;
+  margin-bottom: 10px;
 `;
 
 const TextArea = styled.textarea`
   width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  margin-bottom: 15px;
+  padding: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 5px;
   background-color: #f4f4f4;
+  font-size: 1rem;
   resize: none;
+  height: 120px;
+  margin-top: 10px;
+`;
 
-  @media (max-width: 768px) {
-    font-size: 0.9rem;
-  }
+const RecipientListContainer = styled.div`
+  padding: 15px;
+  background-color: #f7f7f7;
+  border-top: 1px solid #ddd;
 `;
 
 const RecipientList = styled.ul`
-  list-style-type: none;
+  list-style: none;
   padding: 0;
+  margin: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 15px;
-
-  @media (max-width: 768px) {
-    grid-template-columns: repeat(2, 1fr); /* Keep two columns on smaller screens */
-  }
+  gap: 10px;
 `;
 
 const RecipientItem = styled.li`
@@ -77,70 +86,35 @@ const RecipientItem = styled.li`
   align-items: center;
 `;
 
+const Checkbox = styled.input`
+  margin-right: 8px;
+  transform: scale(1.2);
+`;
+
+const RecipientLabel = styled.span`
+  font-size: 0.9rem;
+  color: #333;
+`;
+
 const ButtonContainer = styled.div`
-  margin-top: 20px;
-  text-align: center;
+  padding: 15px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid #ddd;
+  background-color: #f7f7f7;
 `;
 
 const SendButton = styled.button`
+  padding: 10px 20px;
   background-color: #164863;
   color: white;
   border: none;
-  padding: 10px 20px;
-  cursor: pointer;
   border-radius: 5px;
+  cursor: pointer;
   font-size: 1rem;
   transition: background-color 0.3s;
-
   &:hover {
     background-color: #0056b3;
-  }
-`;
-
-const CustomCheckboxWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  gap:10px;
-`;
-
-const CustomCheckboxInput = styled.input.attrs({ type: 'checkbox' })`
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-
-  &:checked + span {
-    background-color: #164863;
-    border-color: #164863;
-  }
-
-  &:checked + span:after {
-    display: block;
-  }
-`;
-
-const CustomCheckboxLabel = styled.span`
-  height: 18px;
-  width: 18px;
-  background-color: #eee;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  position: relative;
-  transition: background-color 0.2s, border-color 0.2s;
-
-  &:after {
-    content: "";
-    position: absolute;
-    display: none;
-    left: 5px;
-    top: 1px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
   }
 `;
 
@@ -179,10 +153,9 @@ const EmailNotification = () => {
       member.id === id ? { ...member, checked: !member.checked } : member
     );
     setSenderList(updatedList);
-
-    const allChecked = updatedList.every(member => member.checked);
-    setSelectAll(allChecked);
+    setSelectAll(updatedList.every(member => member.checked));
   };
+
 
   const handleSelectAll = () => {
     const newCheckedState = !selectAll;
@@ -235,36 +208,62 @@ const EmailNotification = () => {
   };
 
   return (
-    <EmailNotificationContainer>
-      <Header>Subject:</Header>
-      <Input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} required />
-      <Header>Body:</Header>
-      <TextArea ref={textAreaRef} placeholder="Email Body" value={text} onChange={(e) => setText(e.target.value)} required />
-      <Header>Recipient Emails:</Header>
-      <RecipientList>
-        <RecipientItem>
-          <CustomCheckboxWrapper onClick={handleSelectAll}>
-            <CustomCheckboxInput checked={selectAll} onChange={handleSelectAll} />
-            <CustomCheckboxLabel />
-            <span>All</span>
-          </CustomCheckboxWrapper>
-        </RecipientItem>
-        {senderlist.map(item => (
-          <RecipientItem key={item.id}>
-            <CustomCheckboxWrapper onClick={() => handleCheck(item.id)}>
-              <CustomCheckboxInput checked={item.checked} onChange={() => handleCheck(item.id)} />
-              <CustomCheckboxLabel />
-              <span>{item.dept}</span>
-            </CustomCheckboxWrapper>
+    <EmailContainer>
+      <EmailHeader>
+        <HeaderTitle>Compose New Email</HeaderTitle>
+      </EmailHeader>
+      <RecipientArea>
+        <FieldLabel>To:</FieldLabel>
+        <Input
+          type="email"
+          placeholder="Recipient email addresses"
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+        />
+        <FieldLabel>Subject:</FieldLabel>
+        <Input
+          type="text"
+          placeholder="Email subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+        />
+      </RecipientArea>
+      <RecipientListContainer>
+        <FieldLabel>Select Departments:</FieldLabel>
+        <RecipientList>
+          <RecipientItem>
+            <Checkbox
+              type="checkbox"
+              checked={selectAll}
+              onChange={() => setSelectAll(!selectAll)}
+            />
+            <RecipientLabel>Select All</RecipientLabel>
           </RecipientItem>
-        ))}
-      </RecipientList>
-      <Input type="email" placeholder="Other Recipient Emails (comma-separated)" value={to} onChange={(e) => setTo(e.target.value)} />
+          {senderlist.map((item) => (
+            <RecipientItem key={item.id}>
+              <Checkbox
+                type="checkbox"
+                checked={item.checked}
+                onChange={() => handleCheck(item.id)}
+              />
+              <RecipientLabel>{item.dept}</RecipientLabel>
+            </RecipientItem>
+          ))}
+        </RecipientList>
+      </RecipientListContainer>
+      <RecipientArea>
+        <FieldLabel>Message:</FieldLabel>
+        <TextArea
+          placeholder="Type your email message here"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+      </RecipientArea>
       <ButtonContainer>
-        <SendButton onClick={handleSendEmail}>Send Email</SendButton>
+        <SendButton onClick={handleSendEmail}>Send</SendButton>
       </ButtonContainer>
       <ToastContainer />
-    </EmailNotificationContainer>
+    </EmailContainer>
   );
 };
 

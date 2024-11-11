@@ -16,7 +16,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/users');
 const clubActivitiesRoutes = require('./routes/clubActivities');
 const guestLecturesRoutes = require('./routes/guestlecture');
 const hallBookingsRoutes = require('./routes/hallbooking');
@@ -27,6 +26,9 @@ const graphRoutes = require('./routes/graph');
 const formRoutes = require('./routes/forms');
 const attendanceRoutes = require('./routes/attendance');
 const excelUploadRoutes = require('./routes/excel');
+const gform = require('./routes/gform');
+const chat = require('./routes/chat');
+const dbimport = require('./routes/dbimport');
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -35,6 +37,9 @@ app.use('/forms', formRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
 app.use('/excel', excelUploadRoutes);
+app.use('/gform', gform);
+app.use('/chat', chat);
+app.use('/db', dbimport);
 
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');

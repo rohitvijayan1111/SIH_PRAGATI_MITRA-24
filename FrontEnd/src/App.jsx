@@ -40,6 +40,14 @@ import Shadow_OtherForms from "./Components/Shadow_OtherForms";
 import ManageAssignedUsers from "./Components/ManageAssignedUsers";
 
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import HomePage from "./Pages/HomePage";
+import CreateFormPage from "./Pages/CreateFormPage";
+import RenderFormPage from "./Pages/RenderFormPage";
+import ChatSpace from "./Pages/ChatSpace";
+import FormSelectionPage from "./Pages/FormSelectionPage";
+import DatabasePage from "./Pages/DatabasePage";
+import TablesPage from "./Pages/TablesPage";
+import UploadDatabasePage from "./Pages/UploadDatabasePage";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -90,6 +98,14 @@ function App() {
               <Route path="Available-Halls" element={<Available_Halls />} />
               <Route path="DashBoard-Hall" element={<DashBoard_Hall />} />
               <Route path="forms" element={<OtherForms/>} />
+              <Route path="gforms" element={<HomePage/>} />
+              <Route path="form-type" element={ <FormSelectionPage/> } />
+              <Route path="chat" element={<ChatSpace/>} />
+              <Route path="dynamic" element={ <DatabasePage/> } />
+              <Route path="dbimport" element={ <UploadDatabasePage/> } />
+              <Route path="dynamic/tables/:database" element={ <TablesPage/> } />
+              <Route path="gforms/gcreate-form" element={<CreateFormPage/>} />
+              <Route path="gforms/render-form/:id" element={<RenderFormPage />} />
               <Route path="assigned-forms" element={<Shadow_OtherForms/>} />
               <Route path="forms/deadline" element={<SetDeadlinePage/>} />
               <Route path="forms/assign-task" element={<AssignTask/>} />

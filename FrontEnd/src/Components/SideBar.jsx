@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import faculty from '../assets/faculty.png';
+import google from '../assets/googleform.png';
 import dashboard from '../assets/dashboard.png';
 import mail from '../assets/mail.png';
 import others from '../assets/others.png';
+import chat from '../assets/chat.png';
 import { getTokenData } from "../Pages/authUtils";
 
 // Styled Components
@@ -192,14 +193,25 @@ const Sidebar = () => {
           </SidebarItem>
           <SidebarItem className={isActive('/dashboard/forms')}>
             <SidebarLink 
-              to="/dashboard/forms" 
-              className={isActive('/dashboard/forms') ? 'active' : ''} 
+              to="/dashboard/form-type" 
+              className={isActive('/dashboard/form-type') ? 'active' : ''} 
               onClick={handleLinkClick}
             >
               <SidebarImage src={others} width="40px" height="40px" alt="Other Forms" />
               Forms
             </SidebarLink>
           </SidebarItem>
+          <SidebarItem className={isActive('/dashboard/chat')}>
+            <SidebarLink 
+              to="/dashboard/chat" 
+              className={isActive('/dashboard/chat') ? 'active' : ''} 
+              onClick={handleLinkClick}
+            >
+              <SidebarImage src={chat} width="40px" height="40px" alt="chat" />
+              Chat
+            </SidebarLink>
+          </SidebarItem>
+          
         </SidebarList>
       </SidebarContainer>
     </Container>

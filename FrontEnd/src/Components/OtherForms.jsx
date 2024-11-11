@@ -8,53 +8,77 @@ import dayjs from 'dayjs';
 import styled from 'styled-components';
 
 const Container = styled.div`
-  padding: 1rem;
+  padding: 2rem;
   max-width: 1200px;
   margin: auto;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.h1`
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  color: #164863;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 2.5rem;
 `;
 
 const AddButton = styled.button`
-  background-color: #008CBA;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
   color: white;
-  padding: 12px 24px;
+  padding: 14px 28px;
   border: none;
   border-radius: 8px;
   font-size: 16px;
   cursor: pointer;
   display: block;
   width: 100%;
-  max-width: 200px;
-  margin: 10px auto;
+  max-width: 220px;
+  margin: 20px auto;
+  transition: background 0.3s ease;
 
   &:hover {
-    background-color: #0074A2;
+    background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
   }
 `;
 
 const StyledTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
 
   th, td {
-    padding: 12px;
+    padding: 15px;
     border: 1px solid #ddd;
     text-align: center;
   }
 
   th {
-    background-color: #f4f4f4;
+    background-color: #f0f0f0;
     font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+  }
+
+  td {
+    background-color: #ffffff;
+    font-size: 14px;
+    color: #333;
+  }
+
+  tr:hover td {
+    background-color: #f7f7f7;
   }
 
   @media (max-width: 768px) {
     td, th {
-      padding: 8px;
+      padding: 10px;
+      font-size: 12px;
     }
   }
 `;
@@ -62,23 +86,24 @@ const StyledTable = styled.table`
 const ButtonGroup = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 10px;
   justify-content: center;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 `;
 
 const ViewButton = styled.button`
-  background-color: #008CBA; /* Blue */
+  background-color: #008CBA;
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
+  transition: background 0.3s ease;
 
   &:hover {
     background-color: #0074A2;
@@ -86,13 +111,14 @@ const ViewButton = styled.button`
 `;
 
 const ActionButton = styled.button`
-  background-color: #FFD700; /* Yellow */
+  background-color: #FFD700;
   color: black;
   border: none;
-  padding: 8px 16px;
-  border-radius: 5px;
+  padding: 10px 20px;
+  border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
+  transition: background 0.3s ease;
 
   &:hover {
     background-color: #FFC107;
