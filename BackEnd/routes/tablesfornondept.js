@@ -7,6 +7,22 @@ const path = require('path');
 const multer = require('multer');
 const fs = require('fs');
 const query = util.promisify(db.query).bind(db);
+
+const storage = multer.diskStorage({
+  destination: async (req, file, cb) => {
+    const table = req.body.table;
+    const dir = `./uploads/${table}`;
+    await fsPromises.mkdir(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const fileName = `${moment().format('YYYYMMDD_HHmmss')}_${file.originalname}`;
+    cb(null, fileName); 
+  }
+});
+
+const upload = multer({ storage: storage });
+
 const fsPromises = require('fs').promises; // For async operations
 const axios = require('axios');
 const getFriendlyErrorMessage = (errCode) => {
@@ -38,196 +54,147 @@ const getFriendlyErrorMessage = (errCode) => {
   }
 };
 
-
+// Get table data
 router.post('/gettable', async (req, res) => {
-    const table = req.body.table;
-  
-    if (!table) {
-      return res.status(400).send("Please provide the table parameter.");
-    }
-  
-    let recordSql = 'SELECT * FROM ?? ';
-    const columnSql = 'SHOW COLUMNS FROM ??';
-    const recordValues = [table];
-    const columnValues = [table];
-  
-    // Remove department filter logic
-    recordSql += 'ORDER BY id'; // You can change this order by field if needed
-  
-    try {
-      const columnResults = await query(columnSql, columnValues);
-      const columnDataTypes = columnResults.reduce((acc, col) => {
-        acc[col.Field] = col.Type;
-        return acc;
-      }, {});
-  
-      // Fetch table records without department filter
-      const recordResults = await query(recordSql, recordValues);
-  
-      if (recordResults.length === 0) {
-        return res.status(200).json({ columnDataTypes, data: [] });
-      }
-  
-      res.status(200).json({ columnDataTypes, data: recordResults });
-    } catch (err) {
-      console.error('Error fetching data:', err.message);
-      return res.status(500).json({ error: getFriendlyErrorMessage(err.code) });
-    }
-  });
+  const table = req.body.table;
 
-  router.delete('/deleterecord', async (req, res) => {
-    const { id, table } = req.body;
-  
-    if (!table || !id) {
-      return res.status(400).json({ error: 'Table name and ID are required' });
-    }
-  
-    try {
-      const record = await query('SELECT document FROM ?? WHERE id = ?', [table, id]);
-  
-      if (record.length === 0) {
-        return res.status(404).json({ message: 'Record not found' });
-      }
-  
-      const filePath = record[0].document;
-      console.log(filePath);
-      if (filePath) {
-        try {
-          await fsPromises.unlink(path.resolve(filePath));
-          console.log(`File at ${filePath} deleted successfully`);
-        } catch (unlinkError) {
-          console.error('Error deleting file:', unlinkError);
-          
-        }
-      }
-  
-      await query('DELETE FROM ?? WHERE id = ?', [table, id]);
-  
-      res.json({ message: 'Item and associated file (if any) deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting item:', error.stack);
-      res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
-    }
-  });
+  if (!table) {
+    return res.status(400).send("Please provide the table parameter.");
+  }
 
-  router.post('/insertrecord', upload.single('file'), async (req, res) => {
-    const { table, ...data } = req.body;
-  
-    if (!table || !data) {
-      return res.status(400).json({ error: 'Data and table are required' });
-    }
-  
-    try {
-      let filePath = null;
-      if (req.file) {
-        filePath = req.file.path;
-        data.document = filePath;
-      }
-  
-      await query('INSERT INTO ?? SET ?', [table, data]);
-  
-      res.json({ message: 'Record inserted successfully' });
-    } catch (error) {
-      console.error('Error inserting record:', error);
-      const friendlyMessage = getFriendlyErrorMessage(error.code);
-      res.status(500).json({ error: `${friendlyMessage}` });
-    }
-  });
+  let recordSql = 'SELECT * FROM ?? ';
+  const columnSql = 'SHOW COLUMNS FROM ??';
+  const recordValues = [table];
+  const columnValues = [table];
 
-  router.post('/updaterecord', upload.single('file'), async (req, res) => {
-    console.log(req.body);
-    const { id, table, data: rawData, deleteFile } = req.body;
-    const data = JSON.parse(rawData);
-  
-    if (!id || !table) {
-      return res.status(400).json({ error: 'Id and table are required' });
+  recordSql += 'ORDER BY id'; // You can change this order by field if needed
+
+  try {
+    const columnResults = await query(columnSql, columnValues);
+    const columnDataTypes = columnResults.reduce((acc, col) => {
+      acc[col.Field] = col.Type;
+      return acc;
+    }, {});
+
+    const recordResults = await query(recordSql, recordValues);
+
+    if (recordResults.length === 0) {
+      return res.status(200).json({ columnDataTypes, data: [] });
     }
-  
-    try {
-      const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
-      if (existingRows.length === 0) {
-        return res.status(404).json({ message: 'Record not found' });
-      }
-  
-      // Handling file upload and deletion
-      const oldFilePath = existingRows[0].document;
-      let newFilePath = oldFilePath;
-  
-      if (req.file) {
-        newFilePath = req.file.path;
-        if (oldFilePath && oldFilePath !== newFilePath) {
-          try {
-            await fsPromises.unlink(path.resolve(oldFilePath));
-          } catch (unlinkError) {
-            console.error('Error deleting old file:', unlinkError);
-          }
-        }
-      } else if (deleteFile === 'true' && oldFilePath) {
+
+    res.status(200).json({ columnDataTypes, data: recordResults });
+  } catch (err) {
+    console.error('Error fetching data:', err.message);
+    return res.status(500).json({ error: getFriendlyErrorMessage(err.code) });
+  }
+});
+
+// Delete record by ID
+router.delete('/deleterecord', async (req, res) => {
+  const { id, table } = req.body;
+
+  if (!table || !id) {
+    return res.status(400).json({ error: 'Table name and ID are required' });
+  }
+
+  try {
+    // Delete the record from the table based on the provided id
+    await query('DELETE FROM ?? WHERE id = ?', [table, id]);
+
+    res.json({ message: 'Item deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting item:', error.stack);
+    res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
+  }
+});
+
+// Insert new record
+router.post('/insertrecord', upload.single('file'), async (req, res) => {
+  const { table, ...data } = req.body;
+
+  if (!table || !data) {
+    return res.status(400).json({ error: 'Data and table are required' });
+  }
+
+  try {
+    let filePath = null;
+    if (req.file) {
+      filePath = req.file.path;
+      data.document = filePath;
+    }
+
+    await query('INSERT INTO ?? SET ?', [table, data]);
+
+    res.json({ message: 'Record inserted successfully' });
+  } catch (error) {
+    console.error('Error inserting record:', error);
+    const friendlyMessage = getFriendlyErrorMessage(error.code);
+    res.status(500).json({ error: `${friendlyMessage}` });
+  }
+});
+
+// Update record by ID
+router.post('/updaterecord', upload.single('file'), async (req, res) => {
+  console.log(req.body);
+  const { id, table, data: rawData, deleteFile } = req.body;
+  const data = JSON.parse(rawData);
+
+  // Check if id and table are provided
+  if (!id || !table) {
+    return res.status(400).json({ error: 'Id and table are required' });
+  }
+
+  try {
+    // Fetch existing row to check if the record exists
+    const existingRows = await query('SELECT * FROM ?? WHERE id = ?', [table, id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+
+    const oldFilePath = existingRows[0].document;
+    let newFilePath = oldFilePath;
+
+    // File upload logic
+    if (req.file) {
+      newFilePath = req.file.path;
+      if (oldFilePath && oldFilePath !== newFilePath) {
         try {
           await fsPromises.unlink(path.resolve(oldFilePath));
-          newFilePath = ''; // Clear the document path in the database
         } catch (unlinkError) {
           console.error('Error deleting old file:', unlinkError);
         }
       }
-  
-      if (newFilePath) {
-        data.document = newFilePath;
+    } else if (deleteFile === 'true' && oldFilePath) {
+      try {
+        await fsPromises.unlink(path.resolve(oldFilePath));
+        newFilePath = ''; // Clear the document path in the database
+      } catch (unlinkError) {
+        console.error('Error deleting old file:', unlinkError);
       }
-  
-      // Add current timestamp for createdAt/updatedAt
-      const currentTimestamp = new Date();
-      data.createdAt = currentTimestamp;
-  
-      // Construct the SET clause dynamically with proper escaping
-      const setClause = Object.keys(data).map(key => `\`${key}\` = ?`).join(', ');
-      const values = Object.values(data);
-  
-      const updateQuery = `UPDATE \`${table}\` SET ${setClause}, createdAt = NOW() WHERE id = ?`; // NOW() adds the current timestamp
-      console.log('SQL Query:', updateQuery);
-      console.log('Values:', [...values, id]);
-  
-      await query(updateQuery, [...values, id]);
-  
-      res.json({ message: 'Record updated successfully' });
-    } catch (error) {
-      console.error('Error updating record:', error);
-      res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
     }
-  });
-  router.delete('/deleterecord', async (req, res) => {
-    const { id, table } = req.body;
-  
-    if (!table || !id) {
-      return res.status(400).json({ error: 'Table name and ID are required' });
-    }
-  
-    try {
-      const record = await query('SELECT document FROM ?? WHERE id = ?', [table, id]);
-  
-      if (record.length === 0) {
-        return res.status(404).json({ message: 'Record not found' });
-      }
-  
-      const filePath = record[0].document;
-      console.log(filePath);
-      if (filePath) {
-        try {
-          await fsPromises.unlink(path.resolve(filePath));
-          console.log(`File at ${filePath} deleted successfully`);
-        } catch (unlinkError) {
-          console.error('Error deleting file:', unlinkError);
-          
-        }
-      }
-  
-      await query('DELETE FROM ?? WHERE id = ?', [table, id]);
-  
-      res.json({ message: 'Item and associated file (if any) deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting item:', error.stack);
-      res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
-    }
-  });
 
-module.exports = router;  
+    // Update the document path in data if a new file is uploaded
+    if (newFilePath) {
+      data.document = newFilePath;
+    }
+
+    // Construct the SET clause dynamically with proper escaping
+    const setClause = Object.keys(data).map(key => `\`${key}\` = ?`).join(', ');
+    const values = Object.values(data);
+
+    // Construct and execute the update query
+    const updateQuery = `UPDATE \`${table}\` SET ${setClause} WHERE id = ?`;
+    console.log('SQL Query:', updateQuery);
+    console.log('Values:', [...values, id]);
+
+    await query(updateQuery, [...values, id]);
+
+    // Send a successful response
+    res.json({ message: 'Record updated successfully' });
+  } catch (error) {
+    console.error('Error updating record:', error);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+module.exports = router;

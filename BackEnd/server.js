@@ -30,7 +30,7 @@ const gform = require('./routes/gform');
 const chat = require('./routes/chat');
 const dbimport = require('./routes/dbimport');const dashboardRoutes = require('./routes/dashboard');
 const reportRoutes = require('./routes/datareport');
-
+const nondeptRoutes=require("./routes/tablesfornondept");
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -43,6 +43,7 @@ app.use('/gform', gform);
 app.use('/chat', chat);
 app.use('/db', dbimport);
 app.use('/dashboard', dashboardRoutes);
+app.use("/tablesfornondept",nondeptRoutes);
 app.use('/report', reportRoutes);
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');
@@ -137,6 +138,10 @@ cron.schedule('0 */4 * * *', () => {
   processFormLocks();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });

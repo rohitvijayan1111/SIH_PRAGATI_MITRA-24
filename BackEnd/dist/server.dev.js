@@ -60,6 +60,8 @@ var dashboardRoutes = require('./routes/dashboard');
 
 var reportRoutes = require('./routes/datareport');
 
+var nondeptRoutes = require("./routes/tablesfornondept");
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -72,6 +74,7 @@ app.use('/gform', gform);
 app.use('/chat', chat);
 app.use('/db', dbimport);
 app.use('/dashboard', dashboardRoutes);
+app.use("/tablesfornondept", nondeptRoutes);
 app.use('/report', reportRoutes);
 cron.schedule('0 0 * * *', function () {
   console.log('Cron job triggered every minute.');
@@ -139,6 +142,8 @@ cron.schedule('0 */4 * * *', function () {
   console.log('Running cron job to send emails to not_submitted_emails');
   processFormLocks();
 });
-app.listen(PORT, function () {
-  console.log("Server running on port ".concat(PORT));
-});
+app.listen(PORT, '0.0.0.0', function () {
+  console.log("Server running on http://0.0.0.0:".concat(PORT));
+}); // app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });

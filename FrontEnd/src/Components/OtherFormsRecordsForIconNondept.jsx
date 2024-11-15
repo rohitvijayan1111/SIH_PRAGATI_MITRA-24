@@ -156,7 +156,7 @@ function OtherFormsRecordForIconNondept() {
         <div className="col">
           <select className="custom-select" value={searchColumn} onChange={(e) => setSearchColumn(e.target.value)}>
             <option value="">Select Column to Search</option>
-            {attributenames.map((name, index) => (
+            {attributenames.filter(name => name !== 'id').map((name, index) => (
               <option key={index} value={name}>{formatColumnName(name)}</option>
             ))}
           </select>
@@ -174,7 +174,7 @@ function OtherFormsRecordForIconNondept() {
           <button type="button" onClick={handleSearch} className="search-button">Search</button>
           <button type="button" onClick={resetSearch} className="bttreset">Reset</button>
         </div>
-        {(role === 'hod' || role === "Form editor" || role==="Finance Coordinator" || role==="Infrastructure Coordinator") && (
+        {(role === 'hod' || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && (
           <div className="col">
             <button type="button" onClick={handleAdd} className="search-button">Add Records</button>
           </div>
@@ -186,8 +186,8 @@ function OtherFormsRecordForIconNondept() {
           <table className="table table-bordered table-hover">
             <thead className="thead-dark">
               <tr>
-                {(role === "hod" || role === "Form editor" || role==="Finance Coordinator" || role==="Infrastructure Coordinator") && <th className="fixed-column">Action</th>}
-                {attributenames.map((name, index) => (
+                {(role === "hod" || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && <th className="fixed-column">Action</th>}
+                {attributenames.filter(name => name !== 'id').map((name, index) => (
                   <th key={index}>{formatColumnName(name)}</th>
                 ))}
               </tr>
@@ -195,7 +195,7 @@ function OtherFormsRecordForIconNondept() {
             <tbody>
               {data.map((item, index) => (
                 <tr key={index}>
-                  {(role === "hod" || role === "Form editor" || role==="Finance Coordinator" || role==="Infrastructure Coordinator") && (
+                  {(role === "hod" || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && (
                     <td>
                       <IconContext.Provider value={{ className: 'react-icons' }}>
                         <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
@@ -203,7 +203,7 @@ function OtherFormsRecordForIconNondept() {
                       </IconContext.Provider>
                     </td>
                   )}
-                  {attributenames.map((name, attrIndex) => (
+                  {attributenames.filter(name => name !== 'id').map((name, attrIndex) => (
                     <td key={attrIndex}>
                       {attributeTypes[name] === "date" ? formatDate(item[name]) :
                         attributeTypes[name] === "file" ? (

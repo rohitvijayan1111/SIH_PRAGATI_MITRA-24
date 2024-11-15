@@ -1,5 +1,21 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useEffect} from 'react';
+import { useLocation } from 'react-router-dom';
 import { List, ListItem, ListItemIcon, ListItemText, Collapse, Checkbox, TextField } from '@mui/material';
+import { Paper, Table, TableBody, TableContainer,
+  TableCell, 
+  TableHead, 
+  TableRow,
+  Typography
+} from '@mui/material';
+import { 
+  Dialog, 
+  DialogTitle, 
+  DialogContent, 
+  DialogActions,
+  Grid,
+  Box,
+  Button
+} from '@mui/material';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import styled from 'styled-components';
@@ -9,8 +25,10 @@ import { StyleSheet, Document, Page, Text, View,PDFDownloadLink,Image} from '@re
 import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 // Register the necessary components
+
 import html2canvas from 'html2canvas';
 import ChartJsImage from 'chartjs-to-image';
+import { getTokenData } from './authUtils';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 
@@ -94,7 +112,7 @@ const sections = [
 ];
   
 const Container = styled.div`
-  max-width: 600px;
+  max-width: 900px;
   margin: 20px auto;
   background: white;
   padding: 20px;
@@ -334,7 +352,7 @@ const generateChartImage = async (graph) => {
   const Report = ({ coverImageUrl, tableOfContents, sections }) => {
   const [chartImages, setChartImages] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-
+  
   useEffect(() => {
     const fetchChartImages = async () => {
       const newImages = {};
@@ -489,15 +507,143 @@ const generateChartImage = async (graph) => {
     </Document>
   );
 };
+
+
+const VersionHistoryModal = ({ open, onClose, sectionTitle, detailTitle, versions, onSelectVersion, onBringToEditor, selectedVersion }) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle>Version History - {sectionTitle}-{detailTitle}</DialogTitle>
+      <DialogContent>
+        <List>
+          {versions.map((version) => (
+            <ListItem 
+              key={version.version_number} // Use version_number as the key
+              button 
+              onClick={() => onSelectVersion(version)} // Pass the entire version object
+            >
+              <ListItemText primary={`Version ${version.version_number}`} />
+            </ListItem>
+          ))}
+        </List>
+        {selectedVersion && (
+          <div>
+            <Typography variant="h6">Version Details:</Typography>
+            <Typography>Introduction: {selectedVersion.introduction}</Typography>
+            <Typography>Summary: {selectedVersion.summary}</Typography>
+            
+            {/* Render the data table */}
+            {selectedVersion.data && selectedVersion.data.length > 0 && (
+              <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      {Object.keys(selectedVersion.data[0]).map((key) => (
+                        <TableCell key={key}>{key}</TableCell>
+                      ))}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {selectedVersion.data.map((row, rowIndex) => (
+                      <TableRow key={rowIndex}>
+                        {Object.values(row).map((value, colIndex) => (
+                          <TableCell key={colIndex}>{value}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+
+            {/* Button to bring selected version to editor */}
+            <Button 
+              variant="contained" 
+              color="primary" 
+              onClick={() => onBringToEditor(
+                selectedVersion.introduction,
+                selectedVersion.summary,
+                selectedVersion.graph_data,
+                selectedVersion.data
+              )}
+              style={{ marginTop: '20px' }}
+            >
+              Bring to Editor
+            </Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const Documents = () => {
   const [openSections, setOpenSections] = useState({});
   const [checked, setChecked] = useState({});
   const [formData, setFormData] = useState({});
-  const [selectedData, setSelectedData] = useState({}); // State to hold fetched data
+  const [selectedData, setSelectedData] = useState({}); 
   const [coverImageUrl, setCoverImageUrl] = useState(null);
   const [imageError, setImageError] = useState(''); 
   const [tableOfContents, setTableOfContents] = useState([]);
   const [selectedSections, setSelectedSections] = useState([]); // Renamed from sections
+  const [sectionVersions, setSectionVersions] = useState({});
+  const location = useLocation();
+  const reportId=location.state;
+  console.log(reportId);
+  const [availableSections, setAvailableSections] = useState([]);
+  const [reportSectionDetailId, setReportSectionDetailId] = useState(null); // To store the report_section_detail ID
+  const [openVersionModal, setOpenVersionModal] = useState({
+    open: false,
+    sectionTitle: '',
+    detailTitle: '',
+    versions: [],
+    index:'',
+    selectedVersion: null,
+  });
+  const [selectedImages, setSelectedImages] = useState({});
+  // const { reportId } = location.state || {};
+  const role= getTokenData().role;
+  useEffect(() => {
+    const fetchAvailableSections = async () => {
+      try {
+        const response = await axios.get(`http://localhost:3000/report/${reportId}/sections`, {
+          params: { role }
+        });
+        
+        // Filter the original sections based on available sections from backend
+        const filteredSections = sections.filter(section => 
+          response.data.includes(section.title)
+        );
+        
+        setAvailableSections(filteredSections);
+      } catch (error) {
+        console.error('Error fetching available sections:', error);
+        // Fallback logic based on role
+        let defaultSections = [];
+        switch(role) {
+          case 'academic_coordinator':
+            defaultSections = sections; // All sections
+            break;
+          case 'infrastructure_coordinator':
+            defaultSections = sections.filter(section => 
+              section.title === 'Infrastructural Development'
+            );
+            break;
+          case 'finance_coordinator':
+            defaultSections = sections.filter(section => 
+              section.title === 'Financial Statements'
+            );
+            break;
+          default:
+            defaultSections = [];
+        }
+        setAvailableSections(defaultSections);
+      }
+    };
+
+    if (reportId && role) {
+      fetchAvailableSections();
+    }
+  }, [reportId, role]);
 
   const validateImageSize = (file) => {
     const image = new window.Image();
@@ -559,32 +705,88 @@ const Documents = () => {
   const handleCheck = async (sectionTitle, index) => {
     const key = `${sectionTitle}-${index}`;
     const isChecked = !checked[key];
-
+  
     setChecked((prev) => ({
       ...prev,
       [key]: isChecked,
     }));
-
+  
     // Fetch data only if checkbox is checked
-    if (isChecked && sectionTitle !== 'Message from Management') {
+    if (isChecked) {
       try {
-        const response = await axios.get(`http://localhost:3000/report/section-data`, {
-          params: { section: sections.find((sec) => sec.title === sectionTitle).details[index] }
+        // First, try to fetch the latest version
+        console.log("Trying this");
+        const latestVersionResponse = await axios.get('http://localhost:3000/report/section-details', {
+          params: {
+            reportId: reportId,
+            sectionName: sectionTitle,
+            subsectionName: sections.find((sec) => sec.title === sectionTitle).details[index],
+          }
         });
-        setSelectedData((prev) => ({
-          ...prev,
-          [key]: response.data
-        }));
+        setReportSectionDetailId(latestVersionResponse.data.details.id);
+        // If latest version exists, use it
+        if (latestVersionResponse.data.details) {
+          const latestDetails = latestVersionResponse.data.details;
+          setSelectedData((prev) => ({
+            ...prev,
+            [key]: {
+              intro: latestDetails.introduction,
+              data: latestDetails.data,
+              summary: latestDetails.summary,
+              graphdata: latestDetails.graph_data
+            }
+          }));
+  
+        } else {
+          // If no latest version, fetch from section-data
+          const response = await axios.get(`http://localhost:3000/report/section-data`, {
+            params: { section: sections.find((sec) => sec.title === sectionTitle).details[index] }
+          });
+          setSelectedData((prev) => ({
+            ...prev,
+            [key]: response.data
+          }));
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
+        
+        // Fallback to section-data if version fetch fails
+        try {
+          const response = await axios.get(`http://localhost:3000/report/section-data`, {
+            params: { section: sections.find((sec) => sec.title === sectionTitle).details[index] }
+          });
+          setSelectedData((prev) => ({
+            ...prev,
+            [key]: response.data
+          }));
+        } catch (fallbackError) {
+          console.error('Fallback data fetch failed:', fallbackError);
+        }
       }
     } else {
-      // Remove data if checkbox is unchecked
+      // If checkbox is unchecked, you can clear the selected data for that section
       setSelectedData((prev) => {
         const newData = { ...prev };
-        delete newData[key];
+        delete newData[key]; // Remove the data for the unchecked section
         return newData;
       });
+    }
+  };
+  
+  const handleGenerateWithAI = async (detailTitle) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/report/section-data`, {
+        params: { section: detailTitle }
+      });
+  
+      const key = `${openVersionModal.sectionTitle}-${detailTitle}`;
+      setSelectedData((prev) => ({
+        ...prev,
+        [key]: response.data
+      }));
+    } catch (error) {
+      console.error('Error generating data with AI:', error);
+      toast.error('Failed to generate data with AI');
     }
   };
 
@@ -609,6 +811,49 @@ const Documents = () => {
       transition: Zoom,
     });
   };
+  // Saving a section
+  const saveSection = async (sectionTitle, detailTitle, index) => {
+    const key = `${sectionTitle}-${index}`;
+    const sectionData = selectedData[key];
+  
+    try {
+      const response = await axios.post('http://localhost:3000/report/section-details', {
+        reportId: reportId,
+        sectionName: sectionTitle,
+        subsectionName: detailTitle,
+        introduction: sectionData?.intro || '',
+        data: sectionData?.data || [],
+        summary: sectionData?.summary || '',
+        graphData: sectionData?.graphdata || null,
+        createdBy: getTokenData().username
+      });
+  
+      // Update versions state with new details
+      setSectionVersions(prev => ({
+        ...prev,
+        [key]: {
+          ...(prev[key] || {}),
+          [detailTitle]: {
+            currentVersion: response.data.version,
+            sectionDetailsId: response.data.sectionDetailsId,
+            versionHistoryId: response.data.versionHistoryId,
+            versions: [
+              ...(prev[key]?.[detailTitle]?.versions || []),
+              response.data.version
+            ]
+          }
+        }
+      }));
+      console.log("response data for save Section");
+      console.log(response.data);
+      setReportSectionDetailId(response.data.report_section_id);
+      toast.success(`Section ${detailTitle} saved successfully (Version ${response.data.version})`);
+    } catch (error) {
+      console.error('Save failed', error);
+      toast.error(`Failed to save ${detailTitle}: ${error.response?.data?.details || error.message}`);
+    }
+  };
+
 
   const handleSubmit = () => {
     const contents = []; // This will hold the Table of Contents entries
@@ -650,9 +895,141 @@ const Documents = () => {
     setTableOfContents(contents);
     setSelectedSections(chosenSections); // Update selectedSections with structured data
   };
-   
+  const handleViewVersions = async (sectionTitle, detailTitle,index) => {
+    // Check if reportSectionDetailId is already set
+    if (!reportSectionDetailId) {
+      toast.error('No section detail ID available. Please check the section first.');
+      return;
+    }
+    console.log(sectionTitle+"----"+detailTitle);
+    try {
+      const versionsResponse = await axios.get(`http://localhost:3000/report/section-versions`, {
+        params: { reportSectionDetailId } // Fetch versions using the ID
+      });
+      console.log(versionsResponse.data.versions);
+      setOpenVersionModal({
+        open: true,
+        sectionTitle: sectionTitle,
+        detailTitle: detailTitle,
+        index:index,
+        versions: versionsResponse.data.versions || [], // Set the fetched versions
+        selectedVersion: null, // Reset selected version
+      });
+    } catch (error) {
+      console.error('Failed to fetch versions', error);
+      toast.error('Failed to fetch versions');
+    }
+  };
 
-  return (
+  const handleSelectVersion = (version) => {
+    console.log(version);
+    console.log(JSON.parse(version.content));
+    // Since version contains all necessary details, no need for an API call
+    const versionDetails = {
+      introduction: JSON.parse(version.content).introduction,
+      summary: JSON.parse(version.content).summary,
+      data: JSON.parse(version.content).data,
+      graph_data: JSON.parse(version.content).graphData
+    };
+    
+    // Update the selected version details in the modal
+    setOpenVersionModal((prev) => ({
+      ...prev,
+      selectedVersion: versionDetails 
+    }));
+  };
+
+  const handleBringToEditor = (introduction, summary, graphData, data) => {
+    // Construct the key based on sectionTitle and detailTitle
+    
+    const key = `${openVersionModal.sectionTitle}-${openVersionModal.index}`;
+    console.log("Bringing to editor with key:", selectedData);
+    
+    // Create the sanitized data object
+    const sanitizedData = {
+      intro: introduction || '',
+      data: Array.isArray(data) ? data : (typeof data === 'string' ? JSON.parse(data) : []),
+      summary: summary || '',
+      graphdata: graphData || null
+    };
+  
+    // Reset the current editor data before updating with new version data
+    setSelectedData(prev => ({
+      ...prev,
+      [key]: {
+        intro: '', // Reset introduction
+        data: [], // Reset data table
+        summary: '', // Reset summary
+        graphdata: null // Reset graph data
+      }
+    }));
+  
+    // Update the selectedData state with new version data
+    setSelectedData(prev => ({
+      ...prev,
+      [key]: {
+        ...prev[key], // Preserve existing data if any
+        ...sanitizedData // Update with new version data
+      }
+    }));
+  
+    // Close the modal after bringing to editor
+    setOpenVersionModal({ open: false, sectionTitle: '', detailTitle: '', versions: [], selectedVersion: null,index:'' });
+  };
+  const handleImageChange = (sectionTitle, index, event) => {
+    const files = Array.from(event.target.files);
+    const key = `${sectionTitle}-${index}`;
+    
+    // Update the selected images for the specific section
+    setSelectedImages(prev => ({
+        ...prev,
+        [key]: files
+    }));
+};
+
+const handleUploadImages = async (sectionTitle, index) => {
+  const key = `${sectionTitle}-${index}`;
+  const images = selectedImages[key];
+
+  if (!images || images.length === 0) {
+    toast.error('No images selected for upload.');
+    return;
+  }
+
+  const formData = new FormData();
+  images.forEach(image => {
+    formData.append('images', image);
+  });
+
+  // Add reportId and reportSectionDetailId to the form data
+  formData.append('reportId', reportId);
+  formData.append('reportSectionDetailId', reportSectionDetailId);
+
+  try {
+    const response = await axios.post('http://localhost:3000/report/upload-images', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    toast.success('Images uploaded successfully');
+    setSelectedImages(prev => ({
+      ...prev,
+      [key]: [] // Clear the selected images after upload
+    }));
+  } catch (error) {
+    console.error('Error uploading images:', error);
+    // Log the detailed error response
+    if (error.response) {
+      console.error('Error details:', error.response.data);
+      toast.error(`Failed to upload images: ${error.response.data.error || 'Unknown error'}`);
+    } else {
+      toast.error('Failed to upload images');
+    }
+  }
+};
+
+return (
     <Container>
       <TitleC>Generate Report</TitleC>
       {/* Image Picker for Cover Page */}
@@ -664,7 +1041,7 @@ const Documents = () => {
         {imageError && <p style={{ color: 'red' }}>{imageError}</p>}
       </div>
       <List component="nav">
-        {sections.map(({ title, details }) => (
+        {availableSections.map(({ title, details }) => (
           <React.Fragment key={title}>
             <StyledListItem button onClick={() => handleClick(title)}>
               <ListItemIconStyled>
@@ -690,56 +1067,173 @@ const Documents = () => {
                     
                     {/* Conditionally render input or fetched data */}
                     {checked[`${title}-${index}`] && (
-                        title === 'Message from Management' ? (
-                          <StyledListItem style={{ paddingLeft: '6em' }}>
-                            <TextField
-                              label="Description"
-                              variant="outlined"
-                              fullWidth
-                              name="description"
-                              value={formData[`${title}-${index}-description`] || ''}
-                              onChange={(e) => handleInputChange(title, index, e)}
-                              multiline
-                              rows={4}
-                            />
-                          </StyledListItem>
-                        ) : (
-                          <StyledListItem style={{ paddingLeft: '6em', flexDirection: 'column', alignItems: 'flex-start' }}>
-                            {/* Display the intro text */}
-                            <ListItemText primary="Introduction" secondary={selectedData[`${title}-${index}`]?.intro || "Loading..."} style={{ marginBottom: '10px' }} />
-                            {/* Conditionally render the graph */}
-                            {selectedData[`${title}-${index}`]?.graphdata && (
-                              <div>
-                                <h4>{selectedData[`${title}-${index}`].graphdata.config_name}</h4>
-                                {renderGraphInUI  (selectedData[`${title}-${index}`].graphdata)}
-                              </div>
-                            )}
-                            {/* Display the data as a table */}
-                            <table style={{ width: '100%', marginBottom: '10px', borderCollapse: 'collapse' }}>
-                              <thead>
-                                <tr>
-                                  {selectedData[`${title}-${index}`]?.data && selectedData[`${title}-${index}`].data.length > 0 &&
-                                    Object.keys(selectedData[`${title}-${index}`].data[0]).map((key) => (
-                                      <th key={key} style={{ border: '1px solid #ddd', padding: '8px' }}>{key}</th>
-                                    ))}
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {selectedData[`${title}-${index}`]?.data?.map((row, rowIndex) => (
-                                  <tr key={rowIndex}>
-                                    {Object.values(row).map((value, colIndex) => (
-                                      <td key={colIndex} style={{ border: '1px solid #ddd', padding: '8px' }}>{value}</td>
-                                    ))}
-                                  </tr>
-                                ))}
-                              </tbody>
-                            </table>
+  title === 'Message from Management' ? (
+    <StyledListItem style={{ paddingLeft: '6em' }}>
+      <TextField
+        label="Description"
+        variant="outlined"
+        fullWidth
+        name="description"
+        value={formData[`${title}-${index}-description`] || ''}
+        onChange={(e) => handleInputChange(title, index, e)}
+        multiline
+        rows={4}
+      />
+    </StyledListItem>
+  ) : (
+    <StyledListItem 
+      style={{ 
+        paddingLeft: '6em', 
+        flexDirection: 'column', 
+        alignItems: 'flex-start' 
+      }}
+    >
+      {/* Add Version Tracking Buttons */}
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        width="100%" 
+        marginBottom="10px"
+      >
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => saveSection(title, detail, index)}
+        >
+          Save Section
+        </Button>
+  
+          <Button 
+            variant="outlined" 
+            color="secondary"
+            onClick={() => handleViewVersions(title,detail,index)}
+          >
+            View Versions
+          </Button>
+        
+      </Box>
 
-                            {/* Display the summary text */}
-                            <ListItemText primary="Summary" secondary={selectedData[`${title}-${index}`]?.summary || "Loading..."} />
-                          </StyledListItem>
-                        )
-                      )}
+      {/* Editable Introduction */}
+      <TextField
+        label="Introduction"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={4}
+        value={selectedData[`${title}-${index}`]?.intro || ""}
+        onChange={(e) => {
+          setSelectedData(prev => ({
+            ...prev,
+            [`${title}-${index}`]: {
+              ...prev[`${title}-${index}`],
+              intro: e.target.value
+            }
+          }));
+        }}
+        style={{ marginBottom: '20px' }}
+      />
+      {/* Image Upload Section */}
+      <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handleImageChange(title, index, e)}
+        />
+        <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={() => handleUploadImages(title, index)}
+        >
+            Upload Images
+        </Button>
+
+        {/* Display Uploaded Images */}
+        {selectedImages[`${title}-${index}`] && selectedImages[`${title}-${index}`].length > 0 && (
+            <div>
+                <h4>Selected Images:</h4>
+                {selectedImages[`${title}-${index}`].map((file, idx) => (
+                    <div key={idx}>
+                        <img src={URL.createObjectURL(file)} alt={`preview-${idx}`} style={{ width: '100px', height: '100px', margin: '5px' }} />
+                    </div>
+                ))}
+            </div>
+        )}
+      {/* Editable Data Table */}
+      <Paper style={{ width: '100%', overflowX: 'auto', marginBottom: '20px' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {selectedData[`${title}-${index}`]?.data && 
+               selectedData[`${title}-${index}`].data.length > 0 &&
+               Object.keys(selectedData[`${title}-${index}`].data[0]).map((key) => (
+                <TableCell key={key}>{key}</TableCell>
+              ))}
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {selectedData[`${title}-${index}`]?.data?.map((row, rowIndex) => (
+              <TableRow key={rowIndex}>
+                {Object.entries(row).map(([key, value], colIndex) => (
+                  <TableCell key={colIndex}>
+                    <TextField
+                      value={value}
+                      onChange={(e) => {
+                        const newData = [...selectedData[`${title}-${index}`].data];
+                        newData[rowIndex] = {
+                          ...newData[rowIndex],
+                          [key]: e.target.value
+                        };
+                        
+                        setSelectedData(prev => ({
+                          ...prev,
+                          [`${title}-${index}`]: {
+                            ...prev[`${title}-${index}`],
+                            data: newData
+                          }
+                        }));
+                      }}
+                      variant="standard"
+                      fullWidth
+                    />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+
+      {/* Editable Summary */}
+      <TextField
+        label="Summary"
+        variant="outlined"
+        fullWidth
+        multiline
+        rows={4}
+        value={selectedData[`${title}-${index}`]?.summary || ""}
+        onChange={(e) => {
+          setSelectedData(prev => ({
+            ...prev,
+            [`${title}-${index}`]: {
+              ...prev[`${title}-${index}`],
+              summary: e.target.value
+            }
+          }));
+        }}
+      />
+
+      {/* Optional: Graph Rendering */}
+      {selectedData[`${title}-${index}`]?.graphdata && (
+        <div style={{ marginTop: '20px', width: '100%' }}>
+          <Typography variant="h6">
+            {selectedData[`${title}-${index}`].graphdata.config_name}
+          </Typography>
+          {renderGraphInUI(selectedData[`${title}-${index}`].graphdata)}
+        </div>
+      )}
+    </StyledListItem>
+  )
+)}
 
                   </React.Fragment>
                 ))}
@@ -762,6 +1256,23 @@ const Documents = () => {
 
 
       </ButtonContainer>
+      <VersionHistoryModal
+        open={openVersionModal.open}
+        onClose={() => setOpenVersionModal({ 
+          open: false, 
+          sectionTitle: '', 
+          detailTitle: '', 
+          index:'',
+          versions: [],
+          selectedVersion: null // Reset selected version
+        })}
+        sectionTitle={openVersionModal.sectionTitle}
+        detailTitle={openVersionModal.detailTitle}
+        versions={openVersionModal.versions}
+        onSelectVersion={handleSelectVersion} // Pass the function to handle version selection
+        onBringToEditor={handleBringToEditor} // Pass the function to bring selected version to editor
+        selectedVersion={openVersionModal.selectedVersion} // Pass the selected version details
+      />
       <ToastContainer />
     </Container>
   );

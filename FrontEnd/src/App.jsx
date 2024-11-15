@@ -56,6 +56,11 @@ import UploadDatabasePage from "./Pages/UploadDatabasePage";
 import TablesPage from "./Pages/TablesPage";
 import CreateFormPage from "./Pages/CreateFormPage";
 import RenderFormPage from "./Pages/RenderFormPage";
+import OtherFormsRecordForIconNondept from "./Components/OtherFormsRecordsForIconNondept";
+import AddFormnonDept from "./Pages/AddFormnonDept";
+import EditFormNonDep from "./Pages/EditFormNonDep";
+import CreateReport from "./Pages/CreateReport";
+import ReportsList from "./Pages/ReportsList";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -112,6 +117,9 @@ function App() {
               <Route path="forms/form-records/:table" element={<OtherFormsRecordForIcon />}/>
               <Route path="forms/form-records/:table/add-form" element={<AddForm />} />
               <Route path="forms/form-records/:table/edit-form" element={<EditForm />} />
+              <Route path="nondeptforms/form-records/:table" element={<OtherFormsRecordForIconNondept/>}/>
+              <Route path="nondeptforms/form-records/:table/add-form" element={<AddFormnonDept />} />
+              <Route path="nondeptforms/form-records/:table/edit-form" element={<EditFormNonDep/>}/>
               
               <Route path="forms/Manage-Assigned-Users" element={<ManageAssignedUsers/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
@@ -120,6 +128,8 @@ function App() {
               <Route path="faculty-details/edit-form" element={<EditForm/>} />
               <Route path="faculty-details/add-form" element={<AddForm />} />
               <Route path="report-generation" element={<Documents/>}/>
+              <Route path="initiate-report" element={<CreateReport/>}/>
+              <Route path="Reports" element={<ReportsList/>}/>
               <Route path="*" element={<Invalidpage />} />
 
               <Route path="gforms" element={<HomePage/>} />

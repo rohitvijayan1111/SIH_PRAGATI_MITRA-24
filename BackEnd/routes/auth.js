@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const { OAuth2Client } = require('google-auth-library');
 
-const client = new OAuth2Client('6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
+const client = new OAuth2Client('s6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
 
 const jwtSecret = 'your_jwt_secret_key';
 router.post('/register', async (req, res) => {

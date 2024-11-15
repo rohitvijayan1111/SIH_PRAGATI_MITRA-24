@@ -18,7 +18,7 @@ const EditFormNonDep = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const fileInputRef = useRef(null);
-
+  
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
       position: "top-center",
@@ -104,6 +104,32 @@ const EditFormNonDep = () => {
     }
   };
 
+  // Function to handle company details for JSON type attributes
+  const handleCompanyDetailChange = (index, field, value) => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    const updatedDetails = currentCompanyDetails.map((detail, i) => 
+      i === index ? { ...detail, [field]: value } : detail
+    );
+    setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+  };
+
+  const addCompanyDetail = () => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    const updatedDetails = [
+      ...currentCompanyDetails, 
+      { companyName: '', salaryOffered: '', noOfStuPlaced: '' }
+    ];
+    setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+  };
+
+  const deleteLastCompanyDetail = () => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    if (currentCompanyDetails.length > 1) {
+      const updatedDetails = currentCompanyDetails.slice(0, -1);
+      setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+    }
+  };
+
   return (
     <div className="cnt">
       <h2>Edit Form</h2>
@@ -112,7 +138,9 @@ const EditFormNonDep = () => {
           {attributenames.map((attribute, index) => (
             attribute !== "id" && attribute !== "createdAt" && (
               <div className="frm" key={index}>
-                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+                <label htmlFor={attribute} className="lbl">
+                  {attribute.replace(/_/g, ' ')}:
+                </label>
                 {attributeTypes[attribute] === 'date' ? (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -130,7 +158,7 @@ const EditFormNonDep = () => {
                       )}
                     />
                   </LocalizationProvider>
-                ) : attribute === "document" ? (
+                ) : attributeTypes[attribute] === 'file' ? (
                   <div>
                     <div className="file-upload-container">
                       <input
@@ -141,10 +169,20 @@ const EditFormNonDep = () => {
                       />
                     </div>
                     <div className='bttns'>
-                      <label htmlFor={attribute} className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
+                      <label 
+                        htmlFor={attribute} 
+                        className="custom-file-upload" 
+                        onClick={() => fileInputRef.current.click()}
+                      >
                         Choose File
                       </label>
-                      <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
+                      <button 
+                        type="button" 
+                        className="custom-file-upload" 
+                        onClick={handleFileReset}
+                      >
+                        Reset File
+                      </button>
                     </div>
                     <input
                       type="file"
@@ -152,11 +190,53 @@ const EditFormNonDep = () => {
                       className="custom-file-upload"
                       onChange={handleFileChange}
                       key={fileInputKey}
-                      ref={fileInputRef} // Attach ref to file input
+                      ref={fileInputRef}
                       style={{ display: 'none' }}
-                      required={!data.document || data.document === 'No file selected'}
                     />
                   </div>
+                ) : attributeTypes[attribute] === 'json' ? (
+                  <>
+                    {JSON.parse(data.company_details || '[]').map((detail, index) => (
+                      <div key={index} className="company-detail">
+                        <div className="company-div"> <label htmlFor={`companyName-${index}`} className="company-lbl"><b>Company Name:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`companyName-${index}`}
+                            value={detail.companyName}
+                            onChange={(e) => handleCompanyDetailChange(index, 'companyName', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="company-div">
+                          <label htmlFor={`salaryOffered-${index}`} className="company-lbl"><b>Salary Offered:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`salaryOffered-${index}`}
+                            value={detail.salaryOffered}
+                            onChange={(e) => handleCompanyDetailChange(index, 'salaryOffered', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="company-div">
+                          <label htmlFor={`noOfStuPlaced-${index}`} className="company-lbl"><b>No. Of Stu Placed:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`noOfStuPlaced-${index}`}
+                            value={detail.noOfStuPlaced}
+                            onChange={(e) => handleCompanyDetailChange(index, 'noOfStuPlaced', e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <div className="company-buttons">
+                      <button type="button" className="btn add-button" onClick={addCompanyDetail}>Add Company</button>
+                      <button type="button" className="btn remove-button" onClick={deleteLastCompanyDetail}>Remove Last</button>
+                    </div>
+                  </>
                 ) : (
                   <input
                     type="text"
@@ -180,6 +260,6 @@ const EditFormNonDep = () => {
       <ToastContainer />
     </div>
   );
-}
+};
 
 export default EditFormNonDep;
