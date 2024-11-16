@@ -37,6 +37,87 @@ const getFriendlyErrorMessage = (errCode) => {
       return "An unknown error occurred.";
   }
 };
+router.get('/gettablelist', async (req, res) => {
+  console.log("Received request:", req.query);
+
+  const sql = 'SELECT form_table_name, form_title FROM form_locks;';
+  try {
+      db.query(sql, (err, results) => {
+          if (err) {
+              console.error('Database error:', err);
+              return res.status(500).send(getFriendlyErrorMessage(err.code));
+          }
+          if (results.length === 0) {
+              return res.status(404).send('No forms found');
+          }
+
+          // Map results to an array of objects containing both the title and table name
+          const tables = results.map(row => ({
+              tableName: row.form_table_name,
+              title: row.form_title
+          }));
+          console.log('Database results:', tables);
+          res.status(200).json({ tables });
+      });
+  } catch (err) {
+      console.error('Catch error:', err.message);
+      return res.status(500).send(getFriendlyErrorMessage(err.code));
+  }
+});
+
+router.post('/columns', async (req, res) => {
+  const { tables } = req.body;  // Get table names from the request body
+  console.log("Received tables:", tables);
+  if (!Array.isArray(tables) || tables.length === 0) {
+    return res.status(400).json({ error: 'Tables array is required and should not be empty' });
+  }
+
+  try {
+    const columnsData = {};
+
+    // Loop through each table and fetch its column names by selecting one record
+    for (const table of tables) {
+      const [row] = await query(`SELECT * FROM ?? LIMIT 1`, [table]);
+      if (row) {
+        columnsData[table] = Object.keys(row);  // Get column names from the keys of the row object
+      } else {
+        console.error(`No records found for table ${table}`);
+        columnsData[table] = []; // Return an empty array if no records are found
+      }
+    }
+
+    res.json({ columns: columnsData });
+  } catch (error) {
+    console.error('Error fetching columns:', error);
+    res.status(500).json({ error: 'Error fetching columns from database' });
+  }
+});
+
+
+router.post('/getFormId', async (req, res) => {
+  const { tableName } = req.body;
+
+  if (!tableName) {
+    return res.status(400).json({ error: 'Table name is required' });
+  }
+
+  const queryStr = `SELECT id as form_id,form_title FROM form_locks WHERE form_table_name = ? LIMIT 1`;
+
+  try {
+    const results = await query(queryStr, [tableName]);
+
+    if (results.length > 0) {
+      // Return both form_id and form_title
+      const { form_id, form_title } = results[0];
+      return res.json({ form_id, form_title });
+    } else {
+      return res.status(404).json({ error: 'Form ID not found for the specified table' });
+    }
+  } catch (error) {
+    console.error('Error fetching form ID:', error);
+    return res.status(500).json({ error: getFriendlyErrorMessage(error.code) });
+  }
+});
 
 router.post('/gettable', async (req, res) => {
   //console.log("Received request:", req.body);
@@ -80,22 +161,29 @@ router.post('/gettable', async (req, res) => {
   }
 });
 router.post('/create-table', async (req, res) => {
-  const { formName, attributes,usergroup } = req.body;
+  const { formName, attributes, usergroup } = req.body;
 
   if (!formName || !attributes || !Array.isArray(attributes)) {
     return res.status(400).send('Invalid request data');
   }
 
   // Construct table name and columns
-  const tableName = formName.replace(/\s+/g, '_').toLowerCase(); // Convert form name to a valid table name
-  let columns = 'id INT AUTO_INCREMENT PRIMARY KEY, ';
+  const tableName = formName.replace(/\s+/g, '_').toLowerCase(); 
+  
+  // Add default columns: id, createdAt
+  let columns = `
+    id INT AUTO_INCREMENT PRIMARY KEY, 
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `;
+
+  // Add custom attributes
   attributes.forEach((attr) => {
     const type = attr.type === 'text' ? 'VARCHAR(255)' :
                  attr.type === 'number' ? 'INT' :
                  attr.type === 'date' ? 'DATE' :
                  attr.type === 'boolean' ? 'BOOLEAN' :
-                 attr.type === 'file' ? 'VARCHAR(255)' : // File type, storing file name or path
-                 attr.type === 'link' ? 'VARCHAR(255)' : 'TEXT'; // Link type, storing URL or related link
+                 attr.type === 'file' ? 'VARCHAR(255)' : 
+                 attr.type === 'link' ? 'VARCHAR(255)' : 'TEXT'; 
     columns += `${attr.name.replace(/\s+/g, '_').toLowerCase()} ${type}, `;
   });
 
@@ -109,8 +197,8 @@ router.post('/create-table', async (req, res) => {
     await query(createTableQuery);
 
     // Insert a record into the form_locks table
-    const insertLockQuery = `INSERT INTO form_locks (form_table_name, form_title, is_locked,usergroup,not_submitted_emails) VALUES (?, ?, ?,?,?)`;
-    await query(insertLockQuery, [tableName, formName, 0,usergroup,usergroup]); // Initially, set is_locked to 0 (unlocked)
+    const insertLockQuery = `INSERT INTO form_locks (form_table_name, form_title, is_locked, assigned_to_usergroup) VALUES (?, ?, ?, ?)`;
+    await query(insertLockQuery, [tableName, formName, 0, usergroup]); 
 
     res.send(`Table ${tableName} created successfully`);
   } catch (err) {
@@ -301,7 +389,11 @@ router.post('/deadline', async (req, res) => {
       };
 
       // Send email for each user
-      await axios.post('http://localhost:3000/mail/send', emailPayload);
+      try {
+        await axios.post('http://localhost:3000/mail/send', emailPayload);
+      } catch (emailError) {
+        console.error(`Failed to send email to ${email}:`, emailError.response ? emailError.response.data : emailError.message);
+      }
     }
 
     res.status(200).json({ success: true, message: 'Deadline updated and notifications sent successfully' });
@@ -311,7 +403,6 @@ router.post('/deadline', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating the deadline' });
   }
 });
-
 router.post('/create-shadow-user', async (req, res) => {
   const { emailId, form_id, department, role, assigned_by, form_title, deadline } = req.body;
 

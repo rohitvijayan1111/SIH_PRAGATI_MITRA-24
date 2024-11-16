@@ -4,6 +4,8 @@ import styled from 'styled-components';
 import PieChartComponent from '../Components/Department-Component/FacultyCountPieChart';
 import StudentCountPieChart from '../Components/Department-Component/StudentsCountPieChart';
 import PlacementBarGraph from '../Components/Department-Component/PlacementBarGraph';
+import CustomBar from './CustomBar';
+import CustomPie from './CustomPie';
 import { Link, Navigate } from 'react-router-dom'; 
 import { getTokenData } from './authUtils';
 
@@ -94,30 +96,43 @@ function DashBoard_hod() {
   if (!tokenData) {
     return <Navigate to="/" />;
   }
-  const { department } = tokenData;
+
+  const { department, userId } = tokenData;
   const [academicYears, setAcademicYears] = useState([]);
   const [selectedYear, setSelectedYear] = useState('');
   const [studentDetails, setStudentDetails] = useState([]);
   const [facultyDetails, setFacultyDetails] = useState([]);
   const [studentYrsDetails, setStudentYrsDetails] = useState([]);
+  const [customGraphs, setCustomGraphs] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await axios.post("http://localhost:3000/graphs/academicyear");
-        const years = response.data;
-        setAcademicYears(years);
-        const defaultYear = years[years.length - 1];
-        setSelectedYear(defaultYear);
-        fetchStudentData(defaultYear);
-        fetchStaffData();
-        fetchStudentyrsData(defaultYear);
-      } catch (error) {
-        console.error('Error fetching academic years:', error);
-      }
-    }
-    fetchData();
+    fetchAcademicYears();
+    fetchCustomGraphs(userId);
   }, []);
+
+  const fetchAcademicYears = async () => {
+    try {
+      const response = await axios.post("http://localhost:3000/graphs/academicyear");
+      const years = response.data;
+      setAcademicYears(years);
+      const defaultYear = years[years.length - 1];
+      setSelectedYear(defaultYear);
+      fetchStudentData(defaultYear);
+      fetchStaffData();
+      fetchStudentyrsData(defaultYear);
+    } catch (error) {
+      console.error('Error fetching academic years:', error);
+    }
+  };
+
+  const fetchCustomGraphs = async (userId) => {
+    try {
+      const response = await axios.get(`http://localhost:3000/dashboard/getgraphs/${userId}`);
+      setCustomGraphs(response.data.graphs);
+    } catch (error) {
+      console.error("Error fetching custom graphs:", error);
+    }
+  };
 
   const handleYearChange = (event) => {
     const year = event.target.value;
@@ -172,6 +187,19 @@ function DashBoard_hod() {
     { name: "4th Year", value: data.fourthyear },
   ];
 
+  const customTransformData = (data) => data.map(item => ({ name: item.name, value: item.value }));
+
+  const renderGraph = (graph) => {
+    switch (graph.graph_type) {
+      case 'pie':
+        return <CustomPie data={customTransformData(graph.data)} colorSettings={graph.colorSettings} />;
+      case 'bar':
+        return <CustomBar data={customTransformData(graph.data)} colorSettings={graph.colorSettings} />;
+      default:
+        return <p>Unsupported graph type: {graph.graph_type}</p>;
+    }
+  };
+
   return (
     <DashboardContainer>
       <DropDown value={selectedYear} onChange={handleYearChange}>
@@ -188,11 +216,20 @@ function DashBoard_hod() {
         <GridItem>
           <Title>Placement</Title>
           <PlacementBarGraph Details={studentDetails} />
+          <Link to="Placements">
+            <CuteButton>View</CuteButton>
+          </Link>
         </GridItem>
         <GridItem>
           <Title>Student</Title>
           <StudentCountPieChart data={studentYrsDetails} />
         </GridItem>
+        {customGraphs.map((graph, index) => (
+          <GridItem key={index}>
+            <Title>{graph.config_name}</Title>
+            {renderGraph(graph)}
+          </GridItem>
+        ))}
       </GridContainer>
     </DashboardContainer>
   );

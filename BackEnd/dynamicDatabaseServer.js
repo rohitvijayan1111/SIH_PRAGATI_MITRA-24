@@ -21,7 +21,7 @@ app.get('/api/databases', (req, res) => {
   const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '1207',
+    password: 'pass123',
   });
 
   connection.query('SHOW DATABASES', (err, results) => {
@@ -38,7 +38,7 @@ app.post('/api/select-database', (req, res) => {
   dbConnection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '1207',
+    password: 'pass123',
     database: dbName,
   });
 

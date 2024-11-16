@@ -155,7 +155,7 @@ const CreateNewForm = () => {
     const [error, setError] = useState('');
     const tokendata = getTokenData();
     const role = tokendata.role;
-
+    
     const [to, setTo] = useState('');
     const [selectAll, setSelectAll] = useState(false);
     const [senderlist, setSenderList] = useState([
@@ -190,7 +190,8 @@ const CreateNewForm = () => {
         });
     };
 
-    const addAttribute = () => {
+    const addAttribute = (e) => {
+        e.preventDefault();
         if (attributeName) {
             if (attributeType === 'file' && attributeName !== 'document') {
                 setError('For "file" type, the header should be "document".');
@@ -245,17 +246,19 @@ const CreateNewForm = () => {
             notifyFailure('Form name and at least one attribute are required.');
             return;
         }
-
+    
         let selectedEmails = senderlist.filter(member => member.checked).map(member => member.text);
-
+    
         if (to.trim() !== '') {
             const additionalEmails = to.split(',').map(email => email.trim());
             selectedEmails = [...selectedEmails, ...additionalEmails];
         }
-
-        const usergroup = selectedEmails.join(',');
+    
+        // Convert selectedEmails array to JSON
+        const usergroup = JSON.stringify(selectedEmails); // Convert to JSON array
+    
         const newForm = { formName, attributes, usergroup };
-
+    
         try {
             const response = await axios.post('http://localhost:3000/tables/create-table', newForm);
             notifySuccess(response.data);

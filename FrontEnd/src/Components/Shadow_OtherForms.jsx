@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
 import { getTokenData } from '../Pages/authUtils';
-import './OtherForms.css';
 import dayjs from 'dayjs';
 
 const Shadow_OtherForms = () => {

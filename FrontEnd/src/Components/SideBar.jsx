@@ -20,7 +20,7 @@ const MenuIcon = styled.div`
   color: white;
   cursor: pointer;
   padding: 10px;
-  z-index: 100;
+  z-index: 1000;
 
   @media (max-width: 768px) {
     display: block;

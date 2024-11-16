@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json({ limit: '10mb' })); // Increase limit for JSON bodies
+app.use(express.urlencoded({ limit: '10mb', extended: true })); //
+
 
 const authRoutes = require('./routes/auth');
 const clubActivitiesRoutes = require('./routes/clubActivities');
@@ -29,8 +32,9 @@ const attendanceRoutes = require('./routes/attendance');
 const excelUploadRoutes = require('./routes/excel');
 const gform = require('./routes/gform');
 const chat = require('./routes/chat');
-const dbimport = require('./routes/dbimport');
-
+const dbimport = require('./routes/dbimport');const dashboardRoutes = require('./routes/dashboard');
+const reportRoutes = require('./routes/datareport');
+const nondeptRoutes=require("./routes/tablesfornondept");
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -42,6 +46,10 @@ app.use('/excel', excelUploadRoutes);
 app.use('/gform', gform);
 app.use('/chat', chat);
 app.use('/db', dbimport);
+app.use('/dashboard', dashboardRoutes);
+app.use("/tablesfornondept",nondeptRoutes);
+app.use('/report', reportRoutes);
+
 
 app.post('/translate', async (req, res) => {
   const { text, targetLanguage } = req.body;
@@ -68,16 +76,6 @@ app.post('/translate', async (req, res) => {
       res.status(500).json({ error: 'Error translating text' });
   }
 });
-
-
-
-
-
-
-
-
-
-
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');
 
@@ -171,6 +169,10 @@ cron.schedule('0 */4 * * *', () => {
   processFormLocks();
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on http://0.0.0.0:${PORT}`);
 });
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });

@@ -9,8 +9,10 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3'
 import SignPage from './Pages/Signup';
 import EmailNotification from "./Pages/EmailNotification";
 import EditForm from "./Pages/EditForm";
+import ViewForm from "./Pages/ViewForm";
 import AddForm from "./Pages/AddForm";
 import CreateNewForm from "./Pages/CreateNewForm";
+import ViewOtherForms from "./Pages/ViewOtherForms";
 import Invalidpage from "./Pages/Invalidpage";
 import OtherForms from "./Components/OtherForms";
 import OtherFormsRecords from "./Components/OtherFormsRecords";
@@ -19,16 +21,25 @@ import SetDeadlinePage from "./Components/SetDeadlinePage";
 import AssignTask from "./Components/AssignTask";
 import Shadow_OtherForms from "./Components/Shadow_OtherForms";
 import ManageAssignedUsers from "./Components/ManageAssignedUsers";
+import AddNewRecord from "./Pages/AddNewRecord";
+import { ViewOtherFormRecord, EditOtherFormRecord } from "./Pages/ViewOtherFormRecord";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import HomePage from "./Pages/HomePage";
+import FormSelectionPage from "./Pages/FormSelectionPage";
+import ChatSpace from "./Pages/ChatSpace";
+import DatabasePage from "./Pages/DatabasePage";
+import UploadDatabasePage from "./Pages/UploadDatabasePage";
+
+import DetailsPage from "./Pages/DetailsPage";
+
+import TablesPage from "./Pages/TablesPage";
 import CreateFormPage from "./Pages/CreateFormPage";
 import RenderFormPage from "./Pages/RenderFormPage";
-import ChatSpace from "./Pages/ChatSpace";
-import FormSelectionPage from "./Pages/FormSelectionPage";
-import DatabasePage from "./Pages/DatabasePage";
-import TablesPage from "./Pages/TablesPage";
-import UploadDatabasePage from "./Pages/UploadDatabasePage";
-import DetailsPage from "./Pages/DetailsPage";
+import OtherFormsRecordForIconNondept from "./Components/OtherFormsRecordsForIconNondept";
+import AddFormnonDept from "./Pages/AddFormnonDept";
+import EditFormNonDep from "./Pages/EditFormNonDep";
+import CreateReport from "./Pages/CreateReport";
+import ReportsList from "./Pages/ReportsList";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -40,8 +51,6 @@ function ScrollToTop() {
 }
 
 function App() {
-
-  
   return ( 
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className='app'>
@@ -74,6 +83,13 @@ function App() {
               <Route path="forms/deadline" element={<SetDeadlinePage/>} />
               <Route path="forms/assign-task" element={<AssignTask/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
+              <Route path="forms/form-records/:table" element={<OtherFormsRecordForIcon />}/>
+              <Route path="forms/form-records/:table/add-form" element={<AddForm />} />
+              <Route path="forms/form-records/:table/edit-form" element={<EditForm />} />
+              <Route path="nondeptforms/form-records/:table" element={<OtherFormsRecordForIconNondept/>}/>
+              <Route path="nondeptforms/form-records/:table/add-form" element={<AddFormnonDept />} />
+              <Route path="nondeptforms/form-records/:table/edit-form" element={<EditFormNonDep/>}/>
+              
               <Route path="forms/Manage-Assigned-Users" element={<ManageAssignedUsers/>} />
               <Route path="forms/form-records/edit-form" element={<EditForm/>} />
               <Route path="forms/form-records/add-form" element={<AddForm />} />
@@ -81,6 +97,19 @@ function App() {
               <Route path="faculty-details/edit-form" element={<EditForm/>} />
               <Route path="faculty-details/add-form" element={<AddForm />} />
               <Route path="*" element={<Invalidpage />} />
+
+              <Route path="gforms" element={<HomePage/>} />
+              <Route path="form-type" element={ <FormSelectionPage/> } />
+              <Route path="chat" element={<ChatSpace/>} />
+              <Route path="dynamic" element={ <DatabasePage/> } />
+              <Route path="dbimport" element={ <UploadDatabasePage/> } />
+              <Route path="dynamic/tables/:database" element={ <TablesPage/> } />
+              <Route path="gforms/gcreate-form" element={<CreateFormPage/>} />
+              <Route path="gforms/render-form/:id" element={<RenderFormPage />} />
+              <Route path="report-generation" element={<Documents/>}/>
+              <Route path="initiate-report" element={<CreateReport/>}/>
+              <Route path="Reports" element={<ReportsList/>}/>
+              <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />
             </Route>
             <Route path="*" element={<Invalidpage />} />
           </Routes>

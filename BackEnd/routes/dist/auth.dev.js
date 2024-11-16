@@ -13,7 +13,7 @@ var router = express.Router();
 var _require = require('google-auth-library'),
     OAuth2Client = _require.OAuth2Client;
 
-var client = new OAuth2Client('6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
+var client = new OAuth2Client('s6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com');
 var jwtSecret = 'your_jwt_secret_key';
 router.post('/register', function _callee2(req, res) {
   var _req$body, username, password, role, department;

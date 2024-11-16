@@ -10,16 +10,15 @@ import TextField from '@mui/material/TextField';
 import dayjs from 'dayjs';
 import './EditForm.css';
 
-const EditForm = () => {
+const EditFormNonDep = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { table, attributenames, item,attributeTypes} = location.state;
+  const { table, attributenames, item, attributeTypes } = location.state;
   const [data, setData] = useState(item);
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const fileInputRef = useRef(null);
   
-  console.log(attributeTypes);
   const notifysuccess = () => {
     toast.success('Record Edited Successfully!', {
       position: "top-center",
@@ -68,42 +67,7 @@ const EditForm = () => {
     setFileInputKey(Date.now()); // Reset file input by changing the key
     setData({ ...data, document: 'No file selected' });
   };
-  const removeEmailFromNotSubmitted = async (formId, email) => {
-    try {
-      const response = await axios.post('http://localhost:3000/tables/remove-email', {
-        formId,
-        email
-      });
-  
-      // Handle successful response
-      console.log('Response:', response.data);
-      toast.success('Email removed successfully', {
-        position: "top-center",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Zoom,
-      });
-    } catch (error) {
-      // Handle error
-      console.error('Error removing email:', error.response?.data || error.message);
-      toast.error('Error removing email', {
-        position: "top-center",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-        transition: Zoom,
-      });
-    }
-  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -113,25 +77,24 @@ const EditForm = () => {
           formattedData[attribute] = dayjs(formattedData[attribute]).format('YYYY-MM-DD');
         }
       }
-  
+
       const formData = new FormData();
       formData.append('id', data.id);
       formData.append('table', table);
       formData.append('data', JSON.stringify(formattedData));
-  
+
       // Handle file upload or deletion
       if (selectedFile) {
         formData.append('file', selectedFile);
       } else if (data.document && data.document !== 'No file selected') {
         formData.append('deleteFile', true); // Request to delete the existing file
       }
-  
-      const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
+
+      const response = await axios.post("http://localhost:3000/tablesfornondept/updaterecord", formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      // removeEmailFromNotSubmitted(formId,tokendata.email);
       notifysuccess();
       setTimeout(() => {
         navigate(-1);
@@ -140,15 +103,44 @@ const EditForm = () => {
       notifyfailure(error.response?.data?.error || 'Error updating record');
     }
   };
+
+  // Function to handle company details for JSON type attributes
+  const handleCompanyDetailChange = (index, field, value) => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    const updatedDetails = currentCompanyDetails.map((detail, i) => 
+      i === index ? { ...detail, [field]: value } : detail
+    );
+    setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+  };
+
+  const addCompanyDetail = () => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    const updatedDetails = [
+      ...currentCompanyDetails, 
+      { companyName: '', salaryOffered: '', noOfStuPlaced: '' }
+    ];
+    setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+  };
+
+  const deleteLastCompanyDetail = () => {
+    const currentCompanyDetails = JSON.parse(data.company_details || '[]');
+    if (currentCompanyDetails.length > 1) {
+      const updatedDetails = currentCompanyDetails.slice(0, -1);
+      setData({ ...data, company_details: JSON.stringify(updatedDetails) });
+    }
+  };
+
   return (
     <div className="cnt">
       <h2>Edit Form</h2>
       {attributenames && attributenames.length > 0 ? (
         <form className='edt' onSubmit={handleSubmit}>
           {attributenames.map((attribute, index) => (
-            attribute !== "id" && attribute !== "department" && attribute !== "createdAt" && (
+            attribute !== "id" && attribute !== "createdAt" && (
               <div className="frm" key={index}>
-                <label htmlFor={attribute} className="lbl">{attribute.replace(/_/g, ' ')}:</label>
+                <label htmlFor={attribute} className="lbl">
+                  {attribute.replace(/_/g, ' ')}:
+                </label>
                 {attributeTypes[attribute] === 'date' ? (
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
@@ -166,7 +158,7 @@ const EditForm = () => {
                       )}
                     />
                   </LocalizationProvider>
-                ) : attribute === "document" ? (
+                ) : attributeTypes[attribute] === 'file' ? (
                   <div>
                     <div className="file-upload-container">
                       <input
@@ -177,10 +169,20 @@ const EditForm = () => {
                       />
                     </div>
                     <div className='bttns'>
-                      <label htmlFor={attribute} className="custom-file-upload" onClick={() => fileInputRef.current.click()}>
+                      <label 
+                        htmlFor={attribute} 
+                        className="custom-file-upload" 
+                        onClick={() => fileInputRef.current.click()}
+                      >
                         Choose File
                       </label>
-                      <button type="button" className="custom-file-upload" onClick={handleFileReset}>Reset File</button>
+                      <button 
+                        type="button" 
+                        className="custom-file-upload" 
+                        onClick={handleFileReset}
+                      >
+                        Reset File
+                      </button>
                     </div>
                     <input
                       type="file"
@@ -190,9 +192,51 @@ const EditForm = () => {
                       key={fileInputKey}
                       ref={fileInputRef}
                       style={{ display: 'none' }}
-                      // Remove the required attribute
                     />
                   </div>
+                ) : attributeTypes[attribute] === 'json' ? (
+                  <>
+                    {JSON.parse(data.company_details || '[]').map((detail, index) => (
+                      <div key={index} className="company-detail">
+                        <div className="company-div"> <label htmlFor={`companyName-${index}`} className="company-lbl"><b>Company Name:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`companyName-${index}`}
+                            value={detail.companyName}
+                            onChange={(e) => handleCompanyDetailChange(index, 'companyName', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="company-div">
+                          <label htmlFor={`salaryOffered-${index}`} className="company-lbl"><b>Salary Offered:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`salaryOffered-${index}`}
+                            value={detail.salaryOffered}
+                            onChange={(e) => handleCompanyDetailChange(index, 'salaryOffered', e.target.value)}
+                            required
+                          />
+                        </div>
+                        <div className="company-div">
+                          <label htmlFor={`noOfStuPlaced-${index}`} className="company-lbl"><b>No. Of Stu Placed:</b></label>
+                          <input
+                            type="text"
+                            className="cntr"
+                            id={`noOfStuPlaced-${index}`}
+                            value={detail.noOfStuPlaced}
+                            onChange={(e) => handleCompanyDetailChange(index, 'noOfStuPlaced', e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <div className="company-buttons">
+                      <button type="button" className="btn add-button" onClick={addCompanyDetail}>Add Company</button>
+                      <button type="button" className="btn remove-button" onClick={deleteLastCompanyDetail}>Remove Last</button>
+                    </div>
+                  </>
                 ) : (
                   <input
                     type="text"
@@ -216,6 +260,6 @@ const EditForm = () => {
       <ToastContainer />
     </div>
   );
-}
+};
 
-export default EditForm;
+export default EditFormNonDep;

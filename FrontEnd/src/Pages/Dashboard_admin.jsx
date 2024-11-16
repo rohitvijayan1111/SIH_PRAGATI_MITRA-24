@@ -57,7 +57,7 @@ const Dashboard_admin = () => {
     try {
       const response = await axios.post("http://localhost:3000/graphs/adminstudentsgraph", { academic_year: year });
       setadminStudentDetails(transformData(response.data));
-      
+      console.log(response.data); 
     } catch (error) {
       console.error('Error fetching student data:', error);
     }

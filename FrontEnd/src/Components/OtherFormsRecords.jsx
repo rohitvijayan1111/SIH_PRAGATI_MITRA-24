@@ -343,6 +343,7 @@ function OtherFormsRecords() {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
+        console.log(response.data.data);
         const filteredAttributeNames = Object.keys(response.data.columnDataTypes).filter(
           (col) => col !== 'id' && col !== 'createdAt'
         );
@@ -496,7 +497,8 @@ function OtherFormsRecords() {
       <Row>
         <ButtonContent>
             <Col>
-              <Button onClick={handleAdd} variant="export">Add New Record</Button>
+              {role!=="IQAC" && <Button onClick={handleAdd} variant="export">Add New Record</Button>
+            }
             </Col>
             <Col>
               <Button onClick={handleExport} variant="export">Export</Button>
@@ -527,7 +529,7 @@ function OtherFormsRecords() {
               <Button onClick={handleReset} variant="reset">Reset</Button>
             </Col>
         </ButtonContent>
-        {(role === "IQAC" || role === "hod") && (
+        {(role === "IQAC") && (
           <Col>
             <Button onClick={handleLock} variant="lock">{lockedstatus ? 'Unlock Form' : 'Lock Form'}</Button>
           </Col>
@@ -563,17 +565,28 @@ function OtherFormsRecords() {
         <Table>
           <thead>
             <tr>
+            {role!=="IQAC" && <FixedColumn>Actions</FixedColumn>}
               <FixedColumn>No.</FixedColumn>
               {attributenames.map((name) => (
                 <Th key={name}>{formatColumnName(name)}</Th>
               ))}
-              <FixedColumn>Actions</FixedColumn>
+              
             </tr>
           </thead>
           <tbody>
             {data.length > 0 ? (
               data.map((item, index) => (
                 <tr key={item.id}>
+                  {role!=="IQAC" &&
+                  <Td>
+                    <IconContext.Provider value={{ className: "action-icon" }}>
+                      <IconContainer>
+                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} />
+                        <BsFillTrashFill onClick={() => handleDelete(item.id)} />
+                      </IconContainer>
+                    </IconContext.Provider>
+                  </Td>
+                  }
                   <Td>{index + 1}</Td>
                   {attributenames.map((name) => (
                     <Td key={name}>
@@ -588,14 +601,7 @@ function OtherFormsRecords() {
                       )}
                     </Td>
                   ))}
-                  <Td>
-                    <IconContext.Provider value={{ className: "action-icon" }}>
-                      <IconContainer>
-                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} />
-                        <BsFillTrashFill onClick={() => handleDelete(item.id)} />
-                      </IconContainer>
-                    </IconContext.Provider>
-                  </Td>
+                  
                 </tr>
               ))
             ) : (

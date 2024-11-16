@@ -19,16 +19,24 @@ var nodemailer = require('nodemailer');
 
 var moment = require('moment');
 
+var axios = require('axios');
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use('/uploads', express["static"](path.join(__dirname, 'uploads')));
+app.use(express.json({
+  limit: '10mb'
+})); // Increase limit for JSON bodies
+
+app.use(express.urlencoded({
+  limit: '10mb',
+  extended: true
+})); //
 
 var authRoutes = require('./routes/auth');
-
-var userRoutes = require('./routes/users');
 
 var clubActivitiesRoutes = require('./routes/clubActivities');
 
@@ -48,6 +56,20 @@ var formRoutes = require('./routes/forms');
 
 var attendanceRoutes = require('./routes/attendance');
 
+var excelUploadRoutes = require('./routes/excel');
+
+var gform = require('./routes/gform');
+
+var chat = require('./routes/chat');
+
+var dbimport = require('./routes/dbimport');
+
+var dashboardRoutes = require('./routes/dashboard');
+
+var reportRoutes = require('./routes/datareport');
+
+var nondeptRoutes = require("./routes/tablesfornondept");
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -55,6 +77,13 @@ app.use('/graphs', graphRoutes);
 app.use('/forms', formRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/hall', hallBookingsRoutes);
+app.use('/excel', excelUploadRoutes);
+app.use('/gform', gform);
+app.use('/chat', chat);
+app.use('/db', dbimport);
+app.use('/dashboard', dashboardRoutes);
+app.use("/tablesfornondept", nondeptRoutes);
+app.use('/report', reportRoutes);
 cron.schedule('0 0 * * *', function () {
   console.log('Cron job triggered every minute.');
   var resetQuery = "\n    UPDATE membercount\n    SET \n      todayabsentcount_year_I = 0,\n      todayabsentcount_year_II = 0,\n      todayabsentcount_year_III = 0,\n      todayabsentcount_year_IV = 0,\n      todayabsentcount_staff = 0,\n      hostellercount_year_I=0,\n      hostellercount_year_II=0,\n      hostellercount_year_III=0,\n      hostellercount_year_IV=0;\n  ";
@@ -121,6 +150,8 @@ cron.schedule('0 */4 * * *', function () {
   console.log('Running cron job to send emails to not_submitted_emails');
   processFormLocks();
 });
-app.listen(PORT, function () {
-  console.log("Server running on port ".concat(PORT));
-});
+app.listen(PORT, '0.0.0.0', function () {
+  console.log("Server running on http://0.0.0.0:".concat(PORT));
+}); // app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });

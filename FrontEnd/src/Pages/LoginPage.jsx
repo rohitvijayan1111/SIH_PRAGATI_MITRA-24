@@ -116,7 +116,7 @@ function LoginPage() {
   };
   
   return (
-    <GoogleOAuthProvider clientId="YOUR_CLIENT_ID">
+    <GoogleOAuthProvider clientId="6780170653-md9te2utbr8o1fecvp0g02bj974q1gdp.apps.googleusercontent.com">
       <LoginPageContainer>
         <LoginForm>
           <LogoContainer>
