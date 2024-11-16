@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 const nodemailer = require('nodemailer');
 const moment = require('moment');
 const axios = require('axios');
+const API_KEY = 'AIzaSyBhdilHwllhr-lkWnn5-nzqnyUUpT_woGg';
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -29,6 +30,7 @@ const excelUploadRoutes = require('./routes/excel');
 const gform = require('./routes/gform');
 const chat = require('./routes/chat');
 const dbimport = require('./routes/dbimport');
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -40,6 +42,41 @@ app.use('/excel', excelUploadRoutes);
 app.use('/gform', gform);
 app.use('/chat', chat);
 app.use('/db', dbimport);
+
+app.post('/translate', async (req, res) => {
+  const { text, targetLanguage } = req.body;
+
+  if (!text || !targetLanguage) {
+      return res.status(400).json({ error: 'Text and target language are required' });
+  }
+
+  try {
+      const response = await axios.post(
+          `https://translation.googleapis.com/language/translate/v2`,
+          {},
+          {
+              params: {
+                  q: text,
+                  target: targetLanguage,
+                  key: API_KEY,
+              },
+          }
+      );
+      res.json(response.data);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error translating text' });
+  }
+});
+
+
+
+
+
+
+
+
+
 
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');

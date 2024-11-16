@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PrincipalBC from '../Components/Admin-Component/PrincipalBC';
 import axios from 'axios';
 import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
-import './Dashboard_admin.css';
 import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
 import DepartmentList from '../Components/Admin-Component/DepartmentList';
 import { Link } from 'react-router-dom';

@@ -256,7 +256,6 @@ function OtherFormsRecords() {
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [attributenames, setAttributenames] = useState([]);
-  console.log(role);
   const [lockedstatus, setLockedstatus] = useState('');
   const [searchColumn, setSearchColumn] = useState('');
   const [searchValue, setSearchValue] = useState('');
