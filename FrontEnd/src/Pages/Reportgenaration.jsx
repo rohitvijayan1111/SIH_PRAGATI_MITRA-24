@@ -166,79 +166,6 @@ const ButtonContainer = styled.div`
 // Main Component
 
 
-const styles = StyleSheet.create({
-  page: { 
-    padding: 40,
-    fontFamily: 'Helvetica', // Use a clean font
-    fontSize: 12,
-    margin:0,
-    color: '#333' // Dark grey for better readability
-  },
-  header: { 
-    fontSize: 18, 
-    marginBottom: 10, 
-    textAlign: 'center', 
-    fontFamily: 'Helvetica-Bold',
-    color: '#164863' // Primary color for headers
-  },
-  footer: { 
-    position: 'absolute', 
-    bottom: 20, 
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    fontSize: 10,
-    color: '#999' // Light grey for footer
-  },
-  coverImage: { 
-    width: '100%', 
-    height: 'auto', 
-    marginBottom: 20 
-  },
-  sectionTitle: { 
-    marginTop:10,
-    fontSize: 14, 
-    fontWeight: 'bold', 
-    marginBottom: 8, 
-    textAlign: 'center',
-    color: '#164863' // Primary color for section titles
-  },
-  table: { 
-    marginVertical: 10, 
-    marginHorizontal: 5, // Narrow margins on the sides
-    width: '100%', // Full width
-    borderCollapse: 'collapse',
-  },
-  tableHeaderCell: { 
-    border: '1px solid #ddd', 
-    padding: 10, 
-    textAlign: 'center', 
-    fontSize: 12, 
-    fontWeight: 'bold', 
-    backgroundColor: '#f2f2f2',
-    color: '#164863', // Header text color
-    flex: 1, // Make each header cell flexible
-  },
-  tableCell: { 
-    border: '1px solid #ddd', 
-    padding: 10, 
-    textAlign: 'center', 
-    fontSize: 12,
-    color: '#333', // Dark grey for cell text
-    flex: 1, // Make each cell flexible
-  },
-  titleCell: {
-    textAlign: 'left',
-    paddingLeft: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    width: '100%', // Ensure row takes full width
-  },
-  alternatingRow: {
-    backgroundColor: '#f9f9f9',
-  },
-});
 
 const transformData = (graph) => {
   const labels = graph.data.map(item => item.label);
@@ -349,16 +276,94 @@ const generateChartImage = async (graph) => {
     }
   });
 };
-  const Report = ({ coverImageUrl, tableOfContents, sections }) => {
+
+const styles = StyleSheet.create({
+  page: { 
+    padding: 40,
+    fontFamily: 'Helvetica', // Use a clean font
+    fontSize: 12,
+    margin: 0,
+    color: '#333' // Dark grey for better readability
+  },
+  header: { 
+    fontSize: 18, 
+    marginBottom: 10, 
+    textAlign: 'center', 
+    fontFamily: 'Helvetica-Bold',
+    color: '#164863', // Primary color for headers
+    textDecoration: 'underline', // Underlined header
+  },
+  footer: { 
+    position: 'absolute', 
+    bottom: 20, 
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 10,
+    color: '#999' // Light grey for footer
+  },
+  coverImage: { 
+    width: '100%', 
+    height: 'auto', 
+    marginBottom: 20 
+  },
+  sectionTitle: { 
+    marginTop: 10,
+    fontSize: 14, 
+    fontWeight: 'bold', 
+    marginBottom: 8, 
+    textAlign: 'center',
+    color: '#164863', // Primary color for section titles
+    textDecoration: 'underline', // Underlined section title
+  },
+  table: { 
+    marginVertical: 5, // Reduced vertical margin
+    marginHorizontal: 3, // Narrower horizontal margin
+    width: '100%', 
+    borderCollapse: 'collapse',
+  },
+  tableHeaderCell: { 
+    border: '1px solid #ddd', 
+    padding: 5, // Reduced padding
+    textAlign: 'center', 
+    fontSize: 10, // Reduced font size
+    fontWeight: 'bold', 
+    backgroundColor: '#164863', // Deep blue background
+    color: '#FFFFFF', // White text for contrast
+    flex: 1,
+  },
+  tableCell: { 
+    border: '1px solid #ddd', 
+    padding: 3, // Reduced padding
+    textAlign: 'center', 
+    fontSize: 9, // Smaller font size
+    color: '#333',
+    flex: 1,
+  },
+  titleCell: {
+    textAlign: 'left',
+    paddingLeft: 5, // Reduced padding
+  },
+  row: {
+    flexDirection: 'row',
+    width: '100%',
+  },
+  alternatingRow: {
+    backgroundColor: '#f0f4f7', // Lighter, more subtle alternating row color
+  }
+});
+
+const Report = ({ coverImageUrl, tableOfContents, sections }) => {
   const [chartImages, setChartImages] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  
+  const [pageNumbers, setPageNumbers] = useState({}); // To store page numbers for sections
+  let currentPageNumber = 1; // Start page number from 1
+
   useEffect(() => {
     const fetchChartImages = async () => {
       const newImages = {};
       
       try {
-        // Use Promise.all to wait for all chart images to be generated
         await Promise.all(
           sections.map(async (section) => {
             await Promise.all(
@@ -366,7 +371,6 @@ const generateChartImage = async (graph) => {
                 if (detail.graphdata) {
                   try {
                     const imageUrl = await generateChartImage(detail.graphdata);
-                    // Use the detail's title as the key
                     newImages[detail.title] = imageUrl;
                   } catch (error) {
                     console.error(`Error generating chart image for ${detail.title}:`, error);
@@ -399,11 +403,13 @@ const generateChartImage = async (graph) => {
       </Document>
     );
   }
+
   return (
     <Document>
       {/* Cover Page */}
       <Page style={styles.page}>
         {coverImageUrl && <Image src={coverImageUrl} style={styles.coverImage} />}
+        <Text style={styles.footer}>Page {currentPageNumber++}</Text>
       </Page>
 
       {/* Table of Contents */}
@@ -434,81 +440,108 @@ const generateChartImage = async (graph) => {
             </View>
           ))}
         </View>
+        <Text style={styles.footer}>Page {currentPageNumber++}</Text>
       </Page>
 
       {/* Content Sections */}
-      {sections.map((section, index) => (
-        <Page style={styles.page} key={index}>
-          <Text style={styles.sectionTitle}>{section.title}</Text>
-          <Text style={{ textAlign: 'center', marginBottom: 10 }}>{section.intro}</Text>
-          
-          {section.details.map((detail, detailIndex) => (
-            <View key={detailIndex}>
-              <Text style={styles.sectionTitle}>{detail.title}</Text>
-              <Text>{detail.intro}</Text>
-              
-              {/* Render chart image with more robust checking */}
-              {detail.graphdata && chartImages[detail.title] && (
-                <View style={{ 
-                  marginBottom: 20, 
-                  width: '100%', 
-                  height: 250, 
-                  display: 'flex', 
-                  justifyContent: 'center', 
-                  alignItems: 'center' 
-                }}>
-                  <Text style={styles.sectionTitle}>
-                    {detail.graphdata.config_name}
-                  </Text>
-                  <Image 
-                    src={chartImages[detail.title]} 
-                    style={{ 
-                      width: '80%', 
-                      height: 200, 
-                      objectFit: 'contain' 
-                    }} 
-                  />
-                </View>
-              )}
-              
-              {detail.data && detail.data.length > 0 && (
-                <View style={styles.table}>
-                  <View style={styles.row}>
-                    {Object.keys(detail.data[0]).map((key) => (
-                      <Text key={key} style={styles.tableHeaderCell}>{key}</Text>
-                    ))}
-                  </View>
-                  {detail.data.map((row, rowIndex) => (
-                    <View 
-                      key={rowIndex} 
-                      style={[
-                        styles.row, 
-                        rowIndex % 2 === 0 ? {} : styles.alternatingRow
-                      ]}
-                    >
-                      {Object.values(row).map((value, colIndex) => (
-                        <Text key={colIndex} style={styles.tableCell}>
-                          {value}
-                        </Text>
+      {sections.map((section, index) => {
+        // Store the page number for this section
+        pageNumbers[section.title] = currentPageNumber;
+
+        return (
+          <Page style={styles.page} key={index}>
+            <Text style={styles.header}>{section.title}</Text>
+            <Text style={{ textAlign: 'center', marginBottom: 10 }}>{section.intro}</Text>
+            
+            {section.details.map((detail, detailIndex) => {
+              // Increment page number for each detail
+              currentPageNumber++;
+
+              return (
+                < View key={detailIndex}>
+                  <Text style={styles.sectionTitle}>{detail.title}</Text>
+                  <Text>{detail.intro}</Text>
+                  
+                  {/* Render chart image with more robust checking */}
+                  {detail.graphdata && chartImages[detail.title] && (
+                    <View style={{ 
+                      marginBottom: 20, 
+                      width: '100%', 
+                      height: 250, 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      alignItems: 'center' 
+                    }}>
+                      <Text style={styles.sectionTitle}>
+                        {detail.graphdata.config_name}
+                      </Text>
+                      <Image 
+                        src={chartImages[detail.title]} 
+                        style={{ 
+                          width: '80%', 
+                          height: 200, 
+                          objectFit: 'contain' 
+                        }} 
+                      />
+                    </View>
+                  )}
+                  
+                  {/* Render uploaded images */}
+                  {detail.images && detail.images.length > 0 && (
+                    <View style={{ marginBottom: 20 }}>
+                      {detail.images.map((imageUrl, imgIndex) => (
+                        <Image 
+                          key={imgIndex} 
+                          src={`http://localhost:3000/${imageUrl}`} 
+                          style={{ 
+                            width: '100%', 
+                            height: 200, 
+                            objectFit: 'contain', 
+                            marginBottom: 10 
+                          }} 
+                        />
                       ))}
                     </View>
-                  ))}
+                  )}
+                  
+                  {detail.data && detail.data.length > 0 && (
+                    <View style={styles.table}>
+                      <View style={styles.row}>
+                        {Object.keys(detail.data[0]).map((key) => (
+                          <Text key={key} style={styles.tableHeaderCell}>{key}</Text>
+                        ))}
+                      </View>
+                      {detail.data.map((row, rowIndex) => (
+                        <View 
+                          key={rowIndex} 
+                          style={[
+                            styles.row, 
+                            rowIndex % 2 === 0 ? {} : styles.alternatingRow
+                          ]}
+                        >
+                          {Object.values(row).map((value, colIndex) => (
+                            <Text key={colIndex} style={styles.tableCell}>
+                              {value}
+                            </Text>
+                          ))}
+                        </View>
+                      ))}
+                    </View>
+                  )}
+                  
+                  <Text style={{ fontWeight: 'bold', marginTop: 5 }}>Summary:</Text>
+                  <Text>{detail.summary}</Text>
                 </View>
-              )}
-              
-              <Text style={{ fontWeight: 'bold', marginTop: 5 }}>Summary:</Text>
-              <Text>{detail.summary}</Text>
-            </View>
-          ))}
-          
-          <Text style={styles.footer}>Page {index + 2}</Text>
-        </Page>
-      ))}
+              );
+            })}
+            
+            <Text style={styles.footer}>Page {currentPageNumber}</Text>
+          </Page>
+        );
+      })}
     </Document>
   );
 };
-
-
 const VersionHistoryModal = ({ open, onClose, sectionTitle, detailTitle, versions, onSelectVersion, onBringToEditor, selectedVersion }) => {
   return (
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
@@ -736,7 +769,19 @@ const Documents = () => {
               graphdata: latestDetails.graph_data
             }
           }));
-  
+          const imagesResponse = await axios.get('http://localhost:3000/report/section-images', {
+            params: { reportSectionDetailId: latestVersionResponse.data.details.id }
+          });
+    
+          // Store the fetched images in state
+          setSelectedData((prev) => ({
+            ...prev,
+            [key]: {
+              ...prev[key],
+              images: imagesResponse.data.images || [] // Store images in the selected data
+            }
+          }));
+
         } else {
           // If no latest version, fetch from section-data
           const response = await axios.get(`http://localhost:3000/report/section-data`, {
@@ -882,7 +927,8 @@ const Documents = () => {
             intro: selectedData[key]?.intro || formData[`${section.title}-${index}-description`] || '',
             data: selectedData[key]?.data || [],
             summary: selectedData[key]?.summary || '',
-            graphdata: selectedData[key]?.graphdata || null
+            graphdata: selectedData[key]?.graphdata || null,
+            images:selectedData[key]?.images || null
           };
         }
         return null;
@@ -996,39 +1042,74 @@ const handleUploadImages = async (sectionTitle, index) => {
     return;
   }
 
-  const formData = new FormData();
-  images.forEach(image => {
-    formData.append('images', image);
-  });
-
-  // Add reportId and reportSectionDetailId to the form data
-  formData.append('reportId', reportId);
-  formData.append('reportSectionDetailId', reportSectionDetailId);
-
   try {
-    const response = await axios.post('http://localhost:3000/report/upload-images', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('reportId', reportId);
+    formData.append('reportSectionDetailId', reportSectionDetailId);
+
+    // Append each image file to FormData
+    images.forEach((image) => {
+      formData.append('images', image); // 'images' is the field name expected by multer
+    });
+
+    // Upload to server
+    const response = await axios.post(
+      'http://localhost:3000/report/upload-images',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+
+    // After successful upload, fetch the latest images for this section
+    const imagesResponse = await axios.get('http://localhost:3000/report/section-images', {
+      params: { reportSectionDetailId }
+    });
+
+    // Update both selectedData and selectedImages
+    setSelectedData((prev) => ({
+      ...prev,
+      [`${sectionTitle}-${index}`]: {
+        ...prev[`${sectionTitle}-${index}`],
+        images: imagesResponse.data.images || []
+      }
+    }));
+
+    // Clear the selected images for this section
+    setSelectedImages((prev) => ({ ...prev, [key]: [] }));
+
+    toast.success('Images uploaded successfully');
+  } catch (error) {
+    console.error('Upload error:', error.response?.data || error.message);
+    toast.error(`Failed to upload images: ${error.response?.data?.error || 'Unknown error'}`);
+  }
+};
+const handleDeleteImage = async (imageUrl, reportSectionDetailId,title,index) => {
+  try {
+    // Assuming you have an endpoint to delete images
+    await axios.delete('http://localhost:3000/report/delete-image', {
+      data: {
+        imageUrl,
+        reportSectionDetailId
       }
     });
 
-    toast.success('Images uploaded successfully');
-    setSelectedImages(prev => ({
-      ...prev,
-      [key]: [] // Clear the selected images after upload
-    }));
+    // Update the state to remove the deleted image
+    setSelectedData((prev) => {
+      const updatedImages = prev[`${title}-${index}`].images.filter(img => img !== imageUrl);
+      return {
+        ...prev,
+        [`${title}-${index}`]: {
+          ...prev[`${title}-${index}`],
+          images: updatedImages
+        }
+      };
+    });
   } catch (error) {
-    console.error('Error uploading images:', error);
-    // Log the detailed error response
-    if (error.response) {
-      console.error('Error details:', error.response.data);
-      toast.error(`Failed to upload images: ${error.response.data.error || 'Unknown error'}`);
-    } else {
-      toast.error('Failed to upload images');
-    }
+    console.error('Error deleting image:', error);
   }
 };
-
 return (
     <Container>
       <TitleC>Generate Report</TitleC>
@@ -1112,8 +1193,25 @@ return (
           </Button>
         
       </Box>
-
-      {/* Editable Introduction */}
+      {/* Display Uploaded Images */}
+      
+      {selectedData[`${title}-${index}`]?.images && selectedData[`${title}-${index}`].images.length > 0 && (
+  <div>
+    <h4>Uploaded Images:</h4>
+    {selectedData[`${title}-${index}`].images.map((imageUrl, idx) => (
+      <div key={idx} style={{ display: 'flex', alignItems: 'center' }}>
+        <img src={`http://localhost:3000/${imageUrl}`} alt={`Uploaded ${idx}`} style={{ width: '100px', height: '100px', margin: '5px' }} />
+        <Button 
+          variant="outlined" 
+          color="secondary" 
+          onClick={() => handleDeleteImage(imageUrl, reportSectionDetailId,title,index)}
+        >
+          Delete
+        </Button>
+      </div>
+    ))}
+  </div>
+)}      {/* Editable Introduction */}
       <TextField
         label="Introduction"
         variant="outlined"

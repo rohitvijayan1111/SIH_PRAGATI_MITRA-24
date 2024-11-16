@@ -14,6 +14,9 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.json({ limit: '10mb' })); // Increase limit for JSON bodies
+app.use(express.urlencoded({ limit: '10mb', extended: true })); //
+
 
 const authRoutes = require('./routes/auth');
 const clubActivitiesRoutes = require('./routes/clubActivities');

@@ -20,6 +20,8 @@ var axios = require('axios');
 
 var query = util.promisify(db.query).bind(db);
 
+var path = require('path');
+
 var _require = require("@google/generative-ai"),
     GoogleGenerativeAI = _require.GoogleGenerativeAI;
 
@@ -27,9 +29,9 @@ require('dotenv').config();
 
 var multer = require('multer');
 
-var fsPromises = require('fs').promises;
-
 var moment = require('moment');
+
+var fs = require('fs').promises;
 
 var gemini_api_key = "AIzaSyBHbQhbhN55b1RR00vbUfgeoVoAZgAuj6s";
 var googleAI = new GoogleGenerativeAI(gemini_api_key);
@@ -420,7 +422,7 @@ router.get('/:reportId/sections', function _callee4(req, res) {
           break;
 
         case 15:
-          availableSections = ['Message from Management', 'Curricular Design and Academic Performances', 'Research Works & Publications', 'Faculty Achievement', 'Student Achievements', 'Extra Curricular Activities'];
+          availableSections = ['Message from Management', 'Curricular Design and Academic Performances', 'Research Works & Publications', 'Faculty Achievement', 'Student Achievements', 'Extra Curricular Activities', 'Infrastructural Development', 'Financial Statements'];
           return _context6.abrupt("break", 22);
 
         case 17:
@@ -738,8 +740,7 @@ router.get('/getall', function _callee9(req, res) {
       }
     }
   }, null, null, [[0, 7]]);
-}); // Configure Multer storage
-
+});
 var storage = multer.diskStorage({
   destination: function destination(req, file, cb) {
     var reportId, dir;
@@ -747,22 +748,20 @@ var storage = multer.diskStorage({
       while (1) {
         switch (_context12.prev = _context12.next) {
           case 0:
-            // Extract report_id from request body or query
-            reportId = req.body.reportId || req.query.reportId;
+            _context12.prev = 0;
+            reportId = req.body.reportId;
 
             if (reportId) {
-              _context12.next = 3;
+              _context12.next = 4;
               break;
             }
 
             return _context12.abrupt("return", cb(new Error('Report ID is required'), null));
 
-          case 3:
-            // Create directory path
+          case 4:
             dir = path.join('./uploads/report_images', reportId.toString());
-            _context12.prev = 4;
             _context12.next = 7;
-            return regeneratorRuntime.awrap(fsPromises.mkdir(dir, {
+            return regeneratorRuntime.awrap(fs.mkdir(dir, {
               recursive: true
             }));
 
@@ -773,7 +772,7 @@ var storage = multer.diskStorage({
 
           case 10:
             _context12.prev = 10;
-            _context12.t0 = _context12["catch"](4);
+            _context12.t0 = _context12["catch"](0);
             cb(_context12.t0, null);
 
           case 13:
@@ -781,157 +780,239 @@ var storage = multer.diskStorage({
             return _context12.stop();
         }
       }
-    }, null, null, [[4, 10]]);
+    }, null, null, [[0, 10]]);
   },
   filename: function filename(req, file, cb) {
-    // Generate a unique filename
     var fileName = "".concat(moment().format('YYYYMMDD_HHmmss'), "_").concat(file.originalname);
     cb(null, fileName);
   }
-}); // File filter to validate image types
-
-var imageFilter = function imageFilter(req, file, cb) {
-  // Accept image files only
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-    return cb(new Error('Only image files are allowed!'), false);
-  }
-
-  cb(null, true);
-}; // Create multer upload instance
-
+}); // Set up multer to handle multiple file uploads
 
 var upload = multer({
   storage: storage,
-  fileFilter: imageFilter,
+  fileFilter: function fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+      return cb(new Error('Only image files are allowed!'), false);
+    }
+
+    cb(null, true);
+  },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB file size limit
+    fileSize: 5 * 1024 * 1024 // 5MB
 
   }
-}); // Middleware to handle multiple image uploads
+}); // Route to handle image uploads
 
-var uploadReportImages = upload.array('images', 10); // Max 10 images
-// Export the upload middleware
-
-module.exports = {
-  upload: upload,
-  uploadReportImages: uploadReportImages
-};
-router.post('/upload-images', upload.array('images'), function _callee10(req, res) {
+router.post('/upload-images', upload.array('images'), function _callee11(req, res) {
   var _req$body3, reportId, reportSectionDetailId, imageInsertPromises;
 
-  return regeneratorRuntime.async(function _callee10$(_context13) {
+  return regeneratorRuntime.async(function _callee11$(_context14) {
     while (1) {
-      switch (_context13.prev = _context13.next) {
+      switch (_context14.prev = _context14.next) {
         case 0:
-          if (!(!req.files || req.files.length === 0)) {
-            _context13.next = 2;
-            break;
-          }
-
-          return _context13.abrupt("return", res.status(400).json({
-            error: 'No images uploaded'
-          }));
-
-        case 2:
-          // Destructure required fields from form data
+          _context14.prev = 0;
           _req$body3 = req.body, reportId = _req$body3.reportId, reportSectionDetailId = _req$body3.reportSectionDetailId; // Validate required fields
 
           if (!(!reportId || !reportSectionDetailId)) {
-            _context13.next = 5;
+            _context14.next = 4;
             break;
           }
 
-          return _context13.abrupt("return", res.status(400).json({
+          return _context14.abrupt("return", res.status(400).json({
             error: 'Report ID and Report Section Detail ID are required'
           }));
 
-        case 5:
-          _context13.prev = 5;
-          // Process uploaded files
-          imageInsertPromises = req.files.map(function (file) {
-            // Construct relative path for database storage
-            var relativePath = path.join('uploads', 'report_images', reportId.toString(), file.filename); // Insert image record into database
+        case 4:
+          if (!(!req.files || req.files.length === 0)) {
+            _context14.next = 6;
+            break;
+          }
 
-            return query("INSERT INTO report_section_images \n        (report_section_detail_id, image_url) \n        VALUES (?, ?)", [reportSectionDetailId, relativePath]);
-          }); // Execute all insert queries
+          return _context14.abrupt("return", res.status(400).json({
+            error: 'No images provided'
+          }));
 
-          _context13.next = 9;
+        case 6:
+          // Process and save each image
+          imageInsertPromises = req.files.map(function _callee10(file) {
+            var relativePath;
+            return regeneratorRuntime.async(function _callee10$(_context13) {
+              while (1) {
+                switch (_context13.prev = _context13.next) {
+                  case 0:
+                    relativePath = path.join('uploads', 'report_images', reportId.toString(), file.filename); // Insert record into the database (assuming you have a query function)
+
+                    return _context13.abrupt("return", query("INSERT INTO report_section_images (report_section_detail_id, image_url) VALUES (?, ?)", [reportSectionDetailId, relativePath]));
+
+                  case 2:
+                  case "end":
+                    return _context13.stop();
+                }
+              }
+            });
+          }); // Wait for all images to be processed
+
+          _context14.next = 9;
           return regeneratorRuntime.awrap(Promise.all(imageInsertPromises));
 
         case 9:
-          // Respond with success message and image paths
           res.status(201).json({
             message: 'Images uploaded successfully',
             images: req.files.map(function (file) {
               return path.join('uploads', 'report_images', reportId.toString(), file.filename);
             })
           });
-          _context13.next = 16;
+          _context14.next = 16;
           break;
 
         case 12:
-          _context13.prev = 12;
-          _context13.t0 = _context13["catch"](5);
-          console.error('Image upload error:', _context13.t0);
+          _context14.prev = 12;
+          _context14.t0 = _context14["catch"](0);
+          console.error('Image upload error:', _context14.t0);
           res.status(500).json({
-            error: 'Failed to upload images',
-            details: _context13.t0.message
+            error: 'Failed to upload images ',
+            details: _context14.t0.message
           });
 
         case 16:
         case "end":
-          return _context13.stop();
+          return _context14.stop();
       }
     }
-  }, null, null, [[5, 12]]);
+  }, null, null, [[0, 12]]);
 }); // Endpoint to retrieve images for a section
 
-router.get('/section-images', function _callee11(req, res) {
-  var reportSectionDetailId, images;
-  return regeneratorRuntime.async(function _callee11$(_context14) {
+router.get('/section-images', function _callee12(req, res) {
+  var reportSectionDetailId, images, imageUrls;
+  return regeneratorRuntime.async(function _callee12$(_context15) {
     while (1) {
-      switch (_context14.prev = _context14.next) {
+      switch (_context15.prev = _context15.next) {
         case 0:
           reportSectionDetailId = req.query.reportSectionDetailId;
 
           if (reportSectionDetailId) {
-            _context14.next = 3;
+            _context15.next = 3;
             break;
           }
 
-          return _context14.abrupt("return", res.status(400).json({
+          return _context15.abrupt("return", res.status(400).json({
             error: 'Report Section Detail ID is required'
           }));
 
         case 3:
-          _context14.prev = 3;
-          _context14.next = 6;
+          _context15.prev = 3;
+          _context15.next = 6;
           return regeneratorRuntime.awrap(query("SELECT image_url FROM report_section_images \n       WHERE report_section_detail_id = ?", [reportSectionDetailId]));
 
         case 6:
-          images = _context14.sent;
+          images = _context15.sent;
+          // Construct relative URLs to the images
+          imageUrls = images.map(function (img) {
+            return img.image_url;
+          }); // Return only the relative path
+
           res.json({
-            images: images.map(function (img) {
-              return img.image_url;
-            })
+            images: imageUrls
           });
-          _context14.next = 14;
+          _context15.next = 15;
           break;
 
-        case 10:
-          _context14.prev = 10;
-          _context14.t0 = _context14["catch"](3);
-          console.error('Error retrieving images:', _context14.t0);
+        case 11:
+          _context15.prev = 11;
+          _context15.t0 = _context15["catch"](3);
+          console.error('Error retrieving images:', _context15.t0);
           res.status(500).json({
             error: 'Failed to retrieve images',
-            details: _context14.t0.message
+            details: _context15.t0.message
           });
 
-        case 14:
+        case 15:
         case "end":
-          return _context14.stop();
+          return _context15.stop();
       }
     }
-  }, null, null, [[3, 10]]);
+  }, null, null, [[3, 11]]);
+});
+router["delete"]('/delete-image', function _callee13(req, res) {
+  var _req$body4, imageUrl, reportSectionDetailId, normalizedImageUrl, filePath, dbResult;
+
+  return regeneratorRuntime.async(function _callee13$(_context16) {
+    while (1) {
+      switch (_context16.prev = _context16.next) {
+        case 0:
+          _req$body4 = req.body, imageUrl = _req$body4.imageUrl, reportSectionDetailId = _req$body4.reportSectionDetailId;
+
+          if (!(!imageUrl || !reportSectionDetailId)) {
+            _context16.next = 3;
+            break;
+          }
+
+          return _context16.abrupt("return", res.status(400).json({
+            error: 'Image URL and Report Section Detail ID are required'
+          }));
+
+        case 3:
+          normalizedImageUrl = imageUrl.replace(/\//g, '\\');
+          filePath = path.join(__dirname, '..', normalizedImageUrl);
+          _context16.prev = 5;
+          // Check and delete the file
+          console.log('Normalized Image URL:', normalizedImageUrl);
+          console.log('Full File Path:', filePath);
+          _context16.next = 10;
+          return regeneratorRuntime.awrap(fs.access(filePath));
+
+        case 10:
+          _context16.next = 12;
+          return regeneratorRuntime.awrap(fs.unlink(filePath));
+
+        case 12:
+          _context16.next = 14;
+          return regeneratorRuntime.awrap(query("DELETE FROM report_section_images WHERE image_url = ? AND report_section_detail_id = ?", [normalizedImageUrl, reportSectionDetailId]));
+
+        case 14:
+          dbResult = _context16.sent;
+
+          if (!(dbResult.affectedRows === 0)) {
+            _context16.next = 17;
+            break;
+          }
+
+          return _context16.abrupt("return", res.status(404).json({
+            error: 'Record not found in database'
+          }));
+
+        case 17:
+          res.status(204).send(); // Successfully deleted
+
+          _context16.next = 27;
+          break;
+
+        case 20:
+          _context16.prev = 20;
+          _context16.t0 = _context16["catch"](5);
+
+          if (!(_context16.t0.code === 'ENOENT')) {
+            _context16.next = 25;
+            break;
+          }
+
+          console.error('File not found:', _context16.t0);
+          return _context16.abrupt("return", res.status(404).json({
+            error: 'File not found'
+          }));
+
+        case 25:
+          console.error('Error:', _context16.t0);
+          res.status(500).json({
+            error: 'Failed to delete image',
+            details: _context16.t0.message
+          });
+
+        case 27:
+        case "end":
+          return _context16.stop();
+      }
+    }
+  }, null, null, [[5, 20]]);
 });
 module.exports = router;

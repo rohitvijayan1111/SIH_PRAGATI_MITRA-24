@@ -4,13 +4,15 @@ const util = require('util');
 const db = require('../config/db');
 const axios = require('axios');
 const query = util.promisify(db.query).bind(db);
+const path = require('path');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 require('dotenv').config();
 const multer = require('multer');
-const fsPromises = require('fs').promises;
 const moment = require('moment');
 
 
+
+const fs = require('fs').promises;
 const gemini_api_key = "AIzaSyBHbQhbhN55b1RR00vbUfgeoVoAZgAuj6s";
 const googleAI = new GoogleGenerativeAI(gemini_api_key);
 const geminiConfig = {
@@ -335,7 +337,9 @@ router.get('/:reportId/sections', async (req, res) => {
           'Research Works & Publications',
           'Faculty Achievement',
           'Student Achievements',
-          'Extra Curricular Activities'
+          'Extra Curricular Activities',
+          'Infrastructural Development',
+          'Financial Statements'
         ];
         break;
       case 'Infrastructure Coordinator':
@@ -577,109 +581,85 @@ router.get('/getall', async (req, res) => {
     });
   }
 });
-// Configure Multer storage
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
-    // Extract report_id from request body or query
-    const reportId = req.body.reportId || req.query.reportId;
-    
-    if (!reportId) {
-      return cb(new Error('Report ID is required'), null);
-    }
-
-    // Create directory path
-    const dir = path.join('./uploads/report_images', reportId.toString());
-    
     try {
-      // Create directory recursively
-      await fsPromises.mkdir(dir, { recursive: true });
+      const reportId = req.body.reportId;
+      if (!reportId) {
+        return cb(new Error('Report ID is required'), null);
+      }
+
+      const dir = path.join('./uploads/report_images', reportId.toString());
+      await fs.mkdir(dir, { recursive: true });
       cb(null, dir);
     } catch (error) {
       cb(error, null);
     }
   },
   filename: (req, file, cb) => {
-    // Generate a unique filename
     const fileName = `${moment().format('YYYYMMDD_HHmmss')}_${file.originalname}`;
     cb(null, fileName);
   }
 });
 
-// File filter to validate image types
-const imageFilter = (req, file, cb) => {
-  // Accept image files only
-  if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
-    return cb(new Error('Only image files are allowed!'), false);
-  }
-  cb(null, true);
-};
-
-// Create multer upload instance
+// Set up multer to handle multiple file uploads
 const upload = multer({ 
   storage: storage,
-  fileFilter: imageFilter,
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)) {
+      return cb(new Error('Only image files are allowed!'), false);
+    }
+    cb(null, true);
+  },
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB file size limit
+    fileSize: 5 * 1024 * 1024 // 5MB
   }
 });
 
-// Middleware to handle multiple image uploads
-const uploadReportImages = upload.array('images', 10); // Max 10 images
-
-// Export the upload middleware
-module.exports = {
-  upload,
-  uploadReportImages
-};
-
+// Route to handle image uploads
 router.post('/upload-images', upload.array('images'), async (req, res) => {
-  // Handle multer errors
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ error: 'No images uploaded' });
-  }
-
-  // Destructure required fields from form data
-  const { reportId, reportSectionDetailId } = req.body;
-
-  // Validate required fields
-  if (!reportId || !reportSectionDetailId) {
-    return res.status(400).json({ 
-      error: 'Report ID and Report Section Detail ID are required' 
-    });
-  }
-
   try {
-    // Process uploaded files
-    const imageInsertPromises = req.files.map(file => {
-      // Construct relative path for database storage
+    const { reportId, reportSectionDetailId } = req.body;
+
+    // Validate required fields
+    if (!reportId || !reportSectionDetailId) {
+      return res.status(400).json({
+        error: 'Report ID and Report Section Detail ID are required',
+      });
+    }
+
+    // Check if files were uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No images provided' });
+    }
+
+    // Process and save each image
+    const imageInsertPromises = req.files.map(async (file) => {
       const relativePath = path.join('uploads', 'report_images', reportId.toString(), file.filename);
-      
-      // Insert image record into database
+
+      // Insert record into the database (assuming you have a query function)
       return query(
-        `INSERT INTO report_section_images 
-        (report_section_detail_id, image_url) 
-        VALUES (?, ?)`,
+        `INSERT INTO report_section_images (report_section_detail_id, image_url) VALUES (?, ?)`,
         [reportSectionDetailId, relativePath]
       );
     });
 
-    // Execute all insert queries
+    // Wait for all images to be processed
     await Promise.all(imageInsertPromises);
 
-    // Respond with success message and image paths
     res.status(201).json({
       message: 'Images uploaded successfully',
-      images: req.files.map(file => path.join('uploads', 'report_images', reportId.toString(), file.filename))
+      images: req.files.map(file => path.join('uploads', 'report_images', reportId.toString(), file.filename)),
     });
-
   } catch (error) {
     console.error('Image upload error:', error);
-    res.status(500).json({ 
-      error: 'Failed to upload images', 
-      details: error.message 
+    res.status(500).json({
+      error: 'Failed to upload images ',
+      details: error.message,
     });
   }
 });
+
 // Endpoint to retrieve images for a section
 router.get('/section-images', async (req, res) => {
   const { reportSectionDetailId } = req.query;
@@ -696,7 +676,10 @@ router.get('/section-images', async (req, res) => {
       [reportSectionDetailId]
     );
 
-    res.json({ images: images.map(img => img.image_url) });
+    // Construct relative URLs to the images
+    const imageUrls = images.map(img => img.image_url); // Return only the relative path
+
+    res.json({ images: imageUrls });
   } catch (error) {
     console.error('Error retrieving images:', error);
     res.status(500).json({ 
@@ -706,4 +689,42 @@ router.get('/section-images', async (req, res) => {
   }
 });
 
-module.exports = router;  
+router.delete('/delete-image', async (req, res) => {
+  const { imageUrl, reportSectionDetailId } = req.body;
+
+  if (!imageUrl || !reportSectionDetailId) {
+      return res.status(400).json({ error: 'Image URL and Report Section Detail ID are required' });
+  }
+
+  const normalizedImageUrl = imageUrl.replace(/\//g, '\\');
+  const filePath = path.join(__dirname, '..', normalizedImageUrl);
+
+  try {
+      // Check and delete the file
+      console.log('Normalized Image URL:', normalizedImageUrl);
+      console.log('Full File Path:', filePath);
+
+      await fs.access(filePath); // Check if the file exists
+      await fs.unlink(filePath); // Delete if it exists
+
+      // Delete from the database
+      const dbResult = await query(
+          `DELETE FROM report_section_images WHERE image_url = ? AND report_section_detail_id = ?`,
+          [normalizedImageUrl, reportSectionDetailId]
+      );
+
+      if (dbResult.affectedRows === 0) {
+          return res.status(404).json({ error: 'Record not found in database' });
+      }
+
+      res.status(204).send(); // Successfully deleted
+  } catch (err) {
+      if (err.code === 'ENOENT') {
+          console.error('File not found:', err);
+          return res.status(404).json({ error: 'File not found' });
+      }
+      console.error('Error:', err);
+      res.status(500).json({ error: 'Failed to delete image', details: err.message });
+  }
+});
+module.exports = router;

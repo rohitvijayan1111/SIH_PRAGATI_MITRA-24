@@ -344,6 +344,7 @@ function OtherFormsRecords() {
         const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
+        console.log(response.data.data);
         const filteredAttributeNames = Object.keys(response.data.columnDataTypes).filter(
           (col) => col !== 'id' && col !== 'createdAt'
         );
