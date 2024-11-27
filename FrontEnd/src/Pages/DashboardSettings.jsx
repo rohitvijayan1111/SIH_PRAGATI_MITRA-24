@@ -86,7 +86,7 @@ const DashboardSettings = () => {
   useEffect(() => {
     const fetchTables = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/tables/gettablelist');
+        const response = await axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/gettablelist`);
         setAvailableTables(response.data.tables);
       } catch (error) {
         console.error("Error fetching tables:", error);
@@ -99,7 +99,7 @@ const DashboardSettings = () => {
     const fetchTableColumns = async () => {
       if (selectedTables.length > 0) {
         try {
-          const response = await axios.post('http://localhost:3000/tables/columns', { tables: selectedTables });
+          const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/columns`, { tables: selectedTables });
           setTableColumns(response.data.columns);
         } catch (error) {
           console.error("Error fetching columns:", error);
@@ -171,7 +171,7 @@ const DashboardSettings = () => {
     };
     console.log(newConfig);
     try {
-      const response = await axios.post('http://localhost:3000/dashboard/creategraph', newConfig);
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/dashboard/creategraph`, newConfig);
       console.log("HURRETTTTTTTTTT");
     } catch (error) {
       console.error("Failed to save configuration", error);

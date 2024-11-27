@@ -173,7 +173,7 @@ const EmailNotification = () => {
         selectedEmails = [...selectedEmails, ...additionalEmails];
       }
 
-      const response = await axios.post('http://localhost:3000/mail/send', {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/mail/send`, {
         to: selectedEmails,
         subject: subject,
         desc: text

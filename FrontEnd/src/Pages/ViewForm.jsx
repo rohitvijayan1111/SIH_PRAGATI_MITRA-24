@@ -29,7 +29,7 @@ function ViewForm() {
   useEffect(() => {
     const fetchLockStatus = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', {id:1,table:'form_locks'});
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/getlocktablestatus`, {id:1,table:'form_locks'});
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
@@ -86,7 +86,7 @@ function ViewForm() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const response = await axios.post('http://localhost:3000/tables/locktable', { id: 1, lock: !lockedstatus });
+          const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/locktable`, { id: 1, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
@@ -127,7 +127,7 @@ function ViewForm() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
+          await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deleterecord`, { data: { id, table } });
           setData(data.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
@@ -142,7 +142,7 @@ function ViewForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/tables/gettable', { table, dept });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/gettable`, { table, dept });
       setData(response.data);
       setAttributenames(Object.keys(response.data[0]));
     } catch (err) {

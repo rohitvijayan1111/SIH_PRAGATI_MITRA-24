@@ -29,7 +29,6 @@ import FormSelectionPage from "./Pages/FormSelectionPage";
 import ChatSpace from "./Pages/ChatSpace";
 import DatabasePage from "./Pages/DatabasePage";
 import UploadDatabasePage from "./Pages/UploadDatabasePage";
-
 import DetailsPage from "./Pages/DetailsPage";
 
 import TablesPage from "./Pages/TablesPage";
@@ -40,6 +39,9 @@ import AddFormnonDept from "./Pages/AddFormnonDept";
 import EditFormNonDep from "./Pages/EditFormNonDep";
 import CreateReport from "./Pages/CreateReport";
 import ReportsList from "./Pages/ReportsList";
+import OtherFormsRecordForIcon from "./Components/OtherFormsRecordsForIcon";
+import Documents from "./Pages/Reportgenaration";
+import DashboardSettings from "./Pages/DashboardSettings";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -83,7 +85,7 @@ function App() {
               <Route path="forms/deadline" element={<SetDeadlinePage/>} />
               <Route path="forms/assign-task" element={<AssignTask/>} />
               <Route path="forms/form-records" element={<OtherFormsRecords/>} />
-              <Route path="forms/form-records/:table" element={<OtherFormsRecordForIcon />}/>
+              <Route path="forms/form-records/:table" element={ <OtherFormsRecordForIcon/> }/>
               <Route path="forms/form-records/:table/add-form" element={<AddForm />} />
               <Route path="forms/form-records/:table/edit-form" element={<EditForm />} />
               <Route path="nondeptforms/form-records/:table" element={<OtherFormsRecordForIconNondept/>}/>
@@ -106,7 +108,7 @@ function App() {
               <Route path="dynamic/tables/:database" element={ <TablesPage/> } />
               <Route path="gforms/gcreate-form" element={<CreateFormPage/>} />
               <Route path="gforms/render-form/:id" element={<RenderFormPage />} />
-              <Route path="report-generation" element={<Documents/>}/>
+              <Route path="report-generation" element={ <Documents/> }/>
               <Route path="initiate-report" element={<CreateReport/>}/>
               <Route path="Reports" element={<ReportsList/>}/>
               <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />

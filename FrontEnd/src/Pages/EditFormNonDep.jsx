@@ -90,7 +90,7 @@ const EditFormNonDep = () => {
         formData.append('deleteFile', true); // Request to delete the existing file
       }
 
-      const response = await axios.post("http://localhost:3000/tablesfornondept/updaterecord", formData, {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tablesfornondept/updaterecord`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

@@ -22,7 +22,7 @@ function customDashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.post("http://localhost:3000/graphs/academicyear");
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/academicyear`);
         const years = response.data;
         setAcademicYears(years);
         const defaultYear = years[years.length - 1];
@@ -47,7 +47,7 @@ function customDashboard() {
 
   const fetchStudentData = async (year) => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/studentsgraph", { dept: department, academic_year: year });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/studentsgraph`, { dept: department, academic_year: year });
       setStudentDetails(transformData(response.data));
     } catch (error) {
       console.error('Error fetching student data:', error);
@@ -64,7 +64,7 @@ function customDashboard() {
 
   const fetchStaffData = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/staffgraph", { dept: department });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/staffgraph`, { dept: department });
       const transformedData = transformStaffData(response.data);
       setFacultyDetails(transformedData);
     } catch (error) {
@@ -82,7 +82,7 @@ function customDashboard() {
 
   const fetchStudentyrsData = async (year) => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/studentsyrsgraph", { dept: department, academic_year: year });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/studentsyrsgraph`, { dept: department, academic_year: year });
       setStudentYrsDetails(transformYrsData(response.data));
     } catch (error) {
       console.error('Error fetching student data:', error);

@@ -147,13 +147,13 @@ function HomePage() {
   }, []);
 
   const fetchForms = async () => {
-    const response = await axios.get('http://localhost:3000/gform/forms');
+    const response = await axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms`);
     setForms(response.data);
   };
 
   const handleDelete = async (formId) => {
     try {
-      await axios.delete(`http://localhost:3000/gform/forms/${formId}`);
+      await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms/${formId}`);
       setForms(forms.filter(form => form.id !== formId)); // Remove deleted form from list
     } catch (error) {
       console.error('Failed to delete form:', error);

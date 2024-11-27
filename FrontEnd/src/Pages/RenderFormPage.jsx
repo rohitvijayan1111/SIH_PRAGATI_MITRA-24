@@ -187,7 +187,7 @@ const RenderFormPage = () => {
   useEffect(() => {
     const fetchFormDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/gform/forms/${id}`);
+        const response = await axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms/${id}`);
         setFormDetails(response.data);
       } catch (error) {
         setErrorMessage('Failed to fetch form details. Please try again.');

@@ -8,7 +8,6 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-import './OtherFormsRecords.css';
 import { getTokenData } from '../Pages/authUtils';
 
 function OtherFormsRecordForIconNondept() {
@@ -42,7 +41,7 @@ function OtherFormsRecordForIconNondept() {
   useEffect(() => {
     const fetchFormId = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/getFormId', { tableName: table });
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/getFormId`, { tableName: table });
         setFormId(response.data.form_id);
         setFormTitle(response.data.form_title);
       } catch (error) {
@@ -57,7 +56,7 @@ function OtherFormsRecordForIconNondept() {
     if (formId !== null) {
       const fetchData = async () => {
         try {
-          const response = await axios.post('http://localhost:3000/tablesfornondept/gettable', { table });
+          const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tablesfornondept/gettable`, { table });
           setData(response.data.data);
           setOriginalData(response.data.data);
           setAttributenames(Object.keys(response.data.columnDataTypes));
@@ -96,7 +95,7 @@ function OtherFormsRecordForIconNondept() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete('http://localhost:3000/tablesfornondept/deleterecord', { data: { id, table } });
+          await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tablesfornondept/deleterecord`, { data: { id, table } });
           setData(prevData => prevData.filter((item) => item.id !== id));
           setOriginalData(prevData => prevData.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
@@ -207,7 +206,7 @@ function OtherFormsRecordForIconNondept() {
                     <td key={attrIndex}>
                       {attributeTypes[name] === "date" ? formatDate(item[name]) :
                         attributeTypes[name] === "file" ? (
-                          <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">View</a>
+                          <a href={`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/${item.document}`} target="_blank" rel="noopener noreferrer">View</a>
                         ) : item[name]
                       }
                     </td>

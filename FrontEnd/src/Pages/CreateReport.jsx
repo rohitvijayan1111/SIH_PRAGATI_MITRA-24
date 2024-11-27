@@ -167,7 +167,7 @@ const CreateReport = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/report/create-report', {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/report/create-report`, {
         name: reportName,
         sections: selectedSectionNames,
         assignedUsers,

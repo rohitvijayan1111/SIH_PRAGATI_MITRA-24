@@ -73,7 +73,7 @@ function CreateFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:3000/gform/forms', { name, clientId, apiKey, sheetId, sheetRange });
+    await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms`, { name, clientId, apiKey, sheetId, sheetRange });
     navigate('/dashboard/gforms');
   };
 

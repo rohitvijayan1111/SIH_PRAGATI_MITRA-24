@@ -66,7 +66,7 @@ function LoginPage() {
 
   const validateUser = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:3000/auth/login', userData);
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/auth/login`, userData);
       const { token } = response.data;
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('loggedIn', 'true');
@@ -101,7 +101,7 @@ function LoginPage() {
         token: response.credential,  
       };
   
-      const res = await axios.post('http://localhost:3000/auth/googleLogin', googleUserData);
+      const res = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/auth/googleLogin`, googleUserData);
       const { token } = res.data;
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('loggedIn', 'true');

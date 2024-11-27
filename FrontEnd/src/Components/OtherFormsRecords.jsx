@@ -295,7 +295,7 @@ function OtherFormsRecords() {
     });
   
     try {
-      await axios.post('http://localhost:3000/excel/upload', {
+      await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/excel/upload`, {
         table,
         data: mappedData
       });
@@ -330,7 +330,7 @@ function OtherFormsRecords() {
     }
     const fetchLockStatus = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: form.id, table: 'form_locks' });
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/getlocktablestatus`, { id: form.id, table: 'form_locks' });
         setLockedstatus(response.data.is_locked);
       } catch (error) {
         console.error('Error fetching lock status:', error);
@@ -340,7 +340,7 @@ function OtherFormsRecords() {
 
     const fetchData = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/gettable`, { table: table, department: dept });
         setData(response.data.data);
         setOriginalData(response.data.data);
         console.log(response.data.data);
@@ -412,7 +412,7 @@ function OtherFormsRecords() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post('http://localhost:3000/tables/locktable', { id: form.id, lock: !lockedstatus });
+          await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/locktable`, { id: form.id, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
@@ -451,7 +451,7 @@ function OtherFormsRecords() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
+          await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deleterecord`, { data: { id, table } });
           setData(prevData => prevData.filter((item) => item.id !== id));
           setOriginalData(prevData => prevData.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
@@ -591,7 +591,7 @@ function OtherFormsRecords() {
                   {attributenames.map((name) => (
                     <Td key={name}>
                       {attributeTypes[name] === 'file' && item[name] ? (
-                        <a href={`http://localhost:3000/${item[name]}`} target="_blank" rel="noopener noreferrer">Download</a>
+                        <a href={`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/${item[name]}`} target="_blank" rel="noopener noreferrer">Download</a>
                       ) : attributeTypes[name] === 'link' ? (
                         <a href={item[name]} target="_blank" rel="noopener noreferrer">{item[name]}</a>
                       ) : name === 'submission_date' ? (

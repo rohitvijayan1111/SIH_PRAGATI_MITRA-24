@@ -48,10 +48,10 @@ const AddNewRecord = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response2 = await axios.post("http://localhost:3000/forms/insertrecord", {form_id:form.id,
+        const response2 = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/insertrecord`, {form_id:form.id,
             record_data:JSON.stringify(data) 
         });
-        const response =await axios.post("http://localhost:3000/forms/updateformindex", {    form_id:form.id,
+        const response =await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/updateformindex`, {    form_id:form.id,
             data:{start_index:(form.start_index)?form.start_index:form.possible_start_index,
             end_index:(form.end_index)?form.end_index+1:form.possible_start_index},    
         });  

@@ -86,7 +86,7 @@ const AddFormnonDept = () => {
       if (file) {
         formData.append('file', file);
       }
-      const response = await axios.post("http://localhost:3000/tablesfornondept/insertrecord", formData, {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tablesfornondept/insertrecord`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

@@ -500,7 +500,7 @@ const SocialMediaLinks = styled.div`
 `;
 
 const LoginButton = styled.button`
-  padding: 2px 10cdpx;
+  padding: 2px 10px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -620,7 +620,6 @@ function DetailsPage() {
             </FooterColumn>
           </FooterLeft>
 
-          {/* Right Section - Call to Action */}
           <FooterRight>
             <p>Need to prepare Report?</p>
             <h2>We are Here!!!</h2>

@@ -114,13 +114,13 @@ function ChatSpace() {
 
     useEffect(() => {
         // Fetch messages on page load
-        axios.get('http://localhost:3000/chat/messages')
+        axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/chat/messages`)
             .then(response => setMessages(response.data))
             .catch(error => console.error(error));
 
         // Polling for real-time updates
         const interval = setInterval(() => {
-            axios.get('http://localhost:3000/chat/messages')
+            axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/chat/messages`)
                 .then(response => setMessages(response.data))
                 .catch(error => console.error(error));
         }, 1000); // Poll every 2 seconds
@@ -132,7 +132,7 @@ function ChatSpace() {
         e.preventDefault();
         if (newMessage.trim()) {
             // Add the new message to the backend
-            await axios.post('http://localhost:3000/chat/addMessage', { sender: department, message: newMessage });
+            await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/chat/addMessage`, { sender: department, message: newMessage });
             // Clear the message input and add the message to the UI
             setNewMessage('');
             setMessages([...messages, { sender: department, message: newMessage, date: new Date().toISOString(), time: new Date().toLocaleTimeString() }]);

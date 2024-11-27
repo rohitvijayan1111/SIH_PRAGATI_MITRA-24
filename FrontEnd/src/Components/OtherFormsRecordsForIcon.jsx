@@ -8,7 +8,6 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
-import './OtherFormsRecords.css';
 import { getTokenData } from '../Pages/authUtils';
 
 function OtherFormsRecordForIcon() {
@@ -48,7 +47,7 @@ function OtherFormsRecordForIcon() {
   
     const fetchFormId = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/tables/getFormId', { tableName: table });
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/getFormId`, { tableName: table });
         console.log("THE RESPONSE ISSS");
         console.log(response.data);
         setFormId(response.data.form_id);
@@ -69,7 +68,7 @@ function OtherFormsRecordForIcon() {
       const fetchLockStatus = async () => {
         try {
           console.log("THE FORM ID IS " + formId);
-          const response = await axios.post('http://localhost:3000/tables/getlocktablestatus', { id: formId, table: 'form_locks' });
+          const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/getlocktablestatus`, { id: formId, table: 'form_locks' });
           setLockedstatus(response.data.is_locked);
         } catch (error) {
           console.error('Error fetching lock status:', error);
@@ -79,7 +78,7 @@ function OtherFormsRecordForIcon() {
   
       const fetchData = async () => {
         try {
-          const response = await axios.post('http://localhost:3000/tables/gettable', { table: table, department: dept });
+          const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/gettable`, { table: table, department: dept });
           setData(response.data.data);
           setOriginalData(response.data.data);
           setAttributenames(Object.keys(response.data.columnDataTypes));
@@ -149,7 +148,7 @@ function OtherFormsRecordForIcon() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.post('http://localhost:3000/tables/locktable', { id: formId, lock: !lockedstatus });
+          await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/locktable`, { id: formId, lock: !lockedstatus });
           setLockedstatus(!lockedstatus);
           Swal.fire(`${lockedstatus ? 'Unlocked' : 'Locked'}!`, '', 'success');
         } catch (error) {
@@ -188,7 +187,7 @@ function OtherFormsRecordForIcon() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete('http://localhost:3000/tables/deleterecord', { data: { id, table } });
+          await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deleterecord`, { data: { id, table } });
           setData(prevData => prevData.filter((item) => item.id !== id));
           setOriginalData(prevData => prevData.filter((item) => item.id !== id));
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
@@ -358,7 +357,7 @@ function OtherFormsRecordForIcon() {
                        (name === "website_link" || name === "website link" || name === "Website_Link" || name === "related_link") && item[name] ?
                          <a href={item[name]} target="_blank" rel="noopener noreferrer">Link</a>
                          : attributeTypes[name] === "file" ? (
-                           <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">
+                           <a href={`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/${item.document}`} target="_blank" rel="noopener noreferrer">
                              View
                            </a>
                          ) : item[name]

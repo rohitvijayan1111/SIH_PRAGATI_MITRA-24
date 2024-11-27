@@ -18,7 +18,7 @@ function CreateForm() {
     const confirmDelete = window.confirm("Are you sure you want to delete this record?");
     if (confirmDelete) {
       try {
-        await axios.delete('http://localhost:3000/tables/deleterecord',{ data: { id, table } });
+        await axios.delete(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deleterecord`,{ data: { id, table } });
         setData(data.filter((item) => item.id !== id));
       } catch (error) {
         console.error('Error deleting item:', error);
@@ -30,7 +30,7 @@ function CreateForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/tables/gettable', { table, dept });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/gettable`, { table, dept });
       setData(response.data);
       setAttributenames(Object.keys(response.data[0]));
       setError('');

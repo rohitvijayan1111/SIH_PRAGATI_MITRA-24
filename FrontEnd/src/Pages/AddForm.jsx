@@ -73,7 +73,7 @@ const AddForm = () => {
   
   const removeEmailFromNotSubmitted = async (formId, email) => {
     try {
-      const response = await axios.post('http://localhost:3000/tables/remove-email', {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/remove-email`, {
         formId,
         email
       });
@@ -123,7 +123,7 @@ const AddForm = () => {
         console.log("File exists");
         formData.append('file', file);
       }
-      const response = await axios.post("http://localhost:3000/tables/insertrecord", formData, {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/insertrecord`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

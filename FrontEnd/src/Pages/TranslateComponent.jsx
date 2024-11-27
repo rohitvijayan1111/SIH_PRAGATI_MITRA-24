@@ -8,7 +8,7 @@ const TranslateComponent = () => {
 
     const handleTranslate = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/translate', {
+            const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/translate`, {
                 text,
                 targetLanguage: language,
             });

@@ -54,17 +54,17 @@ FROM
   try {
     const results = await query(sqlQuery);
     console.log(results);
-    // const introduction = await generateIntroduction(results);
+    const introduction = await generateIntroduction(results);
     
-    // const summary = await Promise.race([
-    //   summarizeData(results),
-    //   new Promise((_, reject) => 
-    //     setTimeout(() => reject(new Error('Summarization timeout')), 10000)
-    //   )
-    // ]);
+    const summary = await Promise.race([
+      summarizeData(results),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Summarization timeout')), 10000)
+      )
+    ]);
 
-    introduction="hello",
-    summary="texting",
+    // introduction="hello",
+    // summary="texting",
     res.json({
       intro: introduction,
       data: results,

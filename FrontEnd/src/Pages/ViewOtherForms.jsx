@@ -42,7 +42,7 @@ const ViewOtherForms = () => {
     useEffect(() => {
         const fetchForms = async () => {
             try {
-                const response = await axios.post('http://localhost:3000/forms/getformlist', {});
+                const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/getformlist`, {});
                 const formsData = response.data;
                 setForms(formsData);
                 const initialLockStatus = formsData.reduce((acc, form) => {
@@ -70,7 +70,7 @@ const ViewOtherForms = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await axios.post('http://localhost:3000/forms/lockform', { id: formId, lock: !lockedStatus[formId] });
+                    const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/lockform`, { id: formId, lock: !lockedStatus[formId] });
                     setLockedStatus(prevState => ({ ...prevState, [formId]: !lockedStatus[formId] }));
                     Swal.fire(`${lockedStatus[formId] ? 'Unlocked' : 'Locked'}!`, '', 'success');
                 } catch (error) {
