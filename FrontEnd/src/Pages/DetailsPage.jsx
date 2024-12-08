@@ -8,6 +8,7 @@ import UniqueFeatures from "./UniqueFeatures";
 import SolutionOutcome from "./SolutionOutcome";
 import AyushInfoComponent from "./AyushInfoComponent";
 import { useNavigate } from 'react-router-dom';
+import GoogleTranslate from './GoogleTranslate';
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -560,6 +561,7 @@ function DetailsPage() {
           <a href="#contact" onClick={() => scrollToSection('contact')}>Contact Us</a>
         </NavLinks>
         <LoginButton onClick={handleLoginClick}>Login</LoginButton>
+        <GoogleTranslate/>
       </Navbar>
 
       {/* Hero Section */}

@@ -35,6 +35,11 @@ const chat = require('./routes/chat');
 const dbimport = require('./routes/dbimport');const dashboardRoutes = require('./routes/dashboard');
 const reportRoutes = require('./routes/datareport');
 const nondeptRoutes=require("./routes/tablesfornondept");
+const expenseRoutes = require('./routes/expense');
+const infraRoutes = require('./routes/infra');
+const studentformRoutes = require('./routes/studentform');
+const studentachievementRoutes = require('./routes/studentachievement');
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -49,7 +54,13 @@ app.use('/db', dbimport);
 app.use('/dashboard', dashboardRoutes);
 app.use("/tablesfornondept",nondeptRoutes);
 app.use('/report', reportRoutes);
-
+app.use('/api/summary', require('./routes/summary'));
+app.use('/api', expenseRoutes);
+app.use('/infra', infraRoutes);
+app.use('/facultyData', require('./routes/facultyData'));
+app.use('/studentData', require('./routes/studentData'));
+app.use('/studentform', studentformRoutes);
+app.use('/studentAchievements', studentachievementRoutes);
 
 app.post('/translate', async (req, res) => {
   const { text, targetLanguage } = req.body;

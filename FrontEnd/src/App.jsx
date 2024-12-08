@@ -42,6 +42,11 @@ import ReportsList from "./Pages/ReportsList";
 import OtherFormsRecordForIcon from "./Components/OtherFormsRecordsForIcon";
 import Documents from "./Pages/Reportgenaration";
 import DashboardSettings from "./Pages/DashboardSettings";
+import FinanceSummaryTable from "./Pages/FinanceSummaryTable";
+import Student_Achive_Form from "./Pages/Student_Achive_Form";
+import Student_Achive_Detail from "./Pages/Student_Achive_Detail";
+import Student_Achievement from "./Pages/Student_Achievement";
+
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -112,6 +117,12 @@ function App() {
               <Route path="initiate-report" element={<CreateReport/>}/>
               <Route path="Reports" element={<ReportsList/>}/>
               <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />
+              <Route path="summary" element = {<FinanceSummaryTable/>}/>
+              <Route path = "student_Achievement/upload" element={<Student_Achive_Form/>}/>
+              <Route path = "student_Achievement/details/:type" element={<Student_Achive_Detail/>}/>
+              <Route path = "student_Achievement" element={<Student_Achievement/>}/>
+
+
             </Route>
             <Route path="*" element={<Invalidpage />} />
           </Routes>

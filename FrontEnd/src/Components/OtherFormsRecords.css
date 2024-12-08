@@ -1,0 +1,243 @@
+/* .icon-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .edit-icon,
+  .delete-icons {
+    margin-right: 8px; 
+    cursor: pointer; 
+  }
+  
+  .delete-icons:last-child {
+    margin-right: 0; 
+  }
+  
+  .fixed-column{
+    width: 80px;
+  }
+
+  .react-icons {
+    font-size: 20px; 
+    gap: 0.5rem; /* Reduce this value as needed */
+  /* }
+  .edit-icon {
+    margin-right: 0.3rem; 
+  } */ 
+
+/* .custom-select {
+    background-color: white;
+    width: 200px;
+    height: 37px;
+    padding: 6px; 
+    font-size: 13px;
+    border: 1px solid #ced4da; 
+    border-radius: 8px; 
+  }
+  
+
+.search-button {
+    background-color: #007bff;
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px;
+    width: auto;
+  }
+  
+  .search-button:hover {
+    background-color: #046cc7; 
+  }
+  
+  .bttreset{
+    background-color: #696969; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: -1px 13px; 
+    height: 37px;
+    width: 70px;
+  }
+
+  .bttreset:hover {
+    background-color: #505050; 
+  }
+
+  .bttlock{
+    background-color: #FFA000; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px; 
+    width: auto;
+  }
+
+  .bttlock:hover {
+    background-color: #FF9500; 
+  }
+
+  .bttexport{
+    background-color: #28a745; 
+    color: white; 
+    border: none;
+    padding: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    margin: 0px 10px; 
+    height: 37px;
+    width: 130px;
+  }
+
+  .bttexport:hover {
+    background-color: #218838; 
+  } */
+
+/* General Styles */
+.container {
+  max-width: 100%;
+  padding: 15px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+/* Button Styles */
+.search-button,
+.bttreset,
+.bttlock,
+.bttexport {
+  font-size: 14px; /* Adjusted font size for better mobile visibility */
+  padding: 8px 15px;
+}
+
+.search-button:hover,
+.bttreset:hover,
+.bttlock:hover,
+.bttexport:hover {
+  background-color: #046cc7;
+}
+
+/* Icon Styles */
+.react-icons {
+  font-size: 20px;
+  gap: 0.5rem;
+}
+
+.edit-icon,
+.delete-icon {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.fixed-column {
+  width: 80px;
+}
+
+/* Custom Select */
+.custom-select {
+  width: 100%;
+  max-width: 200px;
+  height: 37px;
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+}
+
+/* Mobile View Adjustments */
+@media (max-width: 768px) {
+  .table-responsive {
+    overflow-x: scroll;
+  }
+
+  .custom-select,
+  .form-control,
+  .search-button,
+  .bttreset,
+  .bttexport {
+    width: 100%; /* Full width for smaller screens */
+    margin-bottom: 10px;
+  }
+
+  .search-button {
+    margin-bottom: 15px;
+  }
+
+  .col {
+    flex: 1 1 100%; /* Ensure buttons stack on top of each other */
+  }
+
+  .container {
+    padding: 10px;
+  }
+
+  .thead-dark th {
+    font-size: 12px; /* Smaller text size for smaller screens */
+  }
+
+  .react-icons {
+    font-size: 16px; /* Smaller icons for smaller screens */
+  }
+
+  .table-bordered th, .table-bordered td {
+    font-size: 12px; /* Smaller text for table content */
+  }
+}
+
+/* Larger Screen Adjustments */
+@media (min-width: 769px) {
+  .container {
+    max-width: 1200px; /* Limit max-width on larger screens */
+    margin: 0 auto;
+  }
+
+  .custom-select,
+  .form-control {
+    width: auto; /* Allow normal width on larger screens */
+  }
+
+  .search-button,
+  .bttreset,
+  .bttexport {
+    width: auto; /* Adjust button width */
+    font-size: 16px;
+  }
+
+  .react-icons {
+    font-size: 20px;
+  }
+}
+
+/* Responsive Table */
+@media (max-width: 576px) {
+  .table-responsive {
+    margin-top: 20px;
+  }
+
+  .table th, .table td {
+    padding: 10px;
+  }
+
+  .search-button,
+  .bttreset,
+  .bttexport {
+    width: 100%;
+    font-size: 14px;
+  }
+}

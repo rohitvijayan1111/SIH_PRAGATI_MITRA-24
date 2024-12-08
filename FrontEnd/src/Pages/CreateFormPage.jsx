@@ -65,15 +65,46 @@ const Button = styled.button`
 
 function CreateFormPage() {
   const [name, setName] = useState('');
-  const [clientId, setClientId] = useState('');
-  const [apiKey, setApiKey] = useState('');
-  const [sheetId, setSheetId] = useState('');
-  const [sheetRange, setSheetRange] = useState('');
+  const clientId = "598907744656-hqnn5lp4b253gg89qifscbd6f9o0reo2.apps.googleusercontent.com";
+  const apiKey = "AIzaSyD2X85pKzFNcGWhDcZ9ZjbA-D3M0GfRgAY";
+  const [sheetUrl, setSheetUrl] = useState('');
   const navigate = useNavigate();
+
+  // Function to extract sheet ID from Google Sheets URL
+  const extractSheetId = (url) => {
+    const regex = /\/d\/([a-zA-Z0-9-_]+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+
+  // Generate the dynamic range based on form name
+  const generateSheetRange = (formName) => {
+    return `${formName}!B1:C100`; // Automatically appends '!B2:C100' to the form name
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms`, { name, clientId, apiKey, sheetId, sheetRange });
+
+    // Extract the sheet ID from the provided URL
+    const extractedSheetId = extractSheetId(sheetUrl);
+    if (!extractedSheetId) {
+      alert("Invalid Google Sheets URL. Please provide a valid URL.");
+      return;
+    }
+
+    // Generate the sheet range dynamically
+    const sheetRange = generateSheetRange(name);
+
+    // Make API request
+    await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/gform/forms`, { 
+      name, 
+      clientId, 
+      apiKey, 
+      sheetId: extractedSheetId, 
+      sheetRange 
+    });
+
+    // Navigate to the forms dashboard
     navigate('/dashboard/gforms');
   };
 
@@ -81,11 +112,20 @@ function CreateFormPage() {
     <Container>
       <Title>Create New Form</Title>
       <Form onSubmit={handleSubmit}>
-        <Input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-        <Input type="text" placeholder="Client ID" value={clientId} onChange={(e) => setClientId(e.target.value)} required />
-        <Input type="text" placeholder="API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} required />
-        <Input type="text" placeholder="Sheet ID" value={sheetId} onChange={(e) => setSheetId(e.target.value)} required />
-        <Input type="text" placeholder="Sheet Range" value={sheetRange} onChange={(e) => setSheetRange(e.target.value)} required />
+        <Input
+          type="text"
+          placeholder="Form Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <Input
+          type="text"
+          placeholder="Google Sheets URL"
+          value={sheetUrl}
+          onChange={(e) => setSheetUrl(e.target.value)}
+          required
+        />
         <Button type="submit">Create</Button>
       </Form>
     </Container>

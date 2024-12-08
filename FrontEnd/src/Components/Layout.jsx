@@ -5,6 +5,9 @@ import SideBar from "./SideBar";
 import styled from 'styled-components'; 
 import { getTokenData } from "../Pages/authUtils";
 import Navigation from "./Navigation";
+import SideBar_Infra from "../Pages/SideBar_Infra";
+
+import Finance_Sidebar from "../Pages/Finance_Sidebar";
 
 const Layout = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -27,9 +30,11 @@ const Layout = () => {
             <NavBar onToggleSidebar={toggleSidebar} />
             <ContentWrapper>
                 <SidebarContainer>
-                    {user !== 'Event Coordinator' && user !== 'Attendance Manager' && (
-                        <SideBar isOpen={isSidebarOpen} onClose={closeSidebar} />
-                    )}
+                    
+                    {user==="Infrastructure Coordinator" && <SideBar_Infra/>}
+                    {user==="Finance Coordinator" && <Finance_Sidebar/>}
+                    {user==="Student" && <Finance_Sidebar/>}
+                    {user !== 'Event Coordinator' && user!=="Finance Coordinator" && user!== 'Attendance Manager' && user!=="Student"  && user!=="Faculty"  && user!=="Infrastructure Coordinator" && <SideBar/>}
                 </SidebarContainer>
                 <MainContent>
                     <Navigation />
