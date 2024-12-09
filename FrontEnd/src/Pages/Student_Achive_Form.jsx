@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-
-import 'react-toastify/dist/ReactToastify.css';
+import dayjs from 'dayjs';
+import { ToastContainer, toast, Zoom } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; 
 
 const FormContainer = styled.div`
     width: 100%;
@@ -101,12 +102,15 @@ const Button = styled.button`
 `;
 
 
+
+
 const Student_Achive_Form = () => {
     const students = [
         { id: 1, name: 'Kana', email: 'john.doe@example.com' },
         { id: 2, name: 'Jane Smith', email: 'jane.smith@example.com' },
         { id: 3, name: 'Alice Johnson', email: 'alice.johnson@example.com' },
     ];
+
     const [formData, setFormData] = useState({
         achievementType: '',
         serialNo: '',
@@ -119,21 +123,29 @@ const Student_Achive_Form = () => {
         endDate: '',
         outcomes: '',
         document: null,
-        student_id: '1', 
+        student_id: '1',
         location: '',
-        organizer: '',  
+        organizer: '',
         eventDate: '',
         achievement: ' ',
-        event_type:' ',
-        research_area:' ', 
-        department : ' ',
+        event_type: ' ',
+        research_area: ' ',
+        patentnumber :'',
+        department: ' ',
+        paperDetails:' ', 
     });
 
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        if (name === 'startDate' || name === 'endDate') {
+            setFormData({ ...formData, [name]: dayjs(value).format('YYYY-MM-DD') });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleFileChange = (e) => {
@@ -142,8 +154,8 @@ const Student_Achive_Form = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-    
-       
+
+        
         const formDataToSend = new FormData();
         formDataToSend.append('achievementType', formData.achievementType);
         formDataToSend.append('serialNo', formData.serialNo);
@@ -162,12 +174,13 @@ const Student_Achive_Form = () => {
         formDataToSend.append('achievement', formData.achievement);
         formDataToSend.append('organizer', formData.organizer); 
         formDataToSend.append('research_area', formData. research_area );  
+        formDataToSend.append('patentnumber', formData. patentnumber );  
         formDataToSend.append('department', formData. department );  
+        formDataToSend.append('paperDetails',formData. paperDetails);
     
         if (formData.document) {
             formDataToSend.append('document', formData.document);
         }
-    
         fetch('http://localhost:3000/studentform/submit', {
             method: 'POST',
             body: formDataToSend,
@@ -175,7 +188,12 @@ const Student_Achive_Form = () => {
             .then((response) => response.json())
             .then((data) => {
                 if (data.message) {
-                    alert(data.message); 
+                    toast.success('Form submitted successfully!', {
+                        position: "top-center",
+                        autoClose: 3000,
+                        theme: "colored",
+                        transition: Zoom,
+                    });
                     setFormData({
                         achievementType: '',
                         serialNo: '',
@@ -193,25 +211,29 @@ const Student_Achive_Form = () => {
                         eventDate: '',
                         achievement: '',
                         event_type: '',
-                        research_area :' ',
-                        department : ' ',
+                        research_area: ' ',
+                        patentnumber:'',
+                        department: ' ',
+                        paperDetails:' ',
                     });
-                    navigate('/dashboard/student_Achievement');
+                    setTimeout(() => {
+                        setSuccessMessage('');
+                        navigate('/dashboard/faculty_Achievement');
+                    }, 4000);
                 }
             })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('Error submitting the form');
+            .catch(() => {
+                setErrorMessage('An error occurred while submitting the form.');
             });
     };
-    
 
+  
     const renderConditionalFields = () => {
         switch (formData.achievementType) {
             case 'Symposium':
                 return (
                     <>   
-                        <Label>S.No</Label>
+                        <Label>ID</Label>
                         <Input type="number" name="serialNo" onChange={handleChange} required />
                         <Label>Event Name</Label>
                         <Input type="text" name="title" onChange={handleChange} required />
@@ -232,10 +254,10 @@ const Student_Achive_Form = () => {
             case 'Patent':
                 return (
                     <>   
-                         <Label>S.No</Label>
+                         <Label>ID</Label>
                          <Input type="number" name="serialNo" onChange={handleChange} required />
                         <Label>Patent Number</Label>
-                        <Input type="text" name="serialNo" onChange={handleChange} required />
+                        <Input type="text" name="patentnumber" onChange={handleChange} required />
                         <Label>Title of Invention</Label>
                         <Input type="text" name="title" onChange={handleChange} required />
                         <Label>Inventors' Names</Label>
@@ -246,7 +268,7 @@ const Student_Achive_Form = () => {
             case 'Paper Publication':
                 return (
                     <> 
-                        <Label>S.No</Label>
+                        <Label>ID</Label>
                         <Input type="number" name="serialNo" onChange={handleChange} required />
                         <Label>Paper Title</Label>
                         <Input type="text" name="title" onChange={handleChange} required />
@@ -254,6 +276,8 @@ const Student_Achive_Form = () => {
                         <Input type="text" name="teamMembers" onChange={handleChange} required />
                         <Label>Journal Name</Label>
                         <Input type="text" name="conferenceDetails" onChange={handleChange} required />
+                        <Label>Paper Details</Label>
+                        <Input type="text" name="paperDetails" onChange={handleChange} required />
                         <Label>Research Area</Label>
                         <Input type="text" name="research_area" onChange={handleChange} required />
 
@@ -262,7 +286,7 @@ const Student_Achive_Form = () => {
             case 'Hackathon':
                 return (
                     <>
-                        <Label>S.No</Label> 
+                        <Label>ID</Label> 
                         <Input type="number" name="serialNo" onChange={handleChange} required />
                         <Label>Project Title</Label>
                         <Input type="text" name="title" onChange={handleChange} required />
@@ -277,46 +301,50 @@ const Student_Achive_Form = () => {
         }
     };
 
+
+
     return (
-        <FormContainer>
-            <FormTitle>Achievement Form</FormTitle>
-            <form onSubmit={handleSubmit}>
-                <Label>Select Achievement Type</Label>
-                <Select name="achievementType" value={formData.achievementType} onChange={handleChange} required>
-                    <option value="">Select...</option>
-                    <option value="Symposium">Symposium</option>
-                    <option value="Patent">Patent</option>
-                    <option value="Paper Publication">Paper Publication</option>
-                    <option value="Hackathon">Hackathon</option>
-                </Select>
+        <>
+            <ToastContainer position="top-center" autoClose={3000} /> 
+            <FormContainer>
+                <FormTitle>Achievement Form</FormTitle>
+                {successMessage && <successMessage>{successMessage}</successMessage>}
+                {errorMessage && <errorMessage>{errorMessage}</errorMessage>}
+                <form onSubmit={handleSubmit}>
+                    <Label>Select Achievement Type</Label>
+                    <Select name="achievementType" value={formData.achievementType} onChange={handleChange} required>
+                        <option value="">Select...</option>
+                        <option value="Symposium">Symposium</option>
+                        <option value="Patent">Patent</option>
+                        <option value="Paper Publication">Paper Publication</option>
+                        <option value="Hackathon">Hackathon</option>
+                    </Select>
 
-                <Label>Department</Label>
-                <Select name="department" value={formData.department} onChange={handleChange} required>
-                    <option value="">Select...</option>
-                    <option value="IT">IT</option>
-                    <option value="CSE">CSE</option>
-                    <option value="ECE">ECE</option>
-                    <option value="EEE">EEE</option>
-                </Select>
+                    <Label>Department</Label>
+                    <Select name="department" value={formData.department} onChange={handleChange} required>
+                        <option value="">Select...</option>
+                        <option value="IT">IT</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="EEE">EEE</option>
+                    </Select>
 
-                {renderConditionalFields()}
+                    {renderConditionalFields()}
 
-            
-             
-                <Label>Start Date</Label>
-                <Input type="date" name="startDate" onChange={handleChange} required />
-                <Label>End Date</Label>
-                <Input type="date" name="endDate" onChange={handleChange} required />
-                <Label>Outcomes</Label>
-                <Input type="text" name="outcomes" onChange={handleChange} required />
-                <Label>Upload Document</Label>
-                <Input type="file" onChange={handleFileChange} required />
+                    <Label>Start Date</Label>
+                    <Input type="date" name="startDate" value={formData.startDate} onChange={handleChange} required />
+                    <Label>End Date</Label>
+                    <Input type="date" name="endDate" value={formData.endDate} onChange={handleChange} required />
+                    <Label>Outcomes</Label>
+                    <Input type="text" name="outcomes" onChange={handleChange} required />
+                    <Label>Upload Document</Label>
+                    <Input type="file" onChange={handleFileChange} required />
 
-
-
-                <Button type="submit">Submit</Button>
-            </form>
-        </FormContainer>
+                    <Button type="submit">Submit</Button>
+                </form>
+                <ToastContainer />
+            </FormContainer>
+        </>
     );
 };
 

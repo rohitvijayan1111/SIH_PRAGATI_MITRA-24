@@ -41,7 +41,7 @@ const Row = styled.div`
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 20px;
-
+  width:100%;
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch;
@@ -121,7 +121,7 @@ const CustomSelect = styled.select`
 `;
 
 const Table = styled.table`
-  min-width: 100%;
+  min-width: 90%;
   width: 100%;
   max-width: 100%;
   border-collapse: collapse;

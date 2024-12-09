@@ -46,6 +46,10 @@ import FinanceSummaryTable from "./Pages/FinanceSummaryTable";
 import Student_Achive_Form from "./Pages/Student_Achive_Form";
 import Student_Achive_Detail from "./Pages/Student_Achive_Detail";
 import Student_Achievement from "./Pages/Student_Achievement";
+import Faculty_Achievement from "./Pages/Faculty_Achievement";
+import Faculty_AchieForm from "./Pages/Faculty_AchieForm";
+import Faculty_AchieDetails from "./Pages/Faculty_AchieDetails";
+import Faculty_Std_Analysis from "./Pages/Faculty_Std_Analysis";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -59,6 +63,7 @@ function ScrollToTop() {
 
 function App() {
   return ( 
+    
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <div className='app'>
        <Router>
@@ -121,6 +126,11 @@ function App() {
               <Route path = "student_Achievement/upload" element={<Student_Achive_Form/>}/>
               <Route path = "student_Achievement/details/:type" element={<Student_Achive_Detail/>}/>
               <Route path = "student_Achievement" element={<Student_Achievement/>}/>
+
+              <Route path = "faculty_Achievement" element={<Faculty_Achievement/>}/>
+                 <Route path = "faculty_Achievement/upload" element={<Faculty_AchieForm/>}/>
+                 <Route path = "faculty_Achievement/details/:type" element={<Faculty_AchieDetails/>}/>
+                 <Route path = "faculty_std_analysis" element={<Faculty_Std_Analysis/>}/>
 
 
             </Route>

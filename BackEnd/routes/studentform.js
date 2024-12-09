@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../config/db');
 const multer = require('multer');
 const path = require('path');
-
+const dayjs = require('dayjs');
 // Set up multer for file uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -33,32 +33,36 @@ router.post('/submit', upload.single('document'), (req, res) => {
         event_type,
         achievement,
         research_area ,
-        department , 
-        
+        patentnumber,
+        department ,
+        paperDetails,
     } = req.body;
+
+ 
 
     if (!student_id) {
         return res.status(400).json({ message: 'Student ID is required' });
     }
 
-    // File handling
+    const formattedStartDate = startDate ? dayjs(startDate).format('YYYY-MM-DD') : null;
+    const formattedEndDate = endDate ? dayjs(endDate).format('YYYY-MM-DD') : null;
     const documentLink = req.file ? req.file.path : null;
-
-    // SQL query to insert data
+console.log(patentnumber);
     const query = `
         INSERT INTO student_achievements (
             student_id, achievementType, serialNo, title, teamMembers, description,
-            location, technologyUsed, conferenceDetails, startDate, endDate, outcomes, research_area ,
-            documentLink, organizer, event_type, achievement,department
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?,?);
+            location, technologyUsed, conferenceDetails, startDate, endDate, outcomes, research_area,
+            documentLink, organizer, event_type, achievement,  patentnumber,department, paperDetails 
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?, ?);
     `;
 
     const values = [
         student_id, achievementType, serialNo, title, teamMembers, description, location, 
-        technologyUsed, conferenceDetails, startDate, endDate, outcomes, research_area,documentLink ,
-        organizer,event_type, achievement,department
+        technologyUsed, conferenceDetails, formattedStartDate, formattedEndDate, outcomes, research_area, documentLink,
+        organizer, event_type, achievement,patentnumber, department,  paperDetails 
     ];
 
+    
     db.query(query, values, (err) => {
         if (err) {
             console.error('Error inserting achievement:', err);

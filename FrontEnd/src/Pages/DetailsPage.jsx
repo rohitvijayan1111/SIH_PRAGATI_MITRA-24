@@ -561,7 +561,7 @@ function DetailsPage() {
           <a href="#contact" onClick={() => scrollToSection('contact')}>Contact Us</a>
         </NavLinks>
         <LoginButton onClick={handleLoginClick}>Login</LoginButton>
-        <GoogleTranslate/>
+        {/* <GoogleTranslate/> */}
       </Navbar>
 
       {/* Hero Section */}
