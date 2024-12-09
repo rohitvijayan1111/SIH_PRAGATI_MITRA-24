@@ -5,10 +5,11 @@ const cors = require('cors');
 const db = require('./config/db'); 
 const cron = require('node-cron');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT =  3000;
 const nodemailer = require('nodemailer');
 const moment = require('moment');
 const axios = require('axios');
+const API_KEY = 'AIzaSyBhdilHwllhr-lkWnn5-nzqnyUUpT_woGg';
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -34,6 +35,14 @@ const chat = require('./routes/chat');
 const dbimport = require('./routes/dbimport');const dashboardRoutes = require('./routes/dashboard');
 const reportRoutes = require('./routes/datareport');
 const nondeptRoutes=require("./routes/tablesfornondept");
+const expenseRoutes = require('./routes/expense');
+const infraRoutes = require('./routes/infra');
+const studentformRoutes = require('./routes/studentform');
+const studentachievementRoutes = require('./routes/studentachievement');
+const facultyRouter = require('./routes/facultyform');
+const facuRoutes = require('./routes/facultyachievement');
+const facultystdAnalysisRoutes = require('./routes/facultystdAnalysis');
+
 app.use('/auth', authRoutes);
 app.use('/mail', emailRoutes);
 app.use('/tables', tablesRoutes);
@@ -48,6 +57,42 @@ app.use('/db', dbimport);
 app.use('/dashboard', dashboardRoutes);
 app.use("/tablesfornondept",nondeptRoutes);
 app.use('/report', reportRoutes);
+app.use('/api/summary', require('./routes/summary'));
+app.use('/api', expenseRoutes);
+app.use('/infra', infraRoutes);
+app.use('/facultyData', require('./routes/facultyData'));
+app.use('/studentData', require('./routes/studentData'));
+app.use('/studentform', studentformRoutes);
+app.use('/studentAchievements', studentachievementRoutes);
+app.use('/facultyform', facultyRouter);
+app.use('/achievements', facuRoutes);
+app.use('/facultystdAnalysis', facultystdAnalysisRoutes);
+
+app.post('/translate', async (req, res) => {
+  const { text, targetLanguage } = req.body;
+
+  if (!text || !targetLanguage) {
+      return res.status(400).json({ error: 'Text and target language are required' });
+  }
+
+  try {
+      const response = await axios.post(
+          `https://translation.googleapis.com/language/translate/v2`,
+          {},
+          {
+              params: {
+                  q: text,
+                  target: targetLanguage,
+                  key: API_KEY,
+              },
+          }
+      );
+      res.json(response.data);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Error translating text' });
+  }
+});
 cron.schedule('0 0 * * *', () => {
   console.log('Cron job triggered every minute.');
 

@@ -118,7 +118,7 @@ const SetDeadlinePage = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:3000/tables/deadline', {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deadline`, {
         id: formId,
         deadline: deadline,
       });

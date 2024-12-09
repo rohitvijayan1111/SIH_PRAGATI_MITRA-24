@@ -126,7 +126,7 @@ const ManageAssignedUsers = () => {
 
   const handleDeleteUser = async (email) => {
     try {
-      const response = await axios.post('http://localhost:3000/tables/deleteFormUser', { formId, email, department });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/deleteFormUser`, { formId, email, department });
       if (response.data.success) {
         setUsers(users.filter(user => user.email !== email));
         toast.success('User deleted successfully', {

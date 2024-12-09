@@ -1,0 +1,74 @@
+.VIpgJd-ZVi9od-l4eHX-hSRGPd{
+  display: none !important;
+}
+.VIpgJd-ZVi9od-ORHb-OEVmcd skiptranslate{
+    color: transparent;
+    display: none;
+}
+
+.VIpgJd-ZVi9od-aZ2wEe {
+    display: none;
+}
+
+.VIpgJd-ZVi9od-aZ2wEe-Jt5cK{
+    display: none;
+}
+
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+  }
+
+  /* Remove the tooltip box */
+#goog-gt-tt {
+    display: none !important;
+  }
+  
+  /* Prevent the translation overlay on hover */
+  .goog-te-banner-frame.skiptranslate,
+  .goog-te-gadget-icon {
+    pointer-events: none !important;
+  }
+  
+  /* Remove the hover effect on the translation text */
+  .goog-te-gadget-simple {
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    pointer-events: none !important;
+  }
+  
+  /* Prevent text selection globally */
+body {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE */
+    user-select: none; /* Standard */
+  }
+  
+  /* Specifically target Google Translate elements */
+  .goog-te-banner-frame.skiptranslate,
+  .goog-te-gadget-simple,
+  .goog-te-menu-frame {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    pointer-events: none; /* Prevent hover interactions */
+  }
+  
+  /* Remove highlighting effect */
+  * {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Hide the Google Translate toolbar */
+.goog-te-banner-frame {
+    display: none !important;
+  }
+  
+  /* Adjust the body to fill the space */
+  body {
+    margin-top: 0 !important;
+  }
+  

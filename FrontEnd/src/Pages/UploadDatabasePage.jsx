@@ -26,7 +26,7 @@ const UploadDatabasePage = () => {
 
     try {
       // Send the SQL file to the backend
-      const response = await axios.post('http://localhost:3000/db/upload-sql', formData, {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/db/upload-sql`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -42,7 +42,7 @@ const UploadDatabasePage = () => {
   // Fetch tables after successful import
   const fetchTables = async () => {
     try {
-      const response = await axios.get('http://localhost:3000/db/tables');
+      const response = await axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/db/tables`);
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -52,7 +52,7 @@ const UploadDatabasePage = () => {
   // Fetch data for the selected table
   const fetchTableData = async (tableName) => {
     try {
-      const response = await axios.get(`http://localhost:3000/db/tables/${tableName}`);
+      const response = await axios.get(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/db/tables/${tableName}`);
       setTableData(response.data);
     } catch (error) {
       console.error('Error fetching table data:', error);

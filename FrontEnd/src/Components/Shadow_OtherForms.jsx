@@ -30,7 +30,7 @@ const Shadow_OtherForms = () => {
     useEffect(() => {
         const fetchForms = async () => {
             try {
-                const response = await axios.post('http://localhost:3000/forms/getformlist', {});
+                const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/getformlist`, {});
                 const formsData = response.data
                 .map(row => {
                     // Parse the assigned_to_usergroup string into a nested array

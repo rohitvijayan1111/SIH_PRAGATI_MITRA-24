@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import logo from '../assets/pragati.png';
 import { getTokenData } from '../Pages/authUtils';
 import { FiMenu } from 'react-icons/fi';
+import GoogleTranslate from '../Pages/GoogleTranslate';
 
 const Header = styled.header`
   position: fixed;
@@ -163,6 +164,7 @@ function NavBar({ onToggleSidebar }) {
         </div>
       </LeftNav>
       <AlignCenter>
+        {/* <GoogleTranslate/> */}
         <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
       </AlignCenter>
     </Header>

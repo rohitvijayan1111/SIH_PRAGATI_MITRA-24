@@ -632,6 +632,7 @@ router.get('/section-data', async (req, res) => {
     const results = await query(sqlQuery);
     console.log(results);
     const introduction = await generateIntroduction(results);
+    const introduction = await generateIntroduction(results);
     
     const summary = await Promise.race([
       summarizeData(results),

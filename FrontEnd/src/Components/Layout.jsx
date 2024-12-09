@@ -5,6 +5,11 @@ import SideBar from "./SideBar";
 import styled from 'styled-components'; 
 import { getTokenData } from "../Pages/authUtils";
 import Navigation from "./Navigation";
+import SideBar_Infra from "../Pages/SideBar_Infra";
+
+import Finance_Sidebar from "../Pages/Finance_Sidebar";
+import Sidebar_Student from "../Pages/SideBar_Student";
+import SideBar_Faculty from "../Pages/SideBar_Faculty";
 
 const Layout = () => {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -27,9 +32,12 @@ const Layout = () => {
             <NavBar onToggleSidebar={toggleSidebar} />
             <ContentWrapper>
                 <SidebarContainer>
-                    {user !== 'Event Coordinator' && user !== 'Attendance Manager' && (
-                        <SideBar isOpen={isSidebarOpen} onClose={closeSidebar} />
-                    )}
+                    
+                    {user==="Infrastructure Coordinator" && <SideBar_Infra/>}
+                    {user==="Finance Coordinator" && <Finance_Sidebar/>}
+                    {user==="Student" && <Sidebar_Student/> }
+                    {user==="Faculty" && <SideBar_Faculty/> }
+                    {user !== 'Event Coordinator' && user!=="Finance Coordinator" && user!== 'Attendance Manager' && user!=="Student"  && user!=="Faculty"  && user!=="Infrastructure Coordinator" && <SideBar/>}
                 </SidebarContainer>
                 <MainContent>
                     <Navigation />
@@ -48,6 +56,7 @@ const Container = styled.div`
     margin-top: 0%;
     width: 100%;
     height: 100%;
+
 `;
 
 const ContentWrapper = styled.div`
@@ -55,6 +64,7 @@ const ContentWrapper = styled.div`
 `;
 
 const SidebarContainer = styled.aside`
+
 `;
 
 const MainContent = styled.div`

@@ -17,7 +17,7 @@ export const ViewOtherFormRecord = () => {
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await axios.post('http://localhost:3000/forms/getformrecords', { id });
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/getformrecords`, { id });
         const formsData = response.data.map(record => ({
           ...record,
           record_data: JSON.parse(record.record_data)
@@ -66,7 +66,7 @@ export const ViewOtherFormRecord = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:3000/forms/updateAndDeleteRecord', {recordId:recordId,formId:form.id });
+      await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/updateAndDeleteRecord`, {recordId:recordId,formId:form.id });
       const updatedRecords = records.filter(record => record.id !== recordId);
       setRecords(updatedRecords);
       setFilteredRecords(updatedRecords);
@@ -168,7 +168,7 @@ export const EditOtherFormRecord = () => {
       console.log(data);
       e.preventDefault();
       try {
-        const response = await axios.post("http://localhost:3000/forms/editformrecord",{
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/forms/editformrecord`,{
             id: record.id,
             record_data:JSON.stringify(data) ,
           });

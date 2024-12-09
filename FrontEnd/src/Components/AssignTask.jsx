@@ -107,7 +107,7 @@ const AssignTask = () => {
     }
 
     try {
-      await axios.post('http://localhost:3000/tables/create-shadow-user', {
+      await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/create-shadow-user`, {
         form_id: formId,
         emailId,
         assigned_by: tokendata.role,

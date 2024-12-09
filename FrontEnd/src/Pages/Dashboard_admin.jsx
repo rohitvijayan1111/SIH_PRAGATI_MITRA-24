@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import PrincipalBC from '../Components/Admin-Component/PrincipalBC';
 import axios from 'axios';
 import PrincipalFPC from '../Components/Admin-Component/PrincipalFPC';
-import './Dashboard_admin.css';
 import PrincipalSPC from '../Components/Admin-Component/PrincipalSPC';
 import DepartmentList from '../Components/Admin-Component/DepartmentList';
 import { Link } from 'react-router-dom';
@@ -19,7 +18,7 @@ const Dashboard_admin = () => {
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await axios.post("http://localhost:3000/graphs/academicyear");
+        const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/academicyear`);
         const years = response.data;
         setadminAcademicYears(years);
         const defaultYear = years[years.length - 1];
@@ -56,7 +55,7 @@ const Dashboard_admin = () => {
 
   const fetchadminStudentData = async (year) => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/adminstudentsgraph", { academic_year: year });
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/adminstudentsgraph`, { academic_year: year });
       setadminStudentDetails(transformData(response.data));
       console.log(response.data); 
     } catch (error) {
@@ -88,7 +87,7 @@ const Dashboard_admin = () => {
 
   const fetchadminStaffData = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/adminstaffgraph", {});
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/adminstaffgraph`, {});
       console.log(response.data);
       const transformedData = transformadminstaffData(response.data);
       console.log('Transformed Staff Data:', transformedData); 
@@ -110,7 +109,7 @@ const Dashboard_admin = () => {
 
   const fetchadminStudentyrsData = async () => {
     try {
-      const response = await axios.post("http://localhost:3000/graphs/adminstudentsyrsgraph", {});
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/graphs/adminstudentsyrsgraph`, {});
       setadminStudentYrsDetails(transformadminyrsData(response.data));
     } catch (error) {
       console.error('Error fetching student data:', error);

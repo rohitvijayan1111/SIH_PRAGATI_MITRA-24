@@ -70,7 +70,7 @@ const EditForm = () => {
   };
   const removeEmailFromNotSubmitted = async (formId, email) => {
     try {
-      const response = await axios.post('http://localhost:3000/tables/remove-email', {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/remove-email`, {
         formId,
         email
       });
@@ -126,7 +126,7 @@ const EditForm = () => {
         formData.append('deleteFile', true); // Request to delete the existing file
       }
   
-      const response = await axios.post("http://localhost:3000/tables/updaterecord", formData, {
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/updaterecord`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

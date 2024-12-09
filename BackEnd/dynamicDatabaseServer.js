@@ -6,7 +6,7 @@ const app = express();
 const PORT = 3002; // Use a different port than your existing server.js
 
 const corsOptions = {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+    origin: ['http://localhost:3000', 'http://localhost:5173','http://0.0.0.0:3000'],
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type']
   };
@@ -21,7 +21,7 @@ app.get('/api/databases', (req, res) => {
   const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'pass123',
+    password: '1207',
   });
 
   connection.query('SHOW DATABASES', (err, results) => {
@@ -38,7 +38,7 @@ app.post('/api/select-database', (req, res) => {
   dbConnection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'pass123',
+    password: '1207',
     database: dbName,
   });
 

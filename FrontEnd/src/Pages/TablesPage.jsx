@@ -9,7 +9,7 @@ const TablesPage = () => {
   const [tables, setTables] = useState([]);
   const [selectedTable, setSelectedTable] = useState('');
   const [tableContent, setTableContent] = useState([]);
-
+ 
   // Fetch tables when the database is changed
   useEffect(() => {
     axios.get(`http://localhost:3002/api/tables/${database}`)

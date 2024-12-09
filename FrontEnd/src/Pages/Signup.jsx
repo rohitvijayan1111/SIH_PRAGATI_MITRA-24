@@ -38,7 +38,7 @@ function SignPage() {
   }
   const registerUser = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:3000/auth/register', userData);
+      const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/auth/register`, userData);
       console.log(response.data);
       notifysuccess();
     } catch (error) {

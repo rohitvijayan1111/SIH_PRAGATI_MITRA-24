@@ -260,7 +260,7 @@ const CreateNewForm = () => {
         const newForm = { formName, attributes, usergroup };
     
         try {
-            const response = await axios.post('http://localhost:3000/tables/create-table', newForm);
+            const response = await axios.post(`${import.meta.env.VITE_SIH_PRAGATI_MITRA_URL}/tables/create-table`, newForm);
             notifySuccess(response.data);
         } catch (error) {
             notifyFailure(error.response ? error.response.data : 'No response from server');
