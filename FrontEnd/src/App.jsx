@@ -79,7 +79,7 @@ function App() {
             <Route index element={<ProtectedRoute element={DashBoard} />} />
             <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />
             <Route path="settings/create-new-graph-ai" element={<ProtectedRoute element={GraphConfigWizard} />} />
-              <Route path="club-activity" element={<ProtectedRoute element={Clubactivities} />} />
+             
               <Route path="mail" element={<ProtectedRoute element={EmailNotification} />} />
               {/* <Route path="view-other-forms" element={<ViewOtherForms />} />
               <Route path="view-other-forms/new-form" element={<CreateNewForm/>} />
