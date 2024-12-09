@@ -27,25 +27,602 @@ const geminiModel = googleAI.getGenerativeModel({
   geminiConfig,
 });
 
+const sectionQueries = {
+  'List of Courses Offered': {
+    sql: `SELECT distinct department from student_tables;`,
+    graph: {
+      query:null,
+      type:"",
+    }
+  },
+  'Overall and Department-wise Faculty Count and Faculty-Student Ratios': {
+    sql: `SELECT faculty_table.department,
+       COUNT(DISTINCT faculty_table.faculty_id) AS faculty_count,
+       COUNT(DISTINCT student_tables.registrationNumber) AS student_count
+FROM faculty_table
+LEFT JOIN student_tables ON faculty_table.department = student_tables.Department
+GROUP BY faculty_table.department;
+`,
+    graph: {
+      query:null,
+      type:"",
+    },
+  },
+  'Placement Summary': {
+    sql: `SELECT company, package, COUNT(*) AS student_count
+FROM student_details
+WHERE placementStatus = 1
+GROUP BY company, package;
+;`,
+    graph: {
+      query:`SELECT department, COUNT(*) AS placed_students_count
+FROM student_details
+WHERE placementStatus = 1
+GROUP BY department;
+`,
+      type:"line",
+    }
+  },
+ // 'Overall Pass and Fail Percentage': {
+//     sql: `SELECT 
+//     SUM(CASE WHEN backlogs = 0 THEN 1 ELSE 0 END) AS overall_pass_count,
+//     SUM(CASE WHEN backlogs = 1 THEN 1 ELSE 0 END) AS overall_fail_count
+// FROM student_details;
+// `,
+//     graph: {
+//       query:`SELECT 
+//     SUM(CASE WHEN backlogs = 0 THEN 1 ELSE 0 END) AS overall_pass_count,
+//     SUM(CASE WHEN backlogs = 1 THEN 1 ELSE 0 END) AS overall_fail_count
+// FROM student_details;`,
+//       type:"pie",
+//     },
+//   },
+
+  'Department-wise Pass and Fail Percentage': {
+    sql: `SELECT 
+    department,
+    SUM(CASE WHEN backlogs = 0 THEN 1 ELSE 0 END) AS pass_count,
+    SUM(CASE WHEN backlogs = 1 THEN 1 ELSE 0 END) AS fail_count
+FROM student_details
+GROUP BY department;`,
+    graph: {
+      query:`SELECT 
+    CASE 
+        WHEN placementStatus = 1 THEN 'Pass' 
+        ELSE 'Fail' 
+    END AS Status, 
+    COUNT(*) AS Count
+FROM student_details
+GROUP BY placementStatus;
+`,
+      type:"pie",
+    }},
+
+    'Average CGPA of Students': {
+      sql: `SELECT department, AVG(cgpa) AS average_cgpa
+FROM student_details
+GROUP BY department;`,
+      graph: {
+        query:`SELECT department, AVG(cgpa) AS average_cgpa
+FROM student_details
+GROUP BY department;`,
+        type:"bar",
+      }},
+    'Graduation Rate of College': {
+      sql: `SELECT 
+    department,
+    (SUM(CASE WHEN backlogs = 0 THEN 1 ELSE 0 END) / COUNT(*)) * 100 AS graduation_percentage
+FROM student_details
+GROUP BY department;`,
+      graph: {
+        query:null,
+        type:"",
+      }
+    },
+    'Guest Lectures Organized': {
+      sql: `SELECT * from work_semi where type="Guest Lecture";`,
+      graph: {
+        query:null,
+        type:"",
+      },
+    },
+    'Industrial Visits Organized': {
+      sql: `SELECT * from IVDetails;`,
+      graph: {
+        query:null,
+        type:"",
+      },
+    },
+//     'University Rank Holders': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+// 'Institution Research Strategy and Summary': {
+//   sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//   graph: {
+//     query:"Hello",
+//     type:"",
+//   },
+// },
+//     'Total Funds Received': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+//     'Major Grants & Scholarships': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+//     'List of Ongoing Research Projects': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+//     'List of Journal Papers Published': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+//     'List of Patents Grants': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+//     'Training Programmes Offered': {
+//       sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+//       graph: {
+//         query:"Hello",
+//         type:"",
+//       },
+// },
+    'List of Faculties Department-wise':{
+      sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+      graph: {
+        query:"Hello",
+        type:"",
+      },
+},
+      'Awards Received':{
+      sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+      graph: {
+        query:"Hello",
+        type:"",
+      },
+},
+      'Research Works  Projects and Publications':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+  },
+      'Advanced Degree / Certifications':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+  },
+      'Leadership Roles':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+  },
+      'Public Lectures':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+  }
+  ,
+  'Top Performers in Academics':{
+    sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+    graph: {
+      query:"Hello",
+      type:"",
+    },
+},
+      'Awards Received by Students':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Scholarships Received':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Competition Wins':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Internships':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Projects':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+    'Income / Revenue Statement':{
+      sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+      graph: {
+        query:"Hello",
+        type:"",
+      },
+  },
+      'Expenditure':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Net Income Statement':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Investments':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+    'New Academic, Administrative & Residential Buildings Introduced':{
+      sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+      graph: {
+        query:"Hello",
+        type:"",
+      },
+  },
+      'Renovations & Upgradations':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Campus Expansion – Lands Purchase Statements':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Laboratories Inaugurated':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Equipment Purchase Statements':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Utility Improvements':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+      'Sustainability & Green Campus Initializations':{
+        sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+        graph: {
+          query:"Hello",
+          type:"",
+        },
+    },
+    'List of Clubs':{
+      sql: `SELECT * from club_details;`,
+      graph: {
+        query:'SELECT club_name,Students_enrolled from club_details',
+        type:"bar",
+      },
+  },
+      'List of Cells / Committees':{
+        sql: `SELECT * from cells;`,
+        graph: {
+          query:null,
+          type:"",
+        },
+    },
+      'List of Sports Available':{
+        sql: `SELECT * from sports_details;`,
+        graph: {
+          query:null,
+          type:"",
+        },
+    },
+      'Workshops & Seminars for Students & Faculties':{
+        sql: `SELECT * from work_semi`,
+        graph: {
+          query:null,
+          type:"",
+        },
+    },
+      // 'Cultural Events':{
+      //   sql: `SELECT overall_pass_percentage, overall_fail_percentage FROM performance_summary;`,
+      //   graph: {
+      //     query:"Hello",
+      //     type:"",
+      //   },
+   // },
+    'Physical Infrastructure':{
+      sql:'SELECT facility_name,quantity,total_area_sqft,year_of_addition,status from physical_infrastructure;',
+      graph: {
+        query:'SELECT facility_name,quantity from physical_infrastructure;',
+        type:"bar",
+      },
+    },
+    'Digital Infrastructure':{
+      sql:'SELECT resource_name,quantity,status from digital_infrastructure;',
+      graph:{
+        query:null,
+        type:"",
+      },
+    },
+    'Green Initiatives':{
+      sql:'SELECT initiative_name, implementation_date,impact_description,completion_percentage from green_initiatives;',
+      graph:{
+        query:'SELECT initiative_name,completion_percentage from green_initiatives;',
+        type:'line',
+      },
+    },
+    'Sources of Income':{
+      sql:'SELECT source, income from income_table;',
+      graph:{
+        query:'SELECT source, income from income_table;',
+        type:'bar',
+      },
+    },
+  'Expense statements':{
+    sql:'SELECT liabilities, cost from expense_table;',
+    graph:{
+    query:'SELECT liabilities, cost from expense_table;',
+      type:'pie',
+    },
+  },
+'Salary statements':{
+  sql:'SELECT position,count,per_head_salary,salary from salary_table;',
+  graph:{
+    query:null,
+    type:'',
+  },
+},
+'Revenue generated': {
+  sql: `
+    SELECT 
+        (income_table.total_income - (expense_table.total_expenditure + salary_table.total_salaries)) AS Revenue_Generated
+    FROM 
+        (SELECT SUM(income) AS total_income FROM income_table) AS income_table,
+        (SELECT SUM(cost) AS total_expenditure FROM expense_table) AS expense_table,
+        (SELECT SUM(salary) AS total_salaries FROM salary_table) AS salary_table;
+  `,
+  graph: {
+    query: `
+      SELECT 
+          'Income' AS category, SUM(income) AS value FROM income_table
+      UNION ALL
+      SELECT 
+          'Expenditure' AS category, SUM(cost) AS value FROM expense_table
+      UNION ALL
+      SELECT 
+          'Salaries' AS category, SUM(salary) AS value FROM salary_table;
+    `,
+    type: 'bar', // Or 'pie' depending on how you want to visualize.
+  },
+},
+'Overall Performance':{
+      sql:'SELECT achievement_type, COUNT(*) AS count FROM faculty_achievements GROUP BY achievement_type',
+      graph:{
+        query:'SELECT achievement_type, COUNT(*) AS count FROM faculty_achievements GROUP BY achievement_type',
+        type:'pie',
+      },
+    },
+'Research Works Projects and Book Publications':{
+      sql:'SELECT id as faculty_ID, title as Research_paper_titles, patent_type as patents, book_title FROM faculty_achievements',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Awards Received':{
+      sql:'SELECT id,  award_title ,awarding_body, award_category  from faculty_achievements;',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Conference details':{
+      sql:'SELECT id,conference_title,presenter,organizer,date_presented from faculty_achievements;',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Paper Publications':{
+      sql:'SELECT id,department,title,conferenceDetails,teamMembers,startDate,outcomes from student_achievements where achievementType="Publication";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Hackathons':{
+      sql:'SELECT id,department,title,teamMembers,startDate,outcomes from student_achievements where achievementType="Hackathon";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Patents':{
+      sql:'SELECT id,department,serialNo,title,teamMembers,research_area,outcomes from student_achievements where achievementType="Patent";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Symposiums':{
+      sql:'SELECT id,department,title,organizer,teamMembers,achievement from student_achievements where achievementType="Symposium";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Overall Performance':{
+      sql:'SELECT achievementType, COUNT(*) AS count FROM student_achievements GROUP BY achievementType;',
+      graph:{
+        query:'SELECT achievementType, COUNT(*) AS count FROM student_achievements GROUP BY achievementType;',
+        type:'pie',
+      },
+    },
+    'List of Faculties Department-wise':{
+      sql:'SELECT Name, department, Designation FROM faculty_table;',
+      graph:{
+        query:'SELECT department, COUNT(*) AS faculty_count FROM faculty_table GROUP BY department;',
+        type:'pie',
+      },
+    },
+    'List of Students Department-wise':{
+      sql:'SELECT Department, COUNT(*) AS NumberOfStudents FROM student_tables GROUP BY Department;',
+      graph:{
+        query:'SELECT Department, COUNT(*) AS NumberOfStudents FROM student_tables GROUP BY Department;',
+        type:'pie',
+      },
+    },
+    'IT List of Faculties':{
+      sql:'SELECT Name, department, Designation FROM faculty_table where department="IT";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'Student Faculty ratio':{
+      sql:'SELECT "Faculty" AS Type, COUNT(*) AS Count FROM faculty_table WHERE department = "IT" UNION ALL SELECT "Student" AS Type, COUNT(*) AS Count FROM student_tables WHERE department = "IT";',
+      graph:{
+        query:'SELECT "Faculty" AS Type, COUNT(*) AS Count FROM faculty_table WHERE department = "IT" UNION ALL SELECT "Student" AS Type, COUNT(*) AS Count FROM student_tables WHERE department = "IT";',
+        type:'bar',
+      },
+    },
+    'IT Students Achievements':{
+      sql:'SELECT achievementType,teamMembers,organizer from student_achievements where department="IT";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'IT Faculty Achievements':{
+      sql:'SELECT achievement_type,authors from faculty_achievements where department="IT";',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+    'IT Placement details':{
+      sql:'SELECT company,count(registernumber) as no_of_students,package FROM student_details WHERE department = "IT" AND placementStatus = TRUE group by registernumber;',
+      graph:{
+        query:null,
+        type:'',
+      },
+    },
+  'IT GuestLectures':{
+    sql:'SELECT * from work_semi where dept="IT" AND type="Guest Lecture";',
+    graph:{
+      query:null,
+      type:'',
+    },
+  },
+  'IT Industrial Visits':{
+    sql:'SELECT * from IVDetails where department="IT";',
+    graph:{
+      query:null,
+      type:'',
+    },
+  },
+};
+
+const formatGraphData = (graphResults,type) => {
+  if (graphResults.length === 0) return [];
+  // Check if result has multiple value columns
+  const keys = Object.keys(graphResults[0]);
+  if (type!="pie" && type!="line" && keys.length > 1) {
+    // Multi-value data transformation
+    return graphResults.map(item => {
+      const [name, ...valueKeys] = keys;
+      const values = {};
+      valueKeys.forEach(key => {
+        values[key] = item[key];
+      });
+      return {
+        name: item[name],
+        values
+      };
+    });
+  }
+
+  // Fallback to single-value format
+  return graphResults.map(item => {
+    const values = Object.values(item);
+    return {
+      name: values[0],
+      value: values[1]
+    };
+  });
+};
 router.get('/section-data', async (req, res) => {
   console.log(gemini_api_key);
   const { section } = req.query;
-  const graphdata = [
-    { name: 'Science', value: 30 },
-    { name: 'Mathematics', value: 20 },
-    { name: 'Engineering', value: 25 },
-    { name: 'Arts', value: 15 },
-  ];
+  console.log('Section received:', section);
+  const sectionConfig = sectionQueries[section];
+  console.log(sectionConfig);
+  // const graphdata = [
+  //   { name: 'Science', value: 30 },
+  //   { name: 'Mathematics', value: 20 },
+  //   { name: 'Engineering', value: 25 },
+  //   { name: 'Arts', value: 15 },
+  // ];
 
-  const sqlQuery = `SELECT 
-    department, 
-    total_strength, 
-    total_eligible_students, 
-    total_registered_students, 
-    total_placed_students, 
-    placement_percentage 
-FROM 
-    placement;`;
+  const sqlQuery = sectionConfig.sql;
+  const graphQuery = sectionConfig.graph.query;
+  const graph_type=sectionConfig.graph.type;
 
   if (!sqlQuery) {
     return res.status(400).json({ error: "Invalid section" });
@@ -54,23 +631,31 @@ FROM
   try {
     const results = await query(sqlQuery);
     console.log(results);
-    // const introduction = await generateIntroduction(results);
+    const introduction = await generateIntroduction(results);
     
-    // const summary = await Promise.race([
-    //   summarizeData(results),
-    //   new Promise((_, reject) => 
-    //     setTimeout(() => reject(new Error('Summarization timeout')), 10000)
-    //   )
-    // ]);
-
-    introduction="hello",
-    summary="texting",
+    const summary = await Promise.race([
+      summarizeData(results),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Summarization timeout')), 10000)
+      )
+    ]);
+    // Prepare the graph data
+    let graphdata = [];
+    if (graphQuery) {
+      const graphResults = await query(graphQuery);
+      console.log('Graph query results:', graphResults);
+      console.log("Graphy Tpye"+graph_type);
+      // Format the graph results into the required format
+      graphdata = formatGraphData(graphResults,graph_type);
+    }
+    // introduction="hello",
+    // summary="texting",
     res.json({
       intro: introduction,
       data: results,
       graphdata: {
-        config_name: "Departmental Distribution",
-        graph_type: "bar",
+        config_name: section,
+        graph_type:  graph_type,
         data: graphdata,
         colorSettings: {
           Science: "#FF6384",
@@ -283,7 +868,7 @@ router.post('/create-report', async (req, res) => {
       // Send email notifications to assigned users
       if (assignedUser) {
         const emailPayload = {
-          subject: `${name} Report Section9 was assigned to you`,
+          subject: `${name} Report Section sections9 was assigned to you`,
           to: assignedUser,
           desc: `Dear ${assignedUser},\n\nYou have been assigned the report section titled "${section}" for the report "${name}". Please be informed that you have been given the responsibility to complete and submit this section before the specified deadline.\n\nGoing forward, you will receive notifications regarding any updates or reminders about the deadline, which is set for ${formattedDeadline}. Kindly ensure timely submission to avoid any delays.\n\nThank you for your cooperation.\n\nBest regards,\n${createdBy}`
         };
@@ -318,7 +903,7 @@ router.get('/:reportId/sections', async (req, res) => {
   try {
     // First, check if there are predefined sections for this report
     const [reportSections] = await query(
-      'SELECT sections FROM reports WHERE id = ?', 
+      'SELECT sections FROM reports WHERE id = ? ', 
       [reportId]
     );
 
@@ -334,7 +919,7 @@ router.get('/:reportId/sections', async (req, res) => {
         availableSections = [
           'Message from Management',
           'Curricular Design and Academic Performances',
-          'Research Works & Publications',
+          'Department of IT',
           'Faculty Achievement',
           'Student Achievements',
           'Extra Curricular Activities',
@@ -351,6 +936,7 @@ router.get('/:reportId/sections', async (req, res) => {
       default:
         availableSections = [];
     }
+
 
     res.json(availableSections);
   } catch (error) {
@@ -373,7 +959,8 @@ router.post('/section-details', async (req, res) => {
     introduction, 
     data, 
     summary, 
-    graphData, 
+    graphData,
+    youtubeUrl, 
     createdBy 
   } = req.body;
 
@@ -384,8 +971,8 @@ router.post('/section-details', async (req, res) => {
       'SELECT id, version FROM report_section_details WHERE report_id = ? AND section_name = ? AND subsection_name = ?',
       [reportId, sectionName, subsectionName]
     );
-
     if (existingEntry.length > 0) {
+      console.log(existingEntry[0].id);
       // Update existing entry
       const updateQuery = `
         UPDATE report_section_details 
@@ -393,7 +980,8 @@ router.post('/section-details', async (req, res) => {
           introduction = ?, 
           data = ?, 
           summary = ?, 
-          graph_data = ?, 
+          graph_data = ?,
+          youtube_url=?, 
           version = version + 1,  -- Increment the version number
           is_latest = 1          -- Mark the previous version as not latest
         WHERE id = ?
@@ -404,6 +992,7 @@ router.post('/section-details', async (req, res) => {
         JSON.stringify(data),
         summary,
         JSON.stringify(graphData),
+        youtubeUrl,
         existingEntry[0].id
       ]);
 
@@ -421,8 +1010,9 @@ router.post('/section-details', async (req, res) => {
       // Insert new entry
       const insertQuery = `
         INSERT INTO report_section_details 
-        (report_id, section_name, subsection_name, introduction, data, summary, graph_data, version, is_latest, created_by) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+(report_id, section_name, subsection_name, introduction, data, summary, graph_data, version, is_latest, youtube_url, created_by) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
+
       `;
       
       const insertResult = await query(insertQuery, [
@@ -435,6 +1025,7 @@ router.post('/section-details', async (req, res) => {
         JSON.stringify(graphData),
         1, // Initial version
         1, // Mark as latest
+        youtubeUrl,
         createdBy
       ]);
 
@@ -617,9 +1208,12 @@ const upload = multer({
 });
 
 // Route to handle image uploads
+
 router.post('/upload-images', upload.array('images'), async (req, res) => {
   try {
-    const { reportId, reportSectionDetailId } = req.body;
+    const { reportId, reportSectionDetailId, descriptions } = req.body;
+    console.log("Descriptions:", descriptions);
+    console.log("Report section ID:", reportSectionDetailId);
 
     // Validate required fields
     if (!reportId || !reportSectionDetailId) {
@@ -627,40 +1221,54 @@ router.post('/upload-images', upload.array('images'), async (req, res) => {
         error: 'Report ID and Report Section Detail ID are required',
       });
     }
-
+    
     // Check if files were uploaded
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: 'No images provided' });
     }
 
+    // Ensure descriptions is an array
+    const descriptionArray = Array.isArray(descriptions) 
+      ? descriptions 
+      : [descriptions].filter(Boolean);
+
     // Process and save each image
-    const imageInsertPromises = req.files.map(async (file) => {
+    const imageInsertPromises = req.files.map(async (file, index) => {
       const relativePath = path.join('uploads', 'report_images', reportId.toString(), file.filename);
 
-      // Insert record into the database (assuming you have a query function)
+      // Get description for this image, default to empty string if not provided
+      const description = descriptionArray[index] || '';
+
+      // Insert record into the database
       return query(
-        `INSERT INTO report_section_images (report_section_detail_id, image_url) VALUES (?, ?)`,
-        [reportSectionDetailId, relativePath]
+        `INSERT INTO report_section_images (report_section_detail_id, image_url, description) VALUES (?, ?, ?)`,
+        [reportSectionDetailId, relativePath, description]
       );
     });
 
     // Wait for all images to be processed
     await Promise.all(imageInsertPromises);
 
+    // Fetch the inserted images with their descriptions
+    const insertedImages = await query(
+      `SELECT image_url, description FROM report_section_images 
+       WHERE report_section_detail_id = ?`,
+      [reportSectionDetailId]
+    );
+
     res.status(201).json({
       message: 'Images uploaded successfully',
-      images: req.files.map(file => path.join('uploads', 'report_images', reportId.toString(), file.filename)),
+      images: insertedImages
     });
   } catch (error) {
     console.error('Image upload error:', error);
     res.status(500).json({
-      error: 'Failed to upload images ',
+      error: 'Failed to upload images',
       details: error.message,
     });
   }
 });
 
-// Endpoint to retrieve images for a section
 router.get('/section-images', async (req, res) => {
   const { reportSectionDetailId } = req.query;
 
@@ -669,17 +1277,21 @@ router.get('/section-images', async (req, res) => {
   }
 
   try {
-    // Fetch image URLs for the specific section
+    // Fetch image URLs and descriptions for the specific section
     const images = await query(
-      `SELECT image_url FROM report_section_images 
+      `SELECT image_url, description 
+       FROM report_section_images 
        WHERE report_section_detail_id = ?`,
       [reportSectionDetailId]
     );
 
-    // Construct relative URLs to the images
-    const imageUrls = images.map(img => img.image_url); // Return only the relative path
+    // Construct response with both image URL and description
+    const imageDetails = images.map(img => ({
+      url: img.image_url,  // Relative path to the image
+      description: img.description
+    }));
 
-    res.json({ images: imageUrls });
+    res.json({ images: imageDetails });
   } catch (error) {
     console.error('Error retrieving images:', error);
     res.status(500).json({ 
@@ -689,42 +1301,295 @@ router.get('/section-images', async (req, res) => {
   }
 });
 
+
 router.delete('/delete-image', async (req, res) => {
   const { imageUrl, reportSectionDetailId } = req.body;
 
   if (!imageUrl || !reportSectionDetailId) {
-      return res.status(400).json({ error: 'Image URL and Report Section Detail ID are required' });
+    return res.status(400).json({ error: 'Image URL and Report Section Detail ID are required' });
   }
 
   const normalizedImageUrl = imageUrl.replace(/\//g, '\\');
   const filePath = path.join(__dirname, '..', normalizedImageUrl);
 
   try {
-      // Check and delete the file
-      console.log('Normalized Image URL:', normalizedImageUrl);
-      console.log('Full File Path:', filePath);
+    // Check and delete the file
+    console.log('Normalized Image URL:', normalizedImageUrl);
+    console.log('Full File Path:', filePath);
 
-      await fs.access(filePath); // Check if the file exists
-      await fs.unlink(filePath); // Delete if it exists
-
-      // Delete from the database
-      const dbResult = await query(
-          `DELETE FROM report_section_images WHERE image_url = ? AND report_section_detail_id = ?`,
-          [normalizedImageUrl, reportSectionDetailId]
-      );
-
-      if (dbResult.affectedRows === 0) {
-          return res.status(404).json({ error: 'Record not found in database' });
+    try {
+      // Check if file exists and delete it
+      await fs.access(filePath);
+      await fs.unlink(filePath);
+      console.log('File deleted successfully');
+    } catch (fileErr) {
+      if (fileErr.code === 'ENOENT') {
+        console.log('File not found, continuing with database deletion');
+      } else {
+        throw fileErr; // Re-throw if it's a different error
       }
+    }
 
-      res.status(204).send(); // Successfully deleted
+    // Delete from the database
+    const dbResult = await query(
+      `DELETE FROM report_section_images WHERE image_url = ? AND report_section_detail_id = ?`,
+      [normalizedImageUrl, reportSectionDetailId]
+    );
+
+    if (dbResult.affectedRows === 0) {
+      return res.status(404).json({ error: 'Record not found in database' });
+    }
+
+    res.status(204).send(); // Successfully deleted
   } catch (err) {
-      if (err.code === 'ENOENT') {
-          console.error('File not found:', err);
-          return res.status(404).json({ error: 'File not found' });
-      }
-      console.error('Error:', err);
-      res.status(500).json({ error: 'Failed to delete image', details: err.message });
+    console.error('Error:', err);
+    
+    // Differentiate between different types of errors
+    if (err.code === 'EACCES') {
+      return res.status(403).json({ 
+        error: 'Permission denied', 
+        details: 'Cannot delete the file due to permission issues' 
+      });
+    } else if (err.code === 'EBUSY') {
+      return res.status(409).json({ 
+        error: 'Resource busy', 
+        details: 'File is currently in use' 
+      });
+    }
+
+    res.status(500).json({ 
+      error: 'Failed to delete image', 
+      details: err.message 
+    });
   }
 });
+
+
+router.post('/create-chat', async (req, res) => {
+  const { 
+    reportId, 
+    reportSectionDetailId, 
+    sectionName, 
+    subsectionName, 
+    messageType = 'general' 
+  } = req.body;
+
+  try {
+    // First, create a new section chat entry
+    const createChatQuery = `
+      INSERT INTO report_section_chats 
+      (report_id, report_section_detail_id, section_name, subsection_name, message_type) 
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    
+    const chatResult = await query(createChatQuery, [
+      reportId, 
+      reportSectionDetailId, 
+      sectionName, 
+      subsectionName, 
+      messageType
+    ]);
+
+    res.status(201).json({ 
+      message: 'Chat created successfully', 
+      chatId: chatResult.insertId 
+    });
+  } catch (error) {
+    console.error('Error creating chat:', error);
+    res.status(500).json({ 
+      error: 'Failed to create chat', 
+      details: error.message 
+    });
+  }
+});
+
+// Send a message in a chat
+router.post('/send', async (req, res) => {
+  const { 
+    reportId, 
+    reportSectionDetailId, 
+    sectionName, 
+    subsectionName, 
+    message, 
+    sender,
+    type = 'general'
+  } = req.body;
+
+  try {
+    // First, find or create the chat
+    let chatId;
+    const findChatQuery = `
+      SELECT id FROM report_section_chats 
+      WHERE report_id = ? 
+      AND report_section_detail_id = ? 
+      AND section_name = ? 
+      AND subsection_name = ? 
+      AND message_type = ?
+    `;
+    
+    const existingChats = await query(findChatQuery, [
+      reportId, 
+      reportSectionDetailId, 
+      sectionName, 
+      subsectionName, 
+      type
+    ]);
+
+    if (existingChats.length > 0) {
+      chatId = existingChats[0].id;
+    } else {
+      // Create a new chat if not exists
+      const createChatQuery = `
+        INSERT INTO report_section_chats 
+        (report_id, report_section_detail_id, section_name, subsection_name, message_type) 
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      
+      const chatResult = await query(createChatQuery, [
+        reportId, 
+        reportSectionDetailId, 
+        sectionName, 
+        subsectionName, 
+        type
+      ]);
+      
+      chatId = chatResult.insertId;
+    }
+
+    // Insert the message
+    const sendMessageQuery = `
+      INSERT INTO report_chat_messages 
+      (chat_id, sender, message) 
+      VALUES (?, ?, ?)
+    `;
+    
+    const messageResult = await query(sendMessageQuery, [
+      chatId, 
+      sender, 
+      message
+    ]);
+
+    // Retrieve the inserted message
+    const retrieveMessageQuery = `
+      SELECT * FROM report_chat_messages 
+      WHERE id = ?
+    `;
+    
+    const [insertedMessage] = await query(retrieveMessageQuery, [messageResult.insertId]);
+
+    res.status(201).json({ 
+      message: 'Message sent successfully', 
+      message: insertedMessage 
+    });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ 
+      error: 'Failed to send message', 
+      details: error.message 
+    });
+  }
+});
+
+// Get messages for a specific chat
+router.get('/messages', async (req, res) => {
+  const { 
+    reportId, 
+    sectionName, 
+    subsectionName, 
+    messageType = 'general' 
+  } = req.query;
+
+  try {
+    // Retrieve all chats for the subsection with the specified message type
+    const retrieveChatsQuery = `
+      SELECT 
+        rsc.id AS chat_id,
+        rsc.message_type,
+        rcm.*
+      FROM report_section_chats rsc
+      LEFT JOIN report_chat_messages rcm ON rsc.id = rcm.chat_id
+      WHERE rsc.report_id = ? 
+      AND rsc.section_name = ? 
+      AND rsc.subsection_name = ? 
+      AND rsc.message_type = ?
+      ORDER BY rcm.timestamp ASC
+    `;
+    
+    const chats = await query(retrieveChatsQuery, [
+      reportId, 
+      sectionName, 
+      subsectionName, 
+      messageType
+    ]);
+
+    // Group messages by chat if multiple chats exist
+    const groupedMessages = chats.reduce((acc, chat) => {
+      // If the chat doesn't exist in the accumulator, create an empty array
+      if (!acc[chat.chat_id]) {
+        acc[chat.chat_id] = [];
+      }
+
+      // Only add the message if it exists (to handle chats without messages)
+      if (chat.id) {
+        acc[chat.chat_id].push({
+          id: chat.id,
+          chat_id: chat.chat_id,
+          sender: chat.sender,
+          message: chat.message,
+          timestamp: chat.timestamp,
+          status: chat.status
+        });
+      }
+
+      return acc;
+    }, {});
+
+    // Convert grouped messages to an array
+    const formattedMessages = Object.values(groupedMessages);
+
+    // If no chats or messages found, return empty array
+    if (formattedMessages.length === 0) {
+      return res.json({ messages: [] });
+    }
+
+    // If only one chat exists, return its messages directly
+    res.json({ 
+      messages: formattedMessages.length === 1 
+        ? formattedMessages[0] 
+        : formattedMessages 
+    });
+
+  } catch (error) {
+    console.error('Error retrieving messages:', error);
+    res.status(500).json({ 
+      error: 'Failed to retrieve messages', 
+      details: error.message 
+    });
+  }
+});
+// Update message status (e.g., mark as resolved)
+router.patch('/message-status', async (req, res) => {
+  const { messageId, status } = req.body;
+
+  try {
+    const updateStatusQuery = `
+      UPDATE report_chat_messages 
+      SET status = ? 
+      WHERE id = ?
+    `;
+    
+    await query(updateStatusQuery, [status, messageId]);
+
+    res.json({ 
+      message: 'Message status updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating message status:', error);
+    res.status(500).json({ 
+      error: 'Failed to update message status', 
+      details: error.message 
+    });
+  }
+});
+
 module.exports = router;

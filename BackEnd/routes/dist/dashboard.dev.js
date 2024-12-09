@@ -24,6 +24,8 @@ var timezone = require('dayjs/plugin/timezone');
 
 var utc = require('dayjs/plugin/utc');
 
+var axios = require('axios');
+
 var _require = require('http'),
     request = _require.request;
 
@@ -32,6 +34,10 @@ var _require2 = require('console'),
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+var gemini_api_key = "AIzaSyBHbQhbhN55b1RR00vbUfgeoVoAZgAuj6s";
+
+var _require3 = require("@google/generative-ai"),
+    GoogleGenerativeAI = _require3.GoogleGenerativeAI;
 
 function buildQueryFromConfig(graph) {
   var query = 'SELECT '; // 1. Aggregations (if specified)
@@ -382,21 +388,22 @@ router.post('/creategraph', function _callee2(req, res) {
           _context2.prev = 0;
           _req$body = req.body, user_id = _req$body.user_id, config_name = _req$body.config_name, graph_type = _req$body.graph_type, data_sources = _req$body.data_sources, join_conditions = _req$body.join_conditions, aggregations = _req$body.aggregations, filters = _req$body.filters, order_by = _req$body.order_by, limit = _req$body.limit, settings = _req$body.settings, group_by = _req$body.group_by;
           console.log(req.body);
+          console.log("Trying to save and crate graph");
           insertQuery = "\n            INSERT INTO user_graphs (\n                user_id, config_name, graph_type, data_sources, join_conditions, \n                aggregations, filters, order_by, `limit`, settings, group_by\n            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)\n        ";
-          _context2.next = 6;
+          _context2.next = 7;
           return regeneratorRuntime.awrap(query(insertQuery, [user_id, config_name, graph_type, JSON.stringify(data_sources), JSON.stringify(join_conditions), JSON.stringify(aggregations), JSON.stringify(filters), JSON.stringify(order_by), limit, JSON.stringify(settings), JSON.stringify(group_by)]));
 
-        case 6:
+        case 7:
           result = _context2.sent;
           res.status(201).json({
             success: true,
             graphId: result.insertId
           });
-          _context2.next = 14;
+          _context2.next = 15;
           break;
 
-        case 10:
-          _context2.prev = 10;
+        case 11:
+          _context2.prev = 11;
           _context2.t0 = _context2["catch"](0);
           console.error("Error inserting graph configuration:", _context2.t0);
           res.status(500).json({
@@ -405,12 +412,12 @@ router.post('/creategraph', function _callee2(req, res) {
             error: _context2.t0
           });
 
-        case 14:
+        case 15:
         case "end":
           return _context2.stop();
       }
     }
-  }, null, null, [[0, 10]]);
+  }, null, null, [[0, 11]]);
 });
 var COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042", "#8dd1e1", "#d0ed57", "#a4de6c", "#d88884", "#c658ff", "#42aaff", "#ff6b6b", "#d6a4e1", "#83d3a2", "#82a3d8", "#c9aaf9"];
 router.get('/getgraphs/:userId', function _callee4(req, res) {
@@ -499,4 +506,221 @@ router.get('/getgraphs/:userId', function _callee4(req, res) {
     }
   }, null, null, [[1, 11]]);
 });
+router.post('/generate-graph-config', function _callee5(req, res) {
+  var _req$body2, userPrompt, tableStructures, selectedTables, userId, fallbackConfigGeneration, _i2, _fallbackConfigGenera, configGenerator, config;
+
+  return regeneratorRuntime.async(function _callee5$(_context5) {
+    while (1) {
+      switch (_context5.prev = _context5.next) {
+        case 0:
+          _req$body2 = req.body, userPrompt = _req$body2.userPrompt, tableStructures = _req$body2.tableStructures, selectedTables = _req$body2.selectedTables, userId = _req$body2.userId;
+          _context5.prev = 1;
+          // Fallback configuration generation methods
+          fallbackConfigGeneration = [geminiAIGeneration, openAIFallback, manualConfigGeneration];
+          _i2 = 0, _fallbackConfigGenera = fallbackConfigGeneration;
+
+        case 4:
+          if (!(_i2 < _fallbackConfigGenera.length)) {
+            _context5.next = 20;
+            break;
+          }
+
+          configGenerator = _fallbackConfigGenera[_i2];
+          _context5.prev = 6;
+          _context5.next = 9;
+          return regeneratorRuntime.awrap(configGenerator(userPrompt, tableStructures, selectedTables));
+
+        case 9:
+          config = _context5.sent;
+          return _context5.abrupt("return", res.status(200).json({
+            success: true,
+            config: config
+          }));
+
+        case 13:
+          _context5.prev = 13;
+          _context5.t0 = _context5["catch"](6);
+          console.warn("Config generation method failed:", _context5.t0.message);
+          return _context5.abrupt("continue", 17);
+
+        case 17:
+          _i2++;
+          _context5.next = 4;
+          break;
+
+        case 20:
+          throw new Error('Unable to generate configuration through any method');
+
+        case 23:
+          _context5.prev = 23;
+          _context5.t1 = _context5["catch"](1);
+          console.error('Comprehensive Graph Config Generation Failed:', _context5.t1);
+          res.status(500).json({
+            success: false,
+            message: 'Failed to generate graph configuration',
+            error: _context5.t1.message
+          });
+
+        case 27:
+        case "end":
+          return _context5.stop();
+      }
+    }
+  }, null, null, [[1, 23], [6, 13]]);
+}); // Gemini AI Configuration Generation
+
+function geminiAIGeneration(userPrompt, tableStructures, selectedTables) {
+  var genAI, model, detailedPrompt, result, response, text, cleanText, configJson;
+  return regeneratorRuntime.async(function geminiAIGeneration$(_context6) {
+    while (1) {
+      switch (_context6.prev = _context6.next) {
+        case 0:
+          _context6.prev = 0;
+          // Ensure API key is correctly configured
+          genAI = new GoogleGenerativeAI(gemini_api_key);
+          console.log("receivid request");
+          model = genAI.getGenerativeModel({
+            model: "gemini-pro",
+            generationConfig: {
+              temperature: 0.7,
+              topP: 0.9,
+              maxOutputTokens: 4096
+            }
+          });
+          detailedPrompt = "\n        You are an expert data analyst and graph configuration generator. \n        Strictly generate a JSON configuration based on the following details:\n\n        User Prompt: ".concat(userPrompt, "\n        Selected Tables: ").concat(selectedTables.join(', '), "\n        Table Structures: ").concat(JSON.stringify(tableStructures), "\n\n        Generate a precise, actionable graph configuration in VALID JSON format:\n        {\n            \"config_name\": \"Descriptive Name\",\n            \"graph_type\": \"bar/line/pie\",\n            \"data_sources\": ").concat(JSON.stringify(selectedTables), ",\n            \"join_conditions\": [],\n            \"aggregations\": [{\n                \"type\": \"sum/count/avg\",\n                \"column\": \"most_relevant_column\"\n            }],\n            \"filters\": [],\n            \"group_by\": [],\n            \"order_by\": {\n                \"field\": \"\",\n                \"direction\": \"ASC/DESC\"\n            },\n            \"limit\": 10,\n            \"settings\": {\n                \"color\": \"\",\n                \"label\": \"\"\n            }\n        }\n        \n        Respond ONLY with valid JSON. No additional text.\n        ");
+          console.log(detailedPrompt);
+          _context6.next = 8;
+          return regeneratorRuntime.awrap(model.generateContent(detailedPrompt));
+
+        case 8:
+          result = _context6.sent;
+          _context6.next = 11;
+          return regeneratorRuntime.awrap(result.response);
+
+        case 11:
+          response = _context6.sent;
+          text = response.text();
+          console.log(text); // Aggressive JSON extraction
+
+          cleanText = text.replace(/```(json)?/g, '').trim();
+          configJson = JSON.parse(cleanText);
+          return _context6.abrupt("return", {
+            config_name: configJson.config_name || 'AI Generated Graph',
+            graph_type: configJson.graph_type || 'bar',
+            data_sources: configJson.data_sources || selectedTables,
+            join_conditions: configJson.join_conditions || [],
+            aggregations: configJson.aggregations || [],
+            filters: configJson.filters || [],
+            group_by: configJson.group_by || [],
+            order_by: configJson.order_by || {
+              field: '',
+              direction: 'ASC'
+            },
+            limit: configJson.limit || 10,
+            settings: configJson.settings || {}
+          });
+
+        case 19:
+          _context6.prev = 19;
+          _context6.t0 = _context6["catch"](0);
+          console.error('Gemini AI Generation Failed:', _context6.t0);
+          throw _context6.t0;
+
+        case 23:
+        case "end":
+          return _context6.stop();
+      }
+    }
+  }, null, null, [[0, 19]]);
+} // OpenAI Fallback (Optional)
+
+
+function openAIFallback(userPrompt, tableStructures, selectedTables) {
+  var response, configJson;
+  return regeneratorRuntime.async(function openAIFallback$(_context7) {
+    while (1) {
+      switch (_context7.prev = _context7.next) {
+        case 0:
+          _context7.prev = 0;
+          _context7.next = 3;
+          return regeneratorRuntime.awrap(axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-3.5-turbo",
+            messages: [{
+              role: "system",
+              content: "Generate a graph configuration JSON based on user requirements."
+            }, {
+              role: "user",
+              content: "Prompt: ".concat(userPrompt, ". Tables: ").concat(selectedTables.join(', '))
+            }]
+          }, {
+            headers: {
+              'Authorization': "Bearer ".concat(process.env.OPENAI_API_KEY),
+              'Content-Type': 'application/json'
+            }
+          }));
+
+        case 3:
+          response = _context7.sent;
+          configJson = JSON.parse(response.data.choices[0].message.content); // Similar validation as Gemini method
+
+          return _context7.abrupt("return", {
+            config_name: configJson.config_name || 'Generated Graph',
+            graph_type: configJson.graph_type || 'bar' // ... other validations
+
+          });
+
+        case 8:
+          _context7.prev = 8;
+          _context7.t0 = _context7["catch"](0);
+          console.error('OpenAI Fallback Failed:', _context7.t0);
+          throw _context7.t0;
+
+        case 12:
+        case "end":
+          return _context7.stop();
+      }
+    }
+  }, null, null, [[0, 8]]);
+} // Manual Configuration Generation (Guaranteed Fallback)
+
+
+function manualConfigGeneration(userPrompt, tableStructures, selectedTables) {
+  // Intelligent default configuration generation
+  return {
+    config_name: 'Default Graph Configuration',
+    graph_type: 'bar',
+    data_sources: selectedTables,
+    join_conditions: [],
+    aggregations: tableStructures.flatMap(function (table) {
+      return table.columns.filter(function (col) {
+        return ['total', 'amount', 'count', 'number'].some(function (keyword) {
+          return col.toLowerCase().includes(keyword);
+        });
+      }).map(function (col) {
+        return {
+          type: 'sum',
+          column: col
+        };
+      });
+    }),
+    filters: [],
+    group_by: tableStructures.flatMap(function (table) {
+      return table.columns.filter(function (col) {
+        return ['category', 'type', 'name', 'status'].some(function (keyword) {
+          return col.toLowerCase().includes(keyword);
+        });
+      });
+    }),
+    order_by: {
+      field: '',
+      direction: 'ASC'
+    },
+    limit: 10,
+    settings: {
+      color: 'default',
+      label: 'Auto-generated Graph'
+    }
+  };
+}
+
 module.exports = router;

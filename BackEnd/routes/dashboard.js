@@ -6,12 +6,14 @@ const moment = require('moment');
 const dayjs = require('dayjs');
 const timezone = require('dayjs/plugin/timezone');
 const utc = require('dayjs/plugin/utc');
+const axios = require('axios');
 const { request } = require('http');
 const { Console } = require('console');
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
-
+const gemini_api_key = "AIzaSyBHbQhbhN55b1RR00vbUfgeoVoAZgAuj6s";
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 function buildQueryFromConfig(graph) {
     let query = 'SELECT ';
     
@@ -227,6 +229,7 @@ router.post('/creategraph', async (req, res) => {
             group_by
         } = req.body;
         console.log(req.body);
+        console.log("Trying to save and crate graph");
         const insertQuery = `
             INSERT INTO user_graphs (
                 user_id, config_name, graph_type, data_sources, join_conditions, 
@@ -307,6 +310,184 @@ router.get('/getgraphs/:userId', async (req, res) => {
   
 
   
+  router.post('/generate-graph-config', async (req, res) => {
+    const { userPrompt, tableStructures, selectedTables,userId}= req.body;
+    
+    try {
+        // Fallback configuration generation methods
+        const fallbackConfigGeneration = [
+            geminiAIGeneration,
+            openAIFallback,
+            manualConfigGeneration
+        ];
 
-  
+        for (const configGenerator of fallbackConfigGeneration) {
+            try {
+                const config = await configGenerator(userPrompt, tableStructures, selectedTables);
+                return res.status(200).json({
+                    success: true,
+                    config: config
+                });
+            } catch (error) {
+                console.warn(`Config generation method failed:`, error.message);
+                continue;
+            }
+        }
+
+        // If all methods fail
+        throw new Error('Unable to generate configuration through any method');
+
+    } catch (error) {
+        console.error('Comprehensive Graph Config Generation Failed:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Failed to generate graph configuration',
+            error: error.message 
+        });
+    }
+});
+
+// Gemini AI Configuration Generation
+async function geminiAIGeneration(userPrompt, tableStructures, selectedTables) {
+    try {
+        // Ensure API key is correctly configured
+        const genAI = new GoogleGenerativeAI(gemini_api_key);
+        console.log("receivid request");
+        const model = genAI.getGenerativeModel({ 
+            model: "gemini-pro",
+            generationConfig: {
+                temperature: 0.7,
+                topP: 0.9,
+                maxOutputTokens: 4096,
+            }
+        });
+
+        const detailedPrompt = `
+        You are an expert data analyst and graph configuration generator. 
+        Strictly generate a JSON configuration based on the following details:
+
+        User Prompt: ${userPrompt}
+        Selected Tables: ${selectedTables.join(', ')}
+        Table Structures: ${JSON.stringify(tableStructures)}
+
+        Generate a precise, actionable graph configuration in VALID JSON format:
+        {
+            "config_name": "Descriptive Name",
+            "graph_type": "bar/line/pie",
+            "data_sources": ${JSON.stringify(selectedTables)},
+            "join_conditions": [],
+            "aggregations": [{
+                "type": "sum/count/avg",
+                "column": "most_relevant_column"
+            }],
+            "filters": [],
+            "group_by": [],
+            "order_by": {
+                "field": "",
+                "direction": "ASC/DESC"
+            },
+            "limit": 10,
+            "settings": {
+                "color": "",
+                "label": ""
+            }
+        }
+        
+        Respond ONLY with valid JSON. No additional text.
+        `;
+        console.log(detailedPrompt);
+        const result = await model.generateContent(detailedPrompt);
+        const response = await result.response;
+        const text = response.text();
+        console.log(text);
+        // Aggressive JSON extraction
+        const cleanText = text.replace(/```(json)?/g, '').trim();
+        const configJson = JSON.parse(cleanText);
+
+        return {
+            config_name: configJson.config_name || 'AI Generated Graph',
+            graph_type: configJson.graph_type || 'bar',
+            data_sources: configJson.data_sources || selectedTables,
+            join_conditions: configJson.join_conditions || [],
+            aggregations: configJson.aggregations || [],
+            filters: configJson.filters || [],
+            group_by: configJson.group_by || [],
+            order_by: configJson.order_by || { field: '', direction: 'ASC' },
+            limit: configJson.limit || 10,
+            settings: configJson.settings || {}
+        };
+
+    } catch (error) {
+        console.error('Gemini AI Generation Failed:', error);
+        throw error;
+    }
+}
+
+// OpenAI Fallback (Optional)
+async function openAIFallback(userPrompt, tableStructures, selectedTables) {
+    try {
+        const response = await axios.post('https://api.openai.com/v1/chat/completions', {
+            model: "gpt-3.5-turbo",
+            messages: [{
+                role: "system",
+                content: `Generate a graph configuration JSON based on user requirements.`
+            }, {
+                role: "user",
+                content: `Prompt: ${userPrompt}. Tables: ${selectedTables.join(', ')}`
+            }]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const configJson = JSON.parse(response.data.choices[0].message.content);
+        
+        // Similar validation as Gemini method
+        return {
+            config_name: configJson.config_name || 'Generated Graph',
+            graph_type: configJson.graph_type || 'bar',
+            // ... other validations
+        };
+
+    } catch (error) {
+        console.error('OpenAI Fallback Failed:', error);
+        throw error;
+    }
+}
+
+// Manual Configuration Generation (Guaranteed Fallback)
+function manualConfigGeneration(userPrompt, tableStructures, selectedTables) {
+    // Intelligent default configuration generation
+    return {
+        config_name: 'Default Graph Configuration',
+        graph_type: 'bar',
+        data_sources: selectedTables,
+        join_conditions: [],
+        aggregations: tableStructures.flatMap(table => 
+            table.columns
+                .filter(col => ['total', 'amount', 'count', 'number'].some(keyword => 
+                    col.toLowerCase().includes(keyword)
+                ))
+                .map(col => ({
+                    type: 'sum',
+                    column: col
+                }))
+        ),
+        filters: [],
+        group_by: tableStructures.flatMap(table => 
+            table.columns
+                .filter(col => ['category', 'type', 'name', 'status'].some(keyword => 
+                    col.toLowerCase().includes(keyword)
+                ))
+        ),
+        order_by: { field: '', direction: 'ASC' },
+        limit: 10,
+        settings: {
+            color: 'default',
+            label: 'Auto-generated Graph'
+        }
+    };
+}
 module.exports = router;

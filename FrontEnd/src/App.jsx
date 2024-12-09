@@ -61,6 +61,8 @@ import AddFormnonDept from "./Pages/AddFormnonDept";
 import EditFormNonDep from "./Pages/EditFormNonDep";
 import CreateReport from "./Pages/CreateReport";
 import ReportsList from "./Pages/ReportsList";
+import GraphConfigWizard from "./Pages/GraphConfigWizard";
+import SimpleDashboardWizard from "./Pages/DashboardSettings";
 function ScrollToTop() {
   const { pathname } = useLocation();
 
@@ -84,6 +86,7 @@ function App() {
             <Route path="/dashboard/*" element={<Layout />}>
             <Route index element={<ProtectedRoute element={DashBoard} />} />
             <Route path="settings/create-new-graph" element={<ProtectedRoute element={DashboardSettings} />} />
+            <Route path="settings/create-new-graph-ai" element={<ProtectedRoute element={GraphConfigWizard} />} />
               <Route path="club-activity" element={<ProtectedRoute element={Clubactivities} />} />
               <Route path="mail" element={<ProtectedRoute element={EmailNotification} />} />
               <Route path="guest-lecture" element={<ProtectedRoute element={Guestlecture} />}/>

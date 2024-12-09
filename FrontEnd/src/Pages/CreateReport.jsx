@@ -55,7 +55,7 @@ const AssignUser_Modal = ({ section, onClose, onAssign }) => {
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmailId(value);
-    setEmailError(!emailRegex.test(value)); // Validate email format
+    setEmailError(!emailRegex.test(value));
   };
 
   const handleAssign = () => {
@@ -226,12 +226,12 @@ const CreateReport = () => {
       <FormControlLabel
         control={
           <Checkbox
-            checked={selectedSections.researchWorks}
+            checked={selectedSections.ITdetails}
             onChange={handleCheckboxChange}
-            name="researchWorks"
+            name="ITdetails"
           />
         }
-        label="Research Works & Publications"
+        label="Department of IT"
       />
       <FormControlLabel
         control={
