@@ -15,9 +15,11 @@ import deadline from '../assets/deadline.png'
 import lock from '../assets/lock.png'
 import multilingual from '../assets/multilingual.png'
 import report from '../assets/report.png'
-import ai from '../assets/AI.png'
+import ai from '../assets/ai.png'
 import kpi from '../assets/kpi.png'
 import custom from '../assets/custom.png'
+import chat from '../assets/reportchat.png'
+import Pragya from '../assets/Pragya.png'
 import multilanguage from '../assets/multilanguage.jpg'
 import gdpr from '../assets/gdpr.png'
 import { motion } from 'framer-motion';
@@ -319,6 +321,14 @@ const UniqueFeatures = () => {
         <strong>AI-Powered Data Analysis:<br></br></strong> Advanced AI algorithms analyze tables and graphs to provide valuable insights.
       </p>
     </FeatureDescription>
+    <FeatureDescription variants={textVariants}
+            initial="hidden"
+            animate={isVisible ? 'visible' : 'hidden'}>
+      <FeatureImage src={chat} alt="ai Icon" variants={imageVariants} />
+      <p style={{width:"220px"}}>
+        <strong>Report Specific chat:<br></br></strong> Report specific chat is supported to provide feedback and corrections .
+      </p>
+    </FeatureDescription>
   </FeatureRow>
 </FeatureContainer>
 
@@ -327,6 +337,13 @@ const UniqueFeatures = () => {
           initial="hidden"
           animate={isVisible ? 'visible' : 'hidden'}>
           <FeatureHeading>Add Ons</FeatureHeading>
+
+          <FeatureDescription variants={textVariants}
+            initial="hidden"
+            animate={isVisible ? 'visible' : 'hidden'}>
+            <FeatureImage src={Pragya} width="20px" height="20px" alt="Excel Icon" variants={imageVariants} />
+            <p style={{width:"200px"}}><strong>PRAGYA Bot:<br></br></strong>  A personalized virtual assistant designed to enhance user interaction and streamline application usage.</p>
+          </FeatureDescription>
 
           <FeatureDescription variants={textVariants}
             initial="hidden"

@@ -39,7 +39,7 @@ const MenuIcon = styled.div`
 `;
 
 const LogoImage = styled.img`
-  width: 50px;
+  width: 70px;
   height: 70px;
 
   @media (max-width: 768px) {

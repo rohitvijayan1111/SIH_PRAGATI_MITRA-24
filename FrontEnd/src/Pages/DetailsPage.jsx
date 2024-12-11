@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import landing from '../assets/landing.png';
+import logo from '../assets/pragati.png';
 import ProblemSection from "./ProblemSection";
 import PainPointsSection from "./PainPointSection";
 import SolutionComponent from "./SolutionComponent";
@@ -64,10 +65,33 @@ const Navbar = styled.nav`
   z-index: 20;
 `;
 
+
+
 const NavLogo = styled.div`
-  font-size: 1.5em;
+  display: flex;
+  align-items: center;
+  font-size: 1.2em;
   font-weight: bold;
-  color: #ffda79;
+  color: white;
+
+  img {
+    width: 70px; 
+    height: 70px;
+    margin-right: 0.5rem;
+
+    @media (max-width: 768px) {
+      width: 50px; /* Adjust size for mobile */
+      height: 50px;
+    }
+  }
+
+  span {
+    font-size: 1.5em; /* Default size for desktop */
+
+    @media (max-width: 768px) {
+      font-size: 1.2em; /* Adjust size for mobile */
+    }
+  }
 `;
 
 // Mobile menu animations
@@ -372,7 +396,7 @@ const CTA = styled.div`
 
 
 const FooterWrapper = styled.footer`
-  background-color: #5b47ed;
+  background-color: #164863;
   color: white;
   padding: 40px 20px;
   text-align: center;
@@ -381,7 +405,6 @@ const FooterWrapper = styled.footer`
 
 
 
-// Right Section (Call to Action)
 const FooterRight = styled.div`
   text-align: center;
 
@@ -549,7 +572,10 @@ function DetailsPage() {
       <MenuButton onClick={toggleMenu}>
           {isMenuOpen ? '✖' : '☰'}
         </MenuButton>
-        <NavLogo>PRAGATI MITRA</NavLogo>
+        <NavLogo>
+      <img src={logo} alt="Logo" />
+      <span>PRAGATI MITRA</span>
+    </NavLogo>
         <NavLinks isOpen={isMenuOpen}>
           <a href="#home" onClick={() => scrollToSection('home')}>Home</a>
           <a href="#about" onClick={() => scrollToSection('about')}>Problem</a>
