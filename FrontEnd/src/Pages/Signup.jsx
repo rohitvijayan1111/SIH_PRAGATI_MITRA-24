@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './LoginPage.css';
-import logo from '../assets/Logo.png';
+import logo from '../assets/pragati.png';
+import backgroundImg from '../assets/pragati-bg.jpg';
 import axios from 'axios';
 import { ToastContainer, toast,Zoom} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 

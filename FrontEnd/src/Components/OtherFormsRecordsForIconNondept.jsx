@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ToastContainer, toast, Zoom } from 'react-toastify';
@@ -9,6 +8,7 @@ import dayjs from 'dayjs';
 import { BsPencilSquare, BsFillTrashFill } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 import { utils, writeFile } from 'xlsx';
+import styled from 'styled-components';
 import { getTokenData } from '../Pages/authUtils';
 
 const Container = styled.div`
@@ -116,7 +116,6 @@ const Input = styled.input`
   }
 `;
 
-
 function OtherFormsRecordForIconNondept() {
   const navigate = useNavigate();
   const [formId, setFormId] = useState(null);
@@ -152,6 +151,7 @@ function OtherFormsRecordForIconNondept() {
         setFormId(response.data.form_id);
         setFormTitle(response.data.form_title);
       } catch (error) {
+        console.error('Error fetching form ID:', error);
         notifyFailure(error.response?.data?.error || 'Error fetching form ID');
       }
     };
@@ -173,6 +173,8 @@ function OtherFormsRecordForIconNondept() {
         } catch (err) {
           notifyFailure(err.response?.data || 'Something went wrong');
           setData([]);
+          setAttributenames([]);
+          setAttributeTypes([]);
         }
       };
       fetchData();
@@ -205,6 +207,7 @@ function OtherFormsRecordForIconNondept() {
           Swal.fire("Deleted!", "Your record has been deleted.", "success");
         } catch (error) {
           notifyFailure(error.response.data);
+          Swal.fire('Error!', 'There was an error deleting the record', 'error');
         }
       }
     });
@@ -273,44 +276,52 @@ function OtherFormsRecordForIconNondept() {
         </div>
         <div className="col">
           <SearchButton onClick={handleSearch}>Search</SearchButton>
-          <Button onClick={resetSearch} style={{ marginLeft: '10px' }}>Reset</Button>
+          <Button onClick={resetSearch}>Reset</Button>
         </div>
+        {(role === 'hod' || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && (
+          <div className="col">
+            <Button onClick={handleAdd}>Add Records</Button>
+          </div>
+        )}
       </Row>
-      <TableResponsive>
-        <Table>
-          <thead>
-            <tr>
-              {attributenames.map((name, index) => (
-                <th key={index}>{formatColumnName(name)}</th>
-              ))}
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((item, rowIndex) => (
-              <tr key={rowIndex}>
-                {attributenames.map((name, colIndex) => (
-                  <td key={colIndex}>
-                    {attributeTypes[name] === 'date' ? formatDate(item[name]) : item[name]}
-                  </td>
+
+      {data && (
+        <TableResponsive>
+          <Table>
+            <thead>
+              <tr>
+                {(role === "hod" || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && <th>Action</th>}
+                {attributenames.filter(name => name !== 'id').map((name, index) => (
+                  <th key={index}>{formatColumnName(name)}</th>
                 ))}
-                <td>
-                  <div>
-                    <BsPencilSquare
-                      className="edit-icon"
-                      onClick={() => handleEdit(attributenames, item)}
-                    />
-                    <BsFillTrashFill
-                      className="delete-icon"
-                      onClick={() => handleDelete(item.id)}
-                    />
-                  </div>
-                </td>
               </tr>
-            ))}
-          </tbody>
-        </Table>
-      </TableResponsive>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr key={index}>
+                  {(role === "hod" || role === "Form editor" || role === "Finance Coordinator" || role === "Infrastructure Coordinator") && (
+                    <td>
+                      <IconContext.Provider value={{ className: 'react-icons' }}>
+                        <BsPencilSquare onClick={() => handleEdit(attributenames, item)} className="edit-icon" />
+                        <BsFillTrashFill onClick={() => handleDelete(item.id)} className="delete-icon" />
+                      </IconContext.Provider>
+                    </td>
+                  )}
+                  {attributenames.filter(name => name !== 'id').map((name, attrIndex) => (
+                    <td key={attrIndex}>
+                      {attributeTypes[name] === "date" ? formatDate(item[name]) :
+                        attributeTypes[name] === "file" ? (
+                          <a href={`http://localhost:3000/${item.document}`} target="_blank" rel="noopener noreferrer">View</a>
+                        ) : item[name]
+                      }
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </TableResponsive>
+      )}
       <ToastContainer />
     </Container>
   );
