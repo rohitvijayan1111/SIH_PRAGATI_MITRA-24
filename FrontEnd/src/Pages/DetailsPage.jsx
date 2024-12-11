@@ -586,7 +586,7 @@ function DetailsPage() {
           <a href="#ayush" onClick={() => scrollToSection('ayush')}>Ministry of AYUSH</a>
           <a href="#contact" onClick={() => scrollToSection('contact')}>Contact Us</a>
         </NavLinks>
-        <LoginButton onClick={handleLoginClick}>Login</LoginButton>
+        {/* <LoginButton onClick={handleLoginClick}>Login</LoginButton> */}
         {/* <GoogleTranslate/> */}
       </Navbar>
 
